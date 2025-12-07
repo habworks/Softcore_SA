@@ -1,0 +1,49 @@
+###############################################################################
+# Vivado 2024.2 Generated Files and Folders
+###############################################################################
+*.runs/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.sim/
+*.Xil/
+*.gen/
+*.jou
+*.log
+
+# Vivado project autosaves and locks
+*.xpr.lock
+*.str
+*.xml.tmp
+
+# Vivado implementation & synthesis intermediate results
+**/projnav.tmp/
+**/.Xil/
+**/*.pb
+**/*.rpx
+**/*.wdb
+**/*.pbt
+**/*.ltx
+**/*.bxml
+
+# Block Design output products
+**/bd/*/hdl/
+**/bd/*/ip/
+**/bd/*/ipshared/
+**/bd/*/.cache/
+**/bd/*/synth/
+
+# Vivado exported hardware
+*.xsa
+
+# Bitstreams and programming files
+*.bit
+*.bin
+*.mmi
+
+###############################################################################
+# Vitis 2024.2 Workspace Generated Files and Folders
+###############################################################################
+# Eclipse-style metadata (still used in 2024.2)
+.metadata/
+.sdk/

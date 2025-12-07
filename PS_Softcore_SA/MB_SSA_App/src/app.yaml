@@ -1,0 +1,4 @@
+domain_path: C:\IMR_Projects\IMR\Softcore_SA\PS_Softcore_SA\MB_SSA_Platform\export\MB_SSA_Platform\sw\standalone_microblaze_0
+app_src_dir: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\lib\sw_apps\empty_application
+template: empty_application
+lang: c
