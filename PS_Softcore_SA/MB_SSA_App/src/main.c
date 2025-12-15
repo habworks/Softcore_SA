@@ -40,6 +40,8 @@
 #include "AXI_Timer_PWM_Support.h"
 #include "AXI_UART_Lite_Support.h"
 #include "AXI_IRQ_Controller_Support.h"
+#include "AXI_IMR_ADC_7476A_DUAL.h"
+#include "AXI_IMR_PL_Revision.h"
 
 
 // DISPLAY SUPPORT
@@ -86,9 +88,12 @@ static void sleep_10us(uint32_t WaitTime);
 static void sleep_ms(uint32_t WaitTime);
 void displayChipSelect(Type_Display_CS Status);
 
-
 // IRQ CONTROLLER SUPPORT
 XIntc AXI_IRQ_ControllerHandle;
+
+// IMR ADC7676A_X2 SUPPORT
+Type_AXI_IMR_7476A_Handle AXI_IMR_7476A_Handle;
+#define ADC_SAMPLE_SIZE 3
 
 
 
@@ -169,6 +174,24 @@ void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData)
 }
 
 
+// ISR Callback function for Custom ADC IP
+uint16_t ADC_BufferDataA[ADC_SAMPLE_SIZE];
+uint16_t ADC_BufferDataB[ADC_SAMPLE_SIZE];
+void ADC_IP_Callback_ISR(void *CallbackRef)
+{
+    Type_AXI_IMR_7476A_Handle *IP_Handle = (Type_AXI_IMR_7476A_Handle *)CallbackRef;
+    IMR_ADC_7476A_X2_ClrIrq(IP_Handle);
+}
+
+bool ADC_ConversionCompleteFlag = false;
+void ADC_GPIO_ConversionComplete_ISR(void *CallbackRef)
+{
+    XGpio *IP_Handle = (XGpio *)CallbackRef;
+    ADC_ConversionCompleteFlag = true;
+    XGpio_DiscreteClear(IP_Handle, GPIO_OUTPUT_CHANNEL, 0x20);
+}
+
+
 
 
 
@@ -179,8 +202,6 @@ int main()
 {
     int AXI_Status;
     bool Status;
-
-    // Xil_SetMBFrequency(83333333); 
 
     // Init AXI UART
     Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TxCallback_ISR, UART_RxCallback_ISR);
@@ -222,6 +243,10 @@ int main()
         while(1);
 #endif
 
+    // Init AXI IMR ADC IP
+    // init_IMR_ADC_7476A_X2(&AXI_IMR_7476A_Handle, XPAR_IMR_ADC_7476A_X2_0_BASEADDR ,IMR_ADC_CLOCK_DIVIDER);
+    // init_IMR_ADC_7476A_X2(&AXI_IMR_7476A_Handle, XPAR_IMR_ADC_7476A_X2_0_BASEADDR ,IMR_ADC_CLOCK_DIVIDER);
+
     // Init AXI IRQ Controller (4x Steps)
     // Step 1 of 4 IRQ Controller setup: Init or IRQ Controller
     Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, 0);
@@ -233,6 +258,14 @@ int main()
         while(1);
     // Step 2B of 4 IRQ Controller setup: AXI URT Lite
     Status = connectPeripheral_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_UARTLITE_0_INTR, XUartLite_InterruptHandler, &AXI_UART_Handle);
+    if (Status == false)
+        while(1);
+    // Step 2C of 4 IRQ Controller setup: ADC IP
+    // Status = connectPeripheral_IRQ(&AXI_IRQ_ControllerHandle, ADC_7476A_X2_FABRIC_ID, ADC_IP_Callback_ISR, &AXI_IMR_7476A_Handle);
+    // if (Status == false)
+    //     while(1);
+     // Step 2D of 4 IRQ Controller setup: 
+    Status = connectPeripheral_IRQ(&AXI_IRQ_ControllerHandle, 0, ADC_GPIO_ConversionComplete_ISR, &AXI_GPIO_Handle);
     if (Status == false)
         while(1);
     // Step 3 of 4 IRQ Controller setup: Enable IRQs
@@ -279,11 +312,13 @@ int main()
 #endif
 
     // Setup complete - Read to start processing
+    Type_PL_Revision PL_Revision = IMR_PL_RevisionGet(XPAR_IMR_PL_REVISION_0_BASEADDR);
     uint32_t PL_Ver = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
     PL_Ver = (PL_Ver >> 7) & 0x0F;
     xil_printf("\r\n\n\nHello Hab I am ready\r\n");
-    xil_printf("PS Ver 1.12\r\n");
-    xil_printf("PL Ver %d\r\n", PL_Ver);
+    xil_printf("PS REV 01.00.12\r\n");
+    xil_printf("PL REV: %02d.%02d.%02d\r\n", PL_Revision.Major, PL_Revision.Minor, PL_Revision.Test);
+    xil_printf("PL Ver %d\r\n\n", PL_Ver);
     
 
     u32 SwitchState;
@@ -367,33 +402,54 @@ int main()
                 //     displayTrasmitReceive(&AXI_SPI_DisplayHandle, DISPLAY_CSN, &TxByte, NULL, 1);
                 // }
                 // displayChipSelect(CS_DISABLE);
-                
-
                 drawSpectrumMock(&Display_SSD1309);
                 xil_printf("End display test\r\n");
-
             }
             // Push Button 3
             if (SwitchState & 0x10)
             {
-                xil_printf("Start Delay Timer Test\r\n");
-                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
-                sleep_ms(5);
-                XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
-                sleep_ms(5);
-                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);  
-                sleep_ms(5);
+                // xil_printf("Start Delay Timer Test\r\n");
+                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
+                // sleep_ms(5);
+                // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
+                // sleep_ms(5);
+                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);  
+                // sleep_ms(5);
 
-                XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
-                sleep_10us(5);
-                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);  
-                sleep_ms(5);
-                XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
-                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);  
+                // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
+                // sleep_10us(5);
+                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);  
+                // sleep_ms(5);
+                // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);
+                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x01);  
 
-                displayTest_2();
+                // displayTest_2();
+                // xil_printf("Timer Delay Test Complete\r\n");
 
-                xil_printf("Timer Delay Test Complete\r\n");
+                xil_printf("***Single ADC conversion Trigger\r\n");
+                IMR_ADC_7476A_X2_SingleConvert(&AXI_IMR_7476A_Handle, ADC_BufferDataA, ADC_BufferDataB);
+                // Wait for IRQ to occur - Data A and B are loaded by the ISR
+                usleep(200);
+                // Print Data A and B and registers
+                xil_printf("Data A: %d\r\n", AXI_IMR_7476A_Handle.ADC_Data_A[0]);
+                xil_printf("Data B: %d\r\n", AXI_IMR_7476A_Handle.ADC_Data_B[0]);
+                xil_printf("Control Register: 0x%08lx\r\n", IMR_ADC_7476A_X2_GetCtrlReg(&AXI_IMR_7476A_Handle));
+                xil_printf("Status Register: 0x%08lx\r\n", IMR_ADC_7476A_X2_GetStatusReg(&AXI_IMR_7476A_Handle));
+                xil_printf("Interrupt Register: 0x%08lx\r\n\n", IMR_ADC_7476A_X2_GetIrqReg(&AXI_IMR_7476A_Handle));
+
+                xil_printf("***Multi ADC conversion Triggers\r\n");
+                IMR_ADC_7476A_X2_MultiConvert(&AXI_IMR_7476A_Handle, ADC_BufferDataA, ADC_BufferDataB, ADC_SAMPLE_SIZE);
+                // Step 3: Wait for IRQ to occur - Data A and B are loaded by the ISR
+                msleep(10);
+                xil_printf("Control Register: 0x%08lx\r\n", IMR_ADC_7476A_X2_GetCtrlReg(&AXI_IMR_7476A_Handle));
+                xil_printf("Status Register: 0x%08lx\r\n", IMR_ADC_7476A_X2_GetStatusReg(&AXI_IMR_7476A_Handle));
+                xil_printf("Interrupt Register: 0x%08lx\r\n", IMR_ADC_7476A_X2_GetIrqReg(&AXI_IMR_7476A_Handle));
+                for (uint8_t Count = 0; Count < AXI_IMR_7476A_Handle.TotalConversions; Count++)
+                {
+                    xil_printf("Interrupt DataA[%d]: %d\r\n", Count, AXI_IMR_7476A_Handle.ADC_Data_A[Count]);
+                    xil_printf("Interrupt DataB[%d]: %d\r\n", Count, AXI_IMR_7476A_Handle.ADC_Data_B[Count]);
+                }
+                xil_printf("\r\n");
             }
             // Update switch state for chage
             PreviousSwitchState = SwitchState;

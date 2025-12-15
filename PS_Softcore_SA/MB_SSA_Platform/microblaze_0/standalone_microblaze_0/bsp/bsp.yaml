@@ -151,6 +151,7 @@ include_folder: include
 lib_folder: lib
 libsrc_folder: libsrc
 drv_info:
+  IMR_PL_Revision_0: None
   axi_gpio_0:
     driver: gpio
     ip_name: axi_gpio

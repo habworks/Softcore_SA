@@ -28,6 +28,8 @@ set_property IOSTANDARD LVCMOS33 [get_ports {PB_2}]
 # TEST 3 (PUSH BTN3 on B8)
 set_property PACKAGE_PIN B8 [get_ports {PB_3}]
 set_property IOSTANDARD LVCMOS33 [get_ports {PB_3}]
+# Remove no_input_delay warnings - these inputs not tied to clock
+set_false_path -from [get_ports PB_*]
 
 
 # TIMER OUTPUTS x2
@@ -72,6 +74,27 @@ set_property PACKAGE_PIN H2 [get_ports {DISPLAY_MISO}]
 set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_MISO}]
 
 
+# ADC DUAL 7476A
+# ADC_SCLK PIN (JC4 on V11)
+set_property PACKAGE_PIN V11 [get_ports {ADC_SCLK}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_SCLK}]
+# ADC_CS_n PIN (JC1 on U12)
+set_property PACKAGE_PIN U12 [get_ports {ADC_CS_n}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_CS_n}]
+# ADC_MISO_A PIN (JC2 on V12)
+set_property PACKAGE_PIN V12 [get_ports {ADC_MISO_A}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_MISO_A}]
+# ADC_MISO_B PIN (JC3 on V10)
+set_property PACKAGE_PIN V10 [get_ports {ADC_MISO_B}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_MISO_B}]
+# ADC_IP_IRQ PIN (JC7 on U14)
+set_property PACKAGE_PIN U14 [get_ports {ADC_IP_IRQ}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_IP_IRQ}]
+# ADC_IRQ_DONE PIN (JC8 on V14)
+set_property PACKAGE_PIN V14 [get_ports {ADC_IRQ_DONE}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_IRQ_DONE}]
+
+
 #TEST SIGNALS
 #NOT USED(JA3)
 set_property PACKAGE_PIN A11 [get_ports {gpio2_io_o_0[5]}]
@@ -79,3 +102,18 @@ set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[5]}]
 #DISPLAY_CSn (JA4)
 set_property PACKAGE_PIN D12 [get_ports {DISPLAY_CSn[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_CSn[0]}]
+
+
+# TEST LEDS
+# DDR3 CALIBRATION COMPLETE ACTIVE HIGH (LED_4 on H5)
+set_property PACKAGE_PIN H5 [get_ports {LED_4}]
+set_property IOSTANDARD LVCMOS33 [get_ports {LED_4}]
+# GENERIC LED USE (LED_5 on J5)
+set_property PACKAGE_PIN J5 [get_ports {gpio_io_o_0[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[0]}]
+# GENERIC LED USE (LED_6 on T9)
+set_property PACKAGE_PIN T9 [get_ports {gpio_io_o_0[1]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[1]}]
+# GENERIC LED USE (LED_7 on T10)
+set_property PACKAGE_PIN T10 [get_ports {gpio_io_o_0[2]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[2]}]

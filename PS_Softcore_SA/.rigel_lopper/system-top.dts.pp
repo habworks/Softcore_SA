@@ -13,7 +13,7 @@
   microblaze_0: cpu@0 {
    xlnx,reset-msr-dce = <0>;
    model = "microblaze,11.0";
-   xlnx,addr-tag-bits = <14>;
+   xlnx,addr-tag-bits = <2>;
    xlnx,d-axi = <1>;
    xlnx,interrupt-mon = <0>;
    xlnx,iaddr-size = <32>;
@@ -25,7 +25,7 @@
    xlnx,optimization = <0>;
    xlnx,ip-axi-mon = <0>;
    xlnx,ip-name = "microblaze";
-   d-cache-highaddr = <0x8fffffff>;
+   d-cache-highaddr = <0x44a0ffff>;
    xlnx,dcache-force-tag-lutram = <0>;
    xlnx,pc-width = <32>;
    xlnx,interrupt-is-edge = <0>;
@@ -44,7 +44,7 @@
    xlnx,debug-trace-async-reset = <0>;
    xlnx,trace = <0>;
    xlnx,part = "xc7a100tcsg324-1";
-   i-cache-baseaddr = <0x80000000>;
+   i-cache-baseaddr = <0x44a00000>;
    xlnx,use-config-reset = <0>;
    xlnx,pvr = <0>;
    xlnx,i-lmb-mon = <0>;
@@ -86,7 +86,7 @@
    xlnx,opcode-0x0-illegal = <0>;
    xlnx,icache-line-len = <4>;
    xlnx,ecc-use-ce-exception = <0>;
-   xlnx,base-vectors = <0x0>;
+   xlnx,base-vectors = <0x80000000>;
    xlnx,edk-special = "microblaze";
    xlnx,use-dcache = <1>;
    xlnx,use-barrel = <1>;
@@ -95,7 +95,7 @@
    xlnx,debug-external-trace = <0>;
    xlnx,addr-size = <32>;
    xlnx,piaddr-size = <32>;
-   i-cache-highaddr = <0x8fffffff>;
+   i-cache-highaddr = <0x44a0ffff>;
    xlnx,num-sync-ff-clk-debug = <2>;
    xlnx,debug-event-counters = <5>;
    xlnx,fpu-exception = <0>;
@@ -123,9 +123,9 @@
    xlnx,memory-ip-list = "microblaze_0_local_memory_ilmb_bram_if_cntlr_memory" , "microblaze_0_local_memory_dlmb_bram_if_cntlr_memory" , "mig_7series_0_memory" , "mig_7series_0_memory";
    xlnx,async-wakeup = <3>;
    xlnx,use-non-secure = <0>;
-   xlnx,dcache-addr-tag = <15>;
+   xlnx,dcache-addr-tag = <3>;
    xlnx,number-of-rd-addr-brk = <0>;
-   d-cache-baseaddr = <0x80000000>;
+   d-cache-baseaddr = <0x44a00000>;
    xlnx,area-optimized = <1>;
    xlnx,avoid-primitives = <0>;
    xlnx,lockstep-slave = <0>;
@@ -222,12 +222,26 @@
    xlnx,async-intr = <0xfffffff3>;
    xlnx,name = "axi_intc_0";
   };
+  IMR_PL_Revision_0: IMR_PL_Revision@44a00000 {
+   compatible = "xlnx,IMR-PL-Revision-1.0";
+   xlnx,revision-test = <12>;
+   xlnx,revision-major = <10>;
+   xlnx,s00-axi-data-width = <32>;
+   xlnx,rable = <0>;
+   xlnx,ip-name = "IMR_PL_Revision";
+   reg = <0x44a00000 0x10000>;
+   xlnx,edk-iptype = "PERIPHERAL";
+   status = "okay";
+   xlnx,s00-axi-addr-width = <4>;
+   xlnx,name = "IMR_PL_Revision_0";
+   xlnx,revision-minor = <11>;
+  };
   axi_gpio_0: gpio@40000000 {
    xlnx,gpio-board-interface = "Custom";
    compatible = "xlnx,axi-gpio-2.0" , "xlnx,xps-gpio-1.00.a";
    xlnx,all-outputs = <0>;
    #gpio-cells = <2>;
-   xlnx,gpio-width = <7>;
+   xlnx,gpio-width = <11>;
    clock-frequency = <100000000>;
    xlnx,rable = <0>;
    xlnx,dout-default = <0x0>;
@@ -250,7 +264,7 @@
    xlnx,name = "axi_gpio_0";
    xlnx,all-inputs = <1>;
   };
-  axi_quad_spi_0: axi_quad_spi@44a00000 {
+  axi_quad_spi_0: axi_quad_spi@44a10000 {
    xlnx,select-xpm = <0>;
    compatible = "xlnx,axi-quad-spi-3.2" , "xlnx,xps-spi-2.00.a";
    xlnx,lsb-stup = <0>;
@@ -271,7 +285,7 @@
    xlnx,shared-startup = <0>;
    xlnx,ip-name = "axi_quad_spi";
    xlnx,qspi-board-interface = "Custom";
-   reg = <0x44a00000 0x10000>;
+   reg = <0x44a10000 0x10000>;
    xlnx,dual-quad-mode = <0>;
    xlnx,new-seq-en = <1>;
    bits-per-word = <8>;
@@ -447,7 +461,8 @@
          <0x40600000 &axi_uartlite_0 0x40600000 0x10000>,
          <0x41200000 &axi_intc_0 0x41200000 0x10000>,
          <0x41c00000 &axi_timer_0 0x41c00000 0x10000>,
-         <0x44a00000 &axi_quad_spi_0 0x44a00000 0x10000>;
+         <0x44a00000 &IMR_PL_Revision_0 0x44a00000 0x10000>,
+         <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>;
   #ranges-address-cells = <0x1>;
   #ranges-size-cells = <0x1>;
  };

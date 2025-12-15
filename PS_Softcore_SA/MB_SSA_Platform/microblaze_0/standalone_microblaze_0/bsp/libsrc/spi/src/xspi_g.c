@@ -4,7 +4,7 @@ XSpi_Config XSpi_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 
 	{
 		"xlnx,axi-quad-spi-3.2", /* compatible */
-		0x44a00000, /* reg */
+		0x44a10000, /* reg */
 		0x1, /* xlnx,hasfifos */
 		0x0, /* xlnx,slaveonly */
 		0x1, /* xlnx,num-ss-bits */

@@ -19,7 +19,7 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x2000,  /* d-cache-size */
 		0x10,  /* i-cache-line-size */
 		0x4000,  /* i-cache-size */
-		0xe,  /* xlnx,addr-tag-bits */
+		0x2,  /* xlnx,addr-tag-bits */
 		0x1,  /* xlnx,allow-dcache-wr */
 		0x1,  /* xlnx,allow-icache-wr */
 		0x1,  /* xlnx,area-optimized */
@@ -30,7 +30,7 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x1,  /* xlnx,i-lmb */
 		 0,  /* xlnx,i-opb */
 		 0,  /* xlnx,i-plb */
-		0xf,  /* xlnx,dcache-addr-tag */
+		0x3,  /* xlnx,dcache-addr-tag */
 		0x2000,  /* xlnx,dcache-byte-size */
 		0x4,  /* xlnx,dcache-line-len */
 		 0,  /* xlnx,dcache-use-fsl */
@@ -72,13 +72,13 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x1,  /* xlnx,use-interrupt */
 		0x0,  /* xlnx,use-mmu */
 		0x1,  /* xlnx,use-pcmp-instr */
-		0x80000000,  /* d-cache-baseaddr */
-		0x8fffffff,  /* d-cache-highaddr */
-		0x80000000,  /* i-cache-baseaddr */
-		0x8fffffff,  /* i-cache-highaddr */
+		0x44a00000,  /* d-cache-baseaddr */
+		0x44a0ffff,  /* d-cache-highaddr */
+		0x44a00000,  /* i-cache-baseaddr */
+		0x44a0ffff,  /* i-cache-highaddr */
 		 0,  /* microblaze_ddr_reserve_sa */
 		 0,  /* microblaze_ddr_reserve_ea */
 		0x0,  /* reg */
-		0x0  /* xlnx,base-vectors */
+		0x80000000  /* xlnx,base-vectors */
 	}
 };

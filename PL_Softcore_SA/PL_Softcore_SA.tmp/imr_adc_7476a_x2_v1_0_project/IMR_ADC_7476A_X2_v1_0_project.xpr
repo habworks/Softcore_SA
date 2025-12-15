@@ -7,7 +7,7 @@
 <Project Product="Vivado" Version="7" Minor="68" Path="c:/imr_projects/imr/softcore_sa/pl_softcore_sa/pl_softcore_sa.tmp/imr_adc_7476a_x2_v1_0_project/IMR_ADC_7476A_X2_v1_0_project.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
-    <Option Name="Id" Val="40a78ff29ceb4233b9437b90093c7c3f"/>
+    <Option Name="Id" Val="3f470dae7bd046bdb3950f8830d02985"/>
     <Option Name="Part" Val="xc7a100tcsg324-1"/>
     <Option Name="CompiledLibDir" Val="$PCACHEDIR/compile_simlib"/>
     <Option Name="CompiledLibDirXSim" Val=""/>
@@ -49,6 +49,7 @@
     <Option Name="DefaultLib" Val="xil_defaultlib"/>
     <Option Name="ProjectType" Val="Default"/>
     <Option Name="IPRepoPath" Val="$PPRDIR/../../../../../../IMR_Projects/IMR/FPGA_RTL_IP"/>
+    <Option Name="IPRepoPath" Val="$PPRDIR/../../../../../../IMR_Projects/IMR/Acquire_FPGA/Vivado_Workspace/ip_repo"/>
     <Option Name="IPOutputRepo" Val="$PCACHEDIR/ip"/>
     <Option Name="IPDefaultOutputPath" Val="$PGENDIR/sources_1"/>
     <Option Name="IPCachePermission" Val="read"/>
@@ -110,7 +111,7 @@
       </File>
       <File Path="$PPRDIR/../../../../../../IMR_Projects/IMR/FPGA_RTL_IP/IMR_ADC_7476A_X2_1_0/hdl/IMR_ADC_7476A_X2_Core.sv">
         <FileInfo>
-          <Attr Name="Library" Val="xil_defaultlib"/>
+          <Attr Name="Library" Val=""/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="ipstatic"/>
@@ -131,7 +132,7 @@
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="IMR_ADC_7476A_X2"/>
-        <Option Name="TopRTLFile" Val="$PPRDIR/../../../../../../IMR_Projects/IMR/FPGA_RTL_IP/IMR_ADC_7476A_X2_1_0/hdl/IMR_ADC_7476A_X2_Core.sv"/>
+        <Option Name="TopRTLFile" Val="$PPRDIR/../../../../../../IMR_Projects/IMR/FPGA_RTL_IP/IMR_ADC_7476A_X2_1_0/hdl/IMR_ADC_7476A_X2.v"/>
       </Config>
     </FileSet>
     <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1" RelGenDir="$PGENDIR/constrs_1">
@@ -701,6 +702,20 @@
     <MsgAttr Name="RuleSource" Val="-1"/>
     <MsgAttr Name="StringIsRegExp" Val="0"/>
     <MsgAttr Name="RuleId" Val="40"/>
+    <MsgAttr Name="Note" Val=""/>
+    <MsgAttr Name="Author" Val=""/>
+    <MsgAttr Name="CreatedTimestamp" Val=""/>
+  </MsgRule>
+  <MsgRule>
+    <MsgAttr Name="RuleType" Val="0"/>
+    <MsgAttr Name="Limit" Val="-1"/>
+    <MsgAttr Name="NewSeverity" Val="ANY"/>
+    <MsgAttr Name="Id" Val="17-179"/>
+    <MsgAttr Name="Severity" Val="ANY"/>
+    <MsgAttr Name="ShowRule" Val="0"/>
+    <MsgAttr Name="RuleSource" Val="-1"/>
+    <MsgAttr Name="StringIsRegExp" Val="0"/>
+    <MsgAttr Name="RuleId" Val="41"/>
     <MsgAttr Name="Note" Val=""/>
     <MsgAttr Name="Author" Val=""/>
     <MsgAttr Name="CreatedTimestamp" Val=""/>
