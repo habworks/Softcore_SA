@@ -151,7 +151,6 @@ include_folder: include
 lib_folder: lib
 libsrc_folder: libsrc
 drv_info:
-  IMR_PL_Revision_0: None
   axi_gpio_0:
     driver: gpio
     ip_name: axi_gpio
@@ -161,6 +160,10 @@ drv_info:
     ip_name: axi_intc
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\intc_v3_19
   axi_quad_spi_0:
+    driver: spi
+    ip_name: axi_quad_spi
+    path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\spi_v4_13
+  axi_quad_spi_1:
     driver: spi
     ip_name: axi_quad_spi
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\spi_v4_13

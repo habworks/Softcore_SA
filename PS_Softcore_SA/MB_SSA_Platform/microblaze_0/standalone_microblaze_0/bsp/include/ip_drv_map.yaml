@@ -1,6 +1,3 @@
-IMR_PL_Revision_0:
-- IMR_PL_Revision
-- None
 axi_gpio_0:
 - axi_gpio
 - gpio
@@ -8,6 +5,9 @@ axi_intc_0:
 - axi_intc
 - intc
 axi_quad_spi_0:
+- axi_quad_spi
+- spi
+axi_quad_spi_1:
 - axi_quad_spi
 - spi
 axi_timer_0:

@@ -21,7 +21,9 @@
  *                    IMR Engineering
  *                    IMR Engineering
  *
- *                  The display library can be found here: https://github.com/viktor-nikolov/MicroBlaze-DDR3-tutorial
+ *                  The display library can be found here: https://github.com/olikraus/u8g2
+ *                  Some setup help - very minor mostly for hobbist not so much for custom: https://github.com/olikraus/u8g2/wiki/setup_tutorial
+ *                  The supported display setups can be found here: ...\src\U8G2\csrc\  (There are several u8g2_Setup_ssd1309_128x64_noname* - try to you find one that works )
  *                  You must add the U8G2\csrc and all of the assoicated files to your project
  *                  This implementation worked for this particual SSD1309 2.42" OLED display - another SSD1309 maybe different
  *                  I purchased the display from Amazon here: https://www.amazon.com/dp/B0CFF2QW5V?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1&th=1

@@ -36,7 +36,7 @@ set_false_path -from [get_ports PB_*]
 # TIMER 0 output PIN (TIM0 on JA1 G13)
 set_property PACKAGE_PIN G13 [get_ports {gpio2_io_o_0[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[0]}]
-# TIMER 1 output PIN (TIM0 on JA2 B11)
+# TIMER 1 output PIN (TIM1 on JA2 B11)
 set_property PACKAGE_PIN B11 [get_ports {gpio2_io_o_0[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[1]}]
 
@@ -95,12 +95,36 @@ set_property PACKAGE_PIN V14 [get_ports {ADC_IRQ_DONE}]
 set_property IOSTANDARD LVCMOS33 [get_ports {ADC_IRQ_DONE}]
 
 
+#MICRO-SD
+#CS OUPTUT PIN (JB1 E15)
+set_property PACKAGE_PIN E15 [get_ports {USD_CSn[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {USD_CSn[0]}]
+#MOSI OUPTUT PIN (JB2 E16)
+set_property PACKAGE_PIN E16 [get_ports {USD_MOSI}]
+set_property IOSTANDARD LVCMOS33 [get_ports {USD_MOSI}]
+#MISO INPUT PIN (JB3 D15)
+set_property PACKAGE_PIN D15 [get_ports {USD_MISO}]
+set_property IOSTANDARD LVCMOS33 [get_ports {USD_MISO}]
+#SCLK OUTPUT PIN (JB4 C15)
+set_property PACKAGE_PIN C15 [get_ports {USD_SCLK}]
+set_property IOSTANDARD LVCMOS33 [get_ports {USD_SCLK}]
+# CARD DETECT (JB9 on K15)
+set_property PACKAGE_PIN K15 [get_ports {USD_CD}]
+set_property IOSTANDARD LVCMOS33 [get_ports {USD_CD}]
+
+
 #TEST SIGNALS
-#NOT USED(JA3)
-set_property PACKAGE_PIN A11 [get_ports {gpio2_io_o_0[5]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[5]}]
+# MB RESET (JA3 ON A11)
+set_property PACKAGE_PIN A11 [get_ports {MB_RST}]
+set_property IOSTANDARD LVCMOS33 [get_ports {MB_RST}]
 #DISPLAY_CSn (JA4)
-set_property PACKAGE_PIN D12 [get_ports {DISPLAY_CSn[0]}]
+set_property PACKAGE_PIN D12 [get_ports {MB_CLK}]
+set_property IOSTANDARD LVCMOS33 [get_ports {MB_CLK}]
+#NOT USED(JA7 ON D13)
+set_property PACKAGE_PIN D13 [get_ports {gpio2_io_o_0[5]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[5]}]
+#DISPLAY_CSn (JA8 ON B18)
+set_property PACKAGE_PIN B18 [get_ports {DISPLAY_CSn[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_CSn[0]}]
 
 

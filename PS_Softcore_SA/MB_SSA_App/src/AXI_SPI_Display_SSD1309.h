@@ -69,7 +69,7 @@ typedef struct
 {
     XSpi                            *SPI_Handle;            // SPI handle used with display
     uint8_t                         ChipSelectBitMask;      // Chip select associated with the display and SPI handle
-    uint16_t                        FIFO_BufferDepth;        // Depth of FIFO Buffer
+    uint16_t                        FIFO_BufferDepth;       // Depth of FIFO Buffer
     displayResetRunFunctionPtr      displayResetRun;        // Funtion pointer to set reset or run
     displayCommandDataFunctionPtr   displayCommandData;     // Function pointer to set Command or Data
     displayTxRxFunctionPtr          displayTxRx;            // Function pointer SPI based Transmit and receive

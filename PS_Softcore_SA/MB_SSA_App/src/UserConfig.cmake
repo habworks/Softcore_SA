@@ -26,6 +26,7 @@ set(USER_UNDEFINED_SYMBOLS
 
 set(USER_INCLUDE_DIRECTORIES
 "U8G2/csrc"
+"FAT_FS"
 )
 set(USER_COMPILE_SOURCES
 "AXI_IMR_ADC_7476A_DUAL.c"
@@ -34,6 +35,10 @@ set(USER_COMPILE_SOURCES
 "AXI_SPI_Display_SSD1309.c"
 "AXI_Timer_PWM_Support.c"
 "AXI_UART_Lite_Support.c"
+"FAT_FS/diskio.c"
+"FAT_FS/ff.c"
+"FAT_FS/ffsystem.c"
+"FAT_FS/ffunicode.c"
 "main.c"
 "U8G2/csrc/mui.c"
 "U8G2/csrc/mui_u8g2.c"
@@ -164,6 +169,8 @@ set(USER_COMPILE_SOURCES
 "U8G2/csrc/u8x8_string.c"
 "U8G2/csrc/u8x8_u16toa.c"
 "U8G2/csrc/u8x8_u8toa.c"
+"Main_Test.c"
+"Main_Support.c"
 )
 
 # -----------------------------------------
