@@ -1,43 +1,70 @@
-/****************************************************************************************************
-*Program to demonstrate the use of the various components of the Softcore SS Project
-*Description: 
-*GPIO ACTION:
-*There are a varity of GPIO input and outputs. for various forms of control or status updates.  No GPIOs are used 
-*serve as input interupts in this case
-*
-*PERIODIC TIMER ACTION:
-*There are 1 AXI Timer IP Block within this design.  axi_timer_0 is configured for Timer.
-*axi_timer_0 is configured for periodic timer and both timers are used. 
-*Timer number 0 is set for an ISR IRQ every 300ms.  Timer number 1 is set for an ISR IRQ every 120ms.
-*With a periodic timer, both timer numbers share the same ISR.  There are two switches in use SW0 and SW1.
-*
-*UART LITE ACTION: 
-*The UART is configure in IRQ mode, but even in IRQ mode it can be used in polling via
-*the function xil_printf - xil_printf is tied to this UART via the Platform settings >> Board Support Package >> standalone >> standalone stdin and stdout
-*The two callback functions for the UART in IRQ mode are UART_RxCallback_ISR and UART_TxCallback_ISR. 
-*When UART receives input the RX ISR will echo the input to the UART Tx - So if using console what you
-*type you will see. 
-*
-*QUAD SPI 0 ACTION:
-*This Quad SPI is in the interface of the graphics display.  It is a monochrome display 128x64 piexels.
-*The display uses the U8G2 library and is intervaced via SPI - The chip select of the display is driven by GPIO and not AXI QSPI
-*The display forms the primary UI output 
-*
-*QUAD SPI 1 ACTION:
-*This Quad SPI is used in the interface of a uSD FLASH.  Elm Chan FAT FS is used as the library for file system managment
-*The uSD main purpuse to is for file retrival but both file reads and writes are tested here
-*
-*INTERRUPT CONTROLLER ACTION:
-*Several PL actions generate interruts.  The Timer, UART, etc. The interrupt controller feeds the various IRQs to the MicroBlaze
-*
-*UI INPUTS
-*SW0 on: Periodic Timer Number 0 is enabled \ disable
-*SW0 off: Periodic Timer Number 0 is enable \ disable
-*PB_0: Board level reset
-*PB_1:
-*PB_2:
-*PB_3:
-*****************************************************************************************************/
+/******************************************************************************************************
+ * @file            Main_Test.c
+ * @brief           Program to demonstrate the use of the various components of the Softcore SS Project
+ *
+ * Description: 
+ * GPIO ACTION:
+ * There are a varity of GPIO input and outputs. for various forms of control or status updates.  No GPIOs are used 
+ * serve as input interupts in this case
+ *
+ * PERIODIC TIMER ACTION:
+ * There are 1 AXI Timer IP Block within this design.  axi_timer_0 is configured for Timer.
+ * axi_timer_0 is configured for periodic timer and both timers are used. 
+ * Timer number 0 is set for an ISR IRQ every 300ms.  Timer number 1 is set for an ISR IRQ every 120ms.
+ * With a periodic timer, both timer numbers share the same ISR.  There are two switches in use SW0 and SW1.
+ *
+ * UART LITE ACTION: 
+ * The UART is configure in IRQ mode, but even in IRQ mode it can be used in polling via
+ * the function xil_printf - xil_printf is tied to this UART via the Platform settings >> Board Support Package >> standalone >> standalone stdin and stdout
+ * The two callback functions for the UART in IRQ mode are UART_ReceiveCallback_ISR and UART_TransmitCallback_ISR. 
+ * When UART receives input the RX ISR will echo the input to the UART Tx - So if using console what you
+ * type you will see. 
+ *
+ * QUAD SPI 0 ACTION:
+ * This Quad SPI is in the interface of the graphics display.  It is a monochrome display 128x64 piexels.
+ * The display uses the U8G2 library and is intervaced via SPI - The chip select of the display is driven by GPIO and not AXI QSPI
+ * The display forms the primary UI output 
+ *
+ * QUAD SPI 1 ACTION:
+ * This Quad SPI is used in the interface of a uSD FLASH.  Elm Chan FAT FS is used as the library for file system managment
+ * The uSD main purpuse to is for file retrival but both file reads and writes are tested here
+ *
+ * INTERRUPT CONTROLLER ACTION:
+ * Several PL actions generate interruts.  The Timer, UART, etc. The interrupt controller feeds the various IRQs to the MicroBlaze
+ *
+ * UI INPUTS
+ * SW0 on: Periodic Timer Number 0 is enabled \ disable
+ * SW0 off: Periodic Timer Number 0 is enable \ disable
+ * PB_0: Board level reset
+ * PB_1:
+ * PB_2:
+ * PB_3:
+ * ****************************************************************************************************
+ * @author          Hab Collector (habco)\n
+ *
+ * @version         See Main_Support.h: FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV
+ *
+ * @param Development_Environment \n
+ * Hardware:        <Xilinx Artix A7> \n
+ * IDE:             Vitis 2024.2 \n
+ * Compiler:        GCC \n
+ * Editor Settings: 1 Tab = 4 Spaces, Recommended Courier New 11
+ *
+ * @note            The associated header file provides MACRO functions for IO control
+ *
+ *                  This is an embedded application
+ *                  It will be necessary to consult the reference documents to fully understand the code
+ *                  It is suggested that the documents be reviewed in the order shown.
+ *                    Schematic: 
+ *                    IMR Engineering
+ *                    IMR Engineering
+ *
+ * @copyright       IMR Engineering, LLC
+ ********************************************************************************************************/
+
+#include "Main_Support.h"
+#ifndef RUN_MAIN_APPLICATION
+// START OF the Main Test (used only for testing peripherals for operation)
 
 #include "xparameters.h"
 #include "xtmrctr.h"
@@ -48,7 +75,6 @@
 #include "xil_printf.h"
 #include "xspi.h"
 #include "xiltimer.h"
-// #include "sleep.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <xstatus.h>
@@ -60,7 +86,6 @@
 #include "AXI_IMR_ADC_7476A_DUAL.h"
 #include "AXI_IMR_PL_Revision.h"
 #include "IO_Support.h"
-#include "Main_Support.h"
 
 
 // DISPLAY SUPPORT
@@ -70,9 +95,6 @@
 XSpi AXI_SPI_DisplayHandle;
 u8g2_t U8G2;
 Type_Display_SSD1309 Display_SSD1309;
-// static void displayResetOrRun(Type_DisplayResetRun ResetRunAction);
-// static void displayCommandOrData(Type_DisplayCommandData CommandDataAction);
-// static bool displayTrasmitReceive(XSpi *DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer);
 
 
 // DDR 3 SUPPORT
@@ -88,22 +110,17 @@ uint32_t Test_u32_var __attribute__ ((section (".Hab_Mixed_Data"))) = 100000;
 
 // GPIO SUPPORT
 XGpio AXI_GPIO_Handle;
-// #define GPIO_INPUT_CHANNEL      1          // SW0 & SW1
-// #define GPIO_OUTPUT_CHANNEL     2          // JA1 & JA3
+
 
 // UART SUPPORT
 XUartLite AXI_UART_Handle;
-#define RX_BUFFER_SIZE 10
-uint32_t volatile ReceivedBytes = 0;
-uint8_t RxDataBuffer[RX_BUFFER_SIZE] = {0};
+// #define RX_BUFFER_SIZE 10
+// uint32_t volatile ReceivedBytes = 0;
+// uint8_t RxDataBuffer[RX_BUFFER_SIZE] = {0};
 
 // TIMER SUPPORT
 XTmrCtr AXI_TimerHandle_0;
-// #define TICKS_PER_MILLISECOND   (XPAR_CPU_CORE_CLOCK_FREQ_HZ / 1000)
-// #define TICKS_PER_10_US         (XPAR_CPU_CORE_CLOCK_FREQ_HZ / 100000)
-// static void sleep_10us(uint32_t WaitTime);
-// static void sleep_ms(uint32_t WaitTime);
-void displayChipSelect(Type_Display_CS Status);
+
 
 // IRQ CONTROLLER SUPPORT
 XIntc AXI_IRQ_ControllerHandle;
@@ -162,7 +179,7 @@ void TimerCallback_ISR(void *CallbackRef, u8 TmrCtrNumber)
 
 
 // ISR Callback function for UART Receive
-void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData) 
+void UART_ReceiveCallback_ISR(void *CallBackRef, unsigned int EventData) 
 {
     // Unused 
     (void)EventData;
@@ -184,7 +201,7 @@ void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData)
 
 // ISR Callback function for UART Transmit
 uint32_t TxSendEvents = 0;
-void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData)
+void UART_TransmitCallback_ISR(void *CallBackRef, unsigned int EventData)
 {
     // Unused 
     (void)EventData;
@@ -228,7 +245,7 @@ void mainTest(void)
     bool Status;
 
     // Init AXI UART
-    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TxCallback_ISR, UART_RxCallback_ISR);
+    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TransmitCallback_ISR, UART_ReceiveCallback_ISR);
     if (Status == false)
         while(1);
 
@@ -477,7 +494,7 @@ void mainTest(void)
     }
 
     // Unreachable code
-    return 0;
+    return(0);
 }
 
 
@@ -486,73 +503,6 @@ void mainTest(void)
 
 
 
-
-// static void displayResetOrRun(Type_DisplayResetRun ResetRunAction)
-// {
-//     if (ResetRunAction == DISPLAY_RUN)
-//         XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_RESET_RUN);
-//     else
-//         XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_RESET_RUN);
-// }
-
-// static void displayCommandOrData(Type_DisplayCommandData CommandDataAction)
-// {
-//     if (CommandDataAction == DISPLAY_DATA)
-//         XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CMD_DATA);
-//     else
-//         XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CMD_DATA);
-// }
-
-// void displayChipSelect(Type_Display_CS Status)
-// {
-//     if (Status == CS_ENABLE)
-//         XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CS);
-//     else
-//         XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CS);
-// }
-
-// static bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer)
-// {
-//     // STEP 1: Simple test
-//     if ((SPI_DisplayHandle == NULL) || (ChipSelect_N == 0))
-//         return(false);
-
-//     // STEP 2: Reset the SPI
-//     XSpi_Reset(SPI_DisplayHandle);
-
-//     // STEP 3: Pre-transfer data: Set the SPI options, select the correct slave device, and start the SPI
-//     XSpi_SetOptions(SPI_DisplayHandle,XSP_MASTER_OPTION);
-//     XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
-//     XSpi_Start(SPI_DisplayHandle);
-
-//     // STEP 4: Transfer the data
-//     int AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, RxBuffer, BytesToTransfer);    
-//     if (AXI_Status != XST_SUCCESS)
-//         return(false);
-//     else
-//         return(true);
-//     // return ((AXI_Status == XST_SUCCESS)? true : false);
-// }
-
-
-
-
-// static void sleep_10us(uint32_t WaitTime)
-// {
-//     uint32_t StartCount = XTmrCtr_GetValue(&AXI_TimerHandle_0, XTC_TIMER_0);
-//     uint32_t DelayCount = (TICKS_PER_10_US * WaitTime);    
-//     while(StartCount - XTmrCtr_GetValue(&AXI_TimerHandle_0, XTC_TIMER_0) < DelayCount);
-// }
-
-// static void sleep_ms(uint32_t WaitTime)
-// {
-//     uint32_t StartCount = (uint32_t)XTmrCtr_GetValue(&AXI_TimerHandle_0, XTC_TIMER_0);
-//     uint32_t DelayCount = (TICKS_PER_MILLISECOND * WaitTime);
-//     do 
-//     {
-//         // asm volatile("nop");
-//     } while(StartCount - XTmrCtr_GetValue(&AXI_TimerHandle_0, XTC_TIMER_0) < DelayCount);
-// }
 
 
 
@@ -635,3 +585,7 @@ void writeFileTest(const char *FileName)
     // f_mount(NULL, "0:/", 0);
     // xil_printf("File system unmounted.\r\n");
 }
+
+
+// END OF Main Test
+#endif

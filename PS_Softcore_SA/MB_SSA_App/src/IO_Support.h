@@ -39,6 +39,7 @@ extern"C" {
 #define USD_CD              ((uint32_t)(0x01 << 5))
 #define DDR_CALIB_COMPLETE  ((uint32_t)(0x01 << 6))
 #define HW_CONST_PL_VER     ((uint32_t)(0x0F << 7))
+#define HW_CONST_PL_VER_OFFSET  7
 
 // DEFINES GPIO BIT MASK: OUTPUTS
 #define TIMER_0_OUTPUT      ((uint32_t)(0x01 << 0))

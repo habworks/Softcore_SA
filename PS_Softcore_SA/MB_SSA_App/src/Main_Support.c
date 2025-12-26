@@ -27,12 +27,16 @@
 #include "Main_Support.h"
 #include "IO_Support.h"
 #include "xgpio.h"
+#include "xuartlite.h"
+#include "xtmrctr.h"
+#include "xiltimer.h"
 
 
 extern XTmrCtr AXI_TimerHandle_0;
 extern XGpio AXI_GPIO_Handle;
 
-
+uint32_t volatile ReceivedBytes = 0;
+uint8_t RxDataBuffer[RX_BUFFER_SIZE] = {0};
 
 void sleep_10us_Wrapper(uint32_t WaitTime)
 {
@@ -108,4 +112,42 @@ bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_
     else
         return(true);
 
+}
+
+
+// ISR FUNCTIONS:
+// ISR Callback function for UART Receive
+void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData) 
+{
+    // Unused 
+    (void)EventData;
+
+    // Note: In a real application, you would want to process the received data and potentially clear the buffer or manage a circular buffer.
+    XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
+
+    // Check for received data
+    // Read data into the buffer - read until BytesReceived is zero - necessary to clear the IRQ
+    uint16_t NotUsedBytesReceived;
+    receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &NotUsedBytesReceived);
+    ReceivedBytes++;
+
+    // Avoid buffer overflow - just wrap
+    if (ReceivedBytes > RX_BUFFER_SIZE)
+        ReceivedBytes = 0;
+}
+
+
+// ISR Callback function for UART Transmit
+void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData)
+{
+    // Unused 
+    (void)EventData;
+    
+    XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
+
+    // Check if transmit is complete
+    // All data was sent
+    // User does something useful (as necessary) indicating data was sent 
+    static uint32_t TxSendEvents = 0;
+    TxSendEvents++; 
 }
