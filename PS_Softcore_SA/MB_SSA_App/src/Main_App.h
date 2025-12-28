@@ -33,8 +33,7 @@ extern"C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "ffconf.h"
-#include "Audio_File_API.h"
+#include "SoftCore_Audio_SA.h"
 
 
 // DEFINES
@@ -53,24 +52,24 @@ typedef enum
     MODE_SIGNAL
 }Type_Mode;
 
-typedef struct
-{
-    #if (FF_USE_LFN == 1)
-    char                        Name[FF_MAX_LFN];             // FAT FS supporting long file name
-    char                        PathFileName[FF_MAX_LFN];
-    #else
-    char                        Name[8+1+3];                   // FAT FS 8.3 file name support
-    char                        PathFileName[50];
-    #endif
-    uint16_t                    DirectoryFileCount;
-    uint32_t                    Size;
-    Type_WavHeader              Header;
-}Type_AudioFile;
+// typedef struct
+// {
+//     #if (FF_USE_LFN == 1)
+//     char                        Name[FF_MAX_LFN];             // FAT FS supporting long file name
+//     char                        PathFileName[FF_MAX_LFN];
+//     #else
+//     char                        Name[8+1+3];                   // FAT FS 8.3 file name support
+//     char                        PathFileName[50];
+//     #endif
+//     uint16_t                    DirectoryFileCount;
+//     uint32_t                    Size;
+//     Type_WavHeader              Header;
+// }Type_AudioFile;
 
 typedef struct
 {
     Type_Mode                   Mode;
-    Type_AudioFile              AudioFile;
+    Type_Audio_SA               Audio_SA;
 }Type_SoftCore_SA;
 
 // FUNTION PROTOTYPES

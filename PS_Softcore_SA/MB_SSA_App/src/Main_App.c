@@ -52,6 +52,8 @@
 #include "IO_Support.h"
 
 // STATIC FUNCTIONS
+static void main_InitApplication(void);
+static void main_WhileLoop(void);
 static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle);
 
 
@@ -74,8 +76,34 @@ XIntc AXI_IRQ_ControllerHandle;
 FATFS FatFs; 
 
 
-
+/********************************************************************************************************
+* @brief This is the mian application - it is broken up into two parts - the main init and the main never
+* ending loop
+*
+* @author original: Hab Collector \n
+********************************************************************************************************/
 void mainApplication(void)
+{
+    main_InitApplication();
+    main_WhileLoop();
+}
+// END OF the Main Application
+
+
+
+/********************************************************************************************************
+* @brief Init of main application peripherals, drivers, libaries, and handlers - code only runs once
+*
+* @author original: Hab Collector \n
+*
+* @note: Must be the first function call of mainApplication
+* 
+* STEP 1: Init peripherals for use
+* STEP 2: Init of libraries
+* STEP 3: Init SoftCore SA Handle
+* STEP 4: Welcome
+********************************************************************************************************/
+static void main_InitApplication(void)
 {
     int AXI_Status;
     bool Status;
@@ -95,17 +123,20 @@ void mainApplication(void)
     if (Status == false)
         InitFailMode |= INIT_FAIL_GPIO;
 
+
+    // STEP 2: Init of libraries
     // Init FAT FS
     if (f_mount(&FatFs, ROOT_PATH, 1) != FR_OK)
         InitFailMode |= INIT_FAIL_FAT_FS;
 
-    // Init SoftCore SA Handle
+
+    // STEP 3: Init SoftCore SA Handle
     Status = init_SoftCoreHandle(&SoftCore_SA);
     if (Status == false)
         InitFailMode |= INIT_FAIL_SOFTCORE_HANDLE;
 
-    
-    // STEP 2: Welcome
+
+    // STEP 4: Welcome
     terminal_ClearScreen();
     uint32_t PL_Ver = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
     PL_Ver = (PL_Ver & HW_CONST_PL_VER) >> HW_CONST_PL_VER_OFFSET;
@@ -127,30 +158,60 @@ void mainApplication(void)
         xil_printf("Hello Hab, I am ready...\r\n\n");
     }
 
-for (uint8_t FileIndex = 0; FileIndex < SoftCore_SA.AudioFile.DirectoryFileCount; FileIndex++)
+} // END OF main_InitApplication
+
+
+
+/********************************************************************************************************
+* @brief The application is bear metal - this is the contineous while loop that runs after main init. This
+* loop in normal operatioon is non-existing.
+*
+* @author original: Hab Collector \n
+*
+* @note: Must be the sectond function call of mainApplication
+* 
+* STEP 1: Init peripherals for use
+* STEP 2: Init of libraries
+* STEP 3: Init SoftCore SA Handle
+* STEP 4: Welcome
+********************************************************************************************************/
+static void main_WhileLoop(void)
 {
-    FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.AudioFile.Name, SoftCore_SA.AudioFile.PathFileName, &SoftCore_SA.AudioFile.Size, SoftCore_SA.AudioFile.DirectoryFileCount);
-    if (FileResult != FR_OK)
-        printBrightRed("Error: getting next file\r\n");
-
-    Status = getWavFileHeader(SoftCore_SA.AudioFile.PathFileName, SoftCore_SA.AudioFile.Size, &SoftCore_SA.AudioFile.Header);
-    if (Status == true)
-        xil_printf("%s: %d: OK\r\n",SoftCore_SA.AudioFile.Name, SoftCore_SA.AudioFile.Size);
-    else
-        printBrightRed("%s Not a valid audio file\r\n");
-}
+    bool Status;
+    char PrintBuffer[MAX_PRINT_BUFFER] = {0};
 
 
-    f_closedir(AUDIO_DIRECTORY);
+    for (uint8_t FileIndex = 0; FileIndex < SoftCore_SA.Audio_SA.File.DirectoryFileCount; FileIndex++)
+    {
+        FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
+        if (FileResult != FR_OK)
+            printBrightRed("Error: getting next file\r\n");
+
+        Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
+        if (Status == true)
+        {
+            xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
+            fflush(stdout);
+        }
+        else
+        {
+            snprintf(PrintBuffer, sizeof(PrintBuffer), "%s Not a valid audio file\r\n", SoftCore_SA.Audio_SA.File.Name);
+            printBrightRed(PrintBuffer);
+            fflush(stdout);
+        }
+    }
+
+    for (uint8_t Test = 0; Test < 10; Test++)
+    {
+        xil_printf("Test: %d\r\n", Test);
+        fflush(stdout);
+    }
+
+    f_closedir(&Directory);
     f_mount(0, ROOT_PATH, 0);
 
     while(1);
 }
-
-// END OF the Main Application
-#endif
-
-
 
 
 
@@ -175,10 +236,11 @@ static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle)
     Handle->Mode = MODE_AUDIO;
 
     // STEP 2: Set defaults for audio File 
-    memset(Handle->AudioFile.Name, 0x00, sizeof(Handle->AudioFile.Name));
-    Handle->AudioFile.DirectoryFileCount = 0;
-    FRESULT FileResult = countFilesInDirectory(AUDIO_DIRECTORY, &Handle->AudioFile.DirectoryFileCount);
-    if ((FileResult != FR_OK) || (Handle->AudioFile.DirectoryFileCount == 0))
+    memset(Handle->Audio_SA.File.Name, 0x00, sizeof(Handle->Audio_SA.File.Name));
+    memset(Handle->Audio_SA.File.PathFileName, 0x00, sizeof(Handle->Audio_SA.File.PathFileName));
+    Handle->Audio_SA.File.DirectoryFileCount = 0;
+    FRESULT FileResult = countFilesInDirectory(AUDIO_DIRECTORY, &Handle->Audio_SA.File.DirectoryFileCount);
+    if ((FileResult != FR_OK) || (Handle->Audio_SA.File.DirectoryFileCount == 0))
         return(false);
     else
         return(true);
@@ -187,4 +249,5 @@ static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle)
 
 
 
-
+// END OF PROCESSOR DEFINE FOR RUN_MAIN_APPLICATION
+#endif

@@ -1,6 +1,9 @@
 /******************************************************************************************************
  * @file            Audio_File_API.c
  * @brief           A collection of functions relevant to supporting Audio (WAV only) files
+ *                  This audio file uses the Elm Chan FAT FS R0.16 specifically for drive and file access
+ *                  other versions of FAT FS may work, but it was designed based on R0.16
+ *                  https://elm-chan.org/fsw/ff/
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -26,8 +29,10 @@
 
 #include "Audio_File_API.h"
 #include <string.h>
+#include <stdlib.h>
 #include "ffconf.h"
 
+DIR Directory;
 
 /********************************************************************************************************
 * @brief Returns the next file name and size (by reference) of the specified directory.  Next means first
@@ -50,7 +55,6 @@
 ********************************************************************************************************/
 FRESULT getNextWavFile(const char *DirectoryPath, char *NextWavFileName, char *NextWavPathFileName, uint32_t *NextWavFileSize, uint16_t FileCount)
 {
-    static DIR Directory;
     static FILINFO FileInfo;
     static bool IsDirectoryOpen = false;
     FRESULT FileResult;
@@ -94,10 +98,10 @@ FRESULT getNextWavFile(const char *DirectoryPath, char *NextWavFileName, char *N
             TotalFilesScaned++;
             if (isWavFile(FileName))
             {
-                strncpy(NextWavFileName, FileName, strlen(FileName));
-                NextWavFileName[strlen(FileName)] = 0;
-                *NextWavFileSize = FileInfo.fsize;
+                memset(NextWavFileName, 0x00, MAX_FILE_NAME_LENGTH);
+                strcpy(NextWavFileName, FileName);
                 buildPathFileName(NextWavPathFileName, DirectoryPath, NextWavFileName);
+                *NextWavFileSize = FileInfo.fsize;
                 return(FR_OK);
             }
         }
@@ -202,7 +206,7 @@ bool isWavFile(const char *FileName)
 * @note: Requires prior init of FAT FS
 *        Assumes standard PCM WAV header (44 bytes)
 *
-* @param WavFileName: Path and name of WAV file relative to root
+* @param WavPathFileName: Path and name of WAV file relative to root
 * @param WavFileSize: Size of WAV file in bytes
 * @param WavHeader: Pointer to WAV header structure filled by reference
 *
@@ -213,7 +217,7 @@ bool isWavFile(const char *FileName)
 * STEP 3: Extract header information
 * STEP 4: Validate required WAV header fields
 ********************************************************************************************************/
-bool getWavFileHeader(char *WavFileName, uint32_t WavFileSize, Type_WavHeader *WavHeader)
+bool getWavFileHeader(char *WavPathFileName, uint32_t WavFileSize, Type_WavHeader *WavHeader)
 {
     FIL FileHandle;
     UINT BytesRead;
@@ -223,7 +227,7 @@ bool getWavFileHeader(char *WavFileName, uint32_t WavFileSize, Type_WavHeader *W
         return(false);
 
     // STEP 2: Open WAV file
-    if (f_open(&FileHandle, WavFileName, FA_READ) != FR_OK)
+    if (f_open(&FileHandle, WavPathFileName, FA_READ) != FR_OK)
         return(false);
 
     // STEP 3: Extract header information
@@ -260,7 +264,7 @@ bool getWavFileHeader(char *WavFileName, uint32_t WavFileSize, Type_WavHeader *W
 
 
 /********************************************************************************************************
-* @brief Creates a DirPath\FileName from Directory and FileName
+* @brief Creates a DirPath\FileName from Directory and FileName relative to root.  Example: "0:/AUDIO/FileName.Wave
 *
 * @author original: Hab Collector \n
 *
@@ -272,11 +276,274 @@ bool getWavFileHeader(char *WavFileName, uint32_t WavFileSize, Type_WavHeader *W
 *
 * STEP 1: Combine to DirectoryPath\FileName
 ********************************************************************************************************/
-void buildPathFileName(char*PathFileName, const char *DirectoryPath, char *FileName)
+void buildPathFileName(char *PathFileName, const char *DirectoryPath, char *FileName)
 {
     // STEP 1: Combine to DirectoryPath\FileName
-    strcpy(PathFileName, DirectoryPath);
+    memset(PathFileName, 0x00, MAX_PATH_FILE_LENGTH);
+    strcpy(PathFileName, ROOT_PATH);
+    strcat(PathFileName, DirectoryPath);
     strcat(PathFileName, "/");
-    strcat(PathFileName, FileName);
+    strncat(PathFileName, FileName, strlen(FileName));
 
 } // END OF buildPathFileName
+
+
+
+/********************************************************************************************************
+* @brief Converts a 16-bit signed PCM audio sample into a PWM duty-cycle percentage
+*
+* @author original: Hab Collector \n
+*
+* @note: Assumes 16-bit signed PCM audio (range -32768 to +32767)
+*        Output is a normalized PWM percentage independent of timer resolution
+*
+* @param PcmSample: Signed 16-bit PCM audio sample
+*
+* @return PWM duty cycle as a percentage (0.0 to 100.0)
+*         0.0  = signal fully low for entire period
+*         50.0 = silence (midpoint)
+*         100.0 = signal fully high for entire period
+*
+* STEP 1: Shift signed PCM sample to unsigned domain
+* STEP 2: Normalize to a 0.0 to 1.0 range as a percentage (0 to 100%)
+********************************************************************************************************/
+float pcm16ToPwmPercent(int16_t PcmSample)
+{
+    float NormalizedValue;
+    float PWM_Percent;
+
+    // STEP 1: Shift signed PCM (-32768..32767) to unsigned range (0..65535)
+    NormalizedValue = (float)(PcmSample + 32768) / 65535.0f;
+
+    // STEP 2: Normalize to a 0.0 to 1.0 range as a percentage (0 to 100%)
+    PWM_Percent = NormalizedValue * 100.0f;
+    return(PWM_Percent);
+}
+
+
+
+/********************************************************************************************************
+* @brief Initializes a circular buffer
+*
+* @author original: Hab Collector \n
+*
+* @note: Allocates memory for circular buffer storage
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+* @param Size: Maximum number of elements to store
+*
+* @return None
+*
+* STEP 1: Set start and end of buffer to 0 and assign size
+* STEP 2: Allocate memory for circular buffer elements
+********************************************************************************************************/
+bool init_CB(Type_int16_t_CircularBuffer *CircularBuffer, uint16_t Size)
+{
+    // STEP 1: Set start and end of buffer to 0 and assign size
+    CircularBuffer->Size  = Size + 1; // INCLUDES AN EMPTY LOCATION
+    CircularBuffer->Start = 0;
+    CircularBuffer->End   = 0;
+
+    // STEP 2: Allocate memory for circular buffer elements
+    CircularBuffer->Elements = (int16_t *)calloc(CircularBuffer->Size, sizeof(int16_t));
+    if (CircularBuffer->Elements != NULL)
+        return(true);
+    else
+        return(false);
+
+} // END OF init_CB
+
+
+
+/********************************************************************************************************
+* @brief Frees memory allocated for a circular buffer
+*
+* @author original: Hab Collector \n
+*
+* @note: Safe to call with NULL pointer
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+*
+* @return None
+*
+* STEP 1: Free allocated circular buffer memory
+********************************************************************************************************/
+void free_CB(Type_int16_t_CircularBuffer *CircularBuffer)
+{
+    // STEP 1: Free allocated circular buffer memory
+    // OK IF NULL
+    free(CircularBuffer->Elements);
+
+} // END OF free_CB
+
+
+
+/********************************************************************************************************
+* @brief Checks if the circular buffer is full
+*
+* @author original: Hab Collector \n
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+*
+* @return True if buffer is full, else false
+*
+* STEP 1: Determine if buffer is full
+********************************************************************************************************/
+bool isFull_CB(Type_int16_t_CircularBuffer *CircularBuffer)
+{
+    // STEP 1: Determine if buffer is full
+    return((CircularBuffer->End + 1) % CircularBuffer->Size == CircularBuffer->Start);
+}
+
+
+
+/********************************************************************************************************
+* @brief Checks if the circular buffer is empty
+*
+* @author original: Hab Collector \n
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+*
+* @return True if buffer is empty, else false
+*
+* STEP 1: Determine if buffer is empty
+********************************************************************************************************/
+bool isEmpty_CB(Type_int16_t_CircularBuffer *CircularBuffer)
+{
+    // STEP 1: Determine if buffer is empty
+    return(CircularBuffer->End == CircularBuffer->Start);
+} // END OF isEmpty_CB
+
+
+
+/********************************************************************************************************
+* @brief Writes a single element to the circular buffer
+*
+* @author original: Hab Collector \n
+*
+* @note: Overwrites oldest element if buffer is full
+*        Caller may check isFull_CB() to prevent overwrite
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+* @param Element: Pointer to element to store
+*
+* @return True if write OK, false if buffer is full
+*
+* STEP 1: Do not overwrite
+* STEP 2: Store element at end index
+* STEP 3: Advance end index 
+********************************************************************************************************/
+bool write_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element)
+{
+    // STEP 1: Do not overwrite
+    if (isFull_CB(CircularBuffer))
+        return(false);
+
+    // STEP 2: Store element at end index
+    CircularBuffer->Elements[CircularBuffer->End] = *Element;
+
+    // STEP 3: Advance end index
+    CircularBuffer->End = (CircularBuffer->End + 1) % CircularBuffer->Size;
+
+    return(true);
+
+} // END OF write_CB
+
+
+
+/********************************************************************************************************
+* @brief Reads a single element from the circular buffer and reports buffer fullness state
+*
+* @author original: Hab Collector \n
+*
+* @note: Function will not read from the buffer if it is empty
+*        Return value reflects success or failure of read operation
+*        Buffer fullness indicators reflect state after the read
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+* @param Element: Pointer to element to receive data
+* @param CB_Half_Empty: Pointer set true if buffer is half or more empty
+* @param CB_Half_Full: Pointer set true if buffer is more than half full
+*
+* @return True if element was read successfully
+*         False if buffer was empty and no read occurred
+*
+* STEP 1: Verify circular buffer is not empty
+* STEP 2: Read element from start index
+* STEP 3: Advance start index
+* STEP 4: Determine if buffer is half or more empty
+* STEP 5: Set half-empty and half-full indicators
+********************************************************************************************************/
+bool read_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, bool *CB_Half_Empty, bool *CB_Half_Full)
+{
+    uint16_t Count;
+    uint16_t Capacity;
+
+    // STEP 1: Verify circular buffer is not empty
+    if (isEmpty_CB(CircularBuffer))
+        return(false);
+
+    // STEP 2: Read element from start index
+    *Element = CircularBuffer->Elements[CircularBuffer->Start];
+
+    // STEP 3: Advance start index
+    CircularBuffer->Start = (CircularBuffer->Start + 1) % CircularBuffer->Size;
+
+    // STEP 4: Determine if buffer is half or more empty
+    Capacity = CircularBuffer->Size - 1;
+
+    if (CircularBuffer->End >= CircularBuffer->Start)
+        Count = CircularBuffer->End - CircularBuffer->Start;
+    else
+        Count = CircularBuffer->Size - (CircularBuffer->Start - CircularBuffer->End);
+
+    // STEP 5: Set half-empty and half-full indicators
+    *CB_Half_Empty = (Count <= (Capacity / 2));
+    *CB_Half_Full  = !(*CB_Half_Empty);
+
+    return(true);
+
+} // END OF read_CB
+
+
+
+/********************************************************************************************************
+* @brief Returns the number of free elements available for writing in the circular buffer
+*
+* @author original: Hab Collector \n
+*
+* @note: Buffer uses a one-empty-slot design to distinguish full vs empty
+*        Returned value reflects how many additional writes can succeed
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+*
+* @return Number of elements that can be written before buffer becomes full
+*
+* STEP 1: Determine usable buffer capacity
+* STEP 2: Determine number of elements currently stored
+* STEP 3: Calculate number of free elements available
+********************************************************************************************************/
+uint32_t unusedElements(Type_int16_t_CircularBuffer *CircularBuffer)
+{
+    uint16_t Used;
+    uint16_t Capacity;
+
+    // STEP 1: Determine usable buffer capacity
+    Capacity = CircularBuffer->Size - 1;
+
+    // STEP 2: Determine number of elements currently stored
+    if (CircularBuffer->End >= CircularBuffer->Start)
+        Used = CircularBuffer->End - CircularBuffer->Start;
+    else
+        Used = CircularBuffer->Size - (CircularBuffer->Start - CircularBuffer->End);
+
+    // STEP 3: Calculate number of free elements available
+    return(Capacity - Used);
+
+} // END OF unusedElements
+
+
+
+
+
+

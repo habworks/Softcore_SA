@@ -24,7 +24,7 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
- #ifndef AUDIO_FILE_API_H_
+#ifndef AUDIO_FILE_API_H_
 #define AUDIO_FILE_API_H_
 #ifdef __cplusplus
 extern"C" {
@@ -32,11 +32,12 @@ extern"C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <ff.h>
+#include "ff.h"
+#include "ffconf.h"
 
 // DEFINES
 // DIRECTORY
-#define AUDIO_DIRECTORY     "/AUDIO"
+#define AUDIO_DIRECTORY     "AUDIO"
 #define ROOT_PATH           "0:/"
 // WAVE AUDIO OFFSETS - COMMENTS ARE FOR 16BIT PCM WAV AUDIO
 #define RIFF_CHUNCK_OFFSET      0  // EXPECTED "RIFF"
@@ -51,7 +52,7 @@ extern"C" {
 #define BIT_PER_SAMPLE_OFFSET  34  // 8 bits = 8, 16 bits = 16
 #define DATA_CHUNCK_OFFSET     36  // EXPECTED "data"
 #define DATA_SIZE_OFFSET       40  // NumSamples * NumChannels * BitsPerSample/8
-#define DATA_OFFSET            44  // LEFT IS THE FIST CHANNEL READ
+#define WAV_DATA_OFFSET        44  // LEFT IS THE FIST CHANNEL READ
 // WAVE AUDIO CHUNK NAMES
 #define RIFF_FILE_TYPE          "RIFF"
 #define WAVE_RIFF_TYPE          "WAVE"
@@ -71,6 +72,17 @@ BitsPerSample                 2
 Total                         16 bytes
 */
 #define WAVE_CHUNK_SIZE         16
+// FILE SIZE
+#if defined FF_MAX_LFN == 1
+#define MAX_FILE_NAME_LENGTH    255U
+#define MAX_PATH_FILE_LENGTH    255U
+#else
+#define MAX_FILE_NAME_LENGTH    (8+1+3)U
+#define MAX_PATH_FILE_LENGTH    100U
+#endif
+#define MAX_CHUNK_BUFFER        4096U
+#define MAX_READ_BUFFER         2048U
+#define HALF_READ_BUFFER        (MAX_READ_BUFFER / 2)
 
 
 // TYPEDEFS AND ENAUMS
@@ -107,13 +119,62 @@ typedef enum
     PCM_24_BIT_SIGNED = 24
 } Type_PCM_BitsPerSample;
 
+typedef struct
+{
+    uint16_t                    Size;       // MAX NUMBER OF ELEMENTS
+    uint16_t                    Start;      // INDEX OF OLDEST ELEMENT
+    uint16_t                    End;        // INDEX AT WHICH TO WRITE NEW ELEMENT
+    int16_t                     *Elements;  // VECTOR OF ELEMENTS
+} Type_int16_t_CircularBuffer;
+
+typedef enum
+{
+    LSB = 0,
+    MSB
+} Type_16Bit_ByteOrder;
+
+typedef union
+{
+    int16_t Signed16Bit_Value;
+    uint8_t ByteValue[sizeof(int16_t)];
+} Type_Union_PCM_AudioValue;
+
+typedef enum 
+{
+    NONE = 0,
+    SINGLE_CHANNEL,
+    STEREO
+} Type_AudioChannel;
+
+typedef struct
+{
+    bool                        IsOpen;
+    char                        Name[MAX_FILE_NAME_LENGTH];             // FAT FS supporting long file name
+    char                        PathFileName[MAX_PATH_FILE_LENGTH];
+    uint16_t                    DirectoryFileCount;
+    uint32_t                    Size;
+    Type_WavHeader              Header;
+} Type_AudioFile;
+
+
+// EXTERNS
+extern DIR Directory;
+
 
 // FUNCTION PROTOTYPES
 FRESULT getNextWavFile(const char *DirectoryPath, char *NextWavFileName, char *NextWavPathFileName, uint32_t *NextWavFileSize, uint16_t FileCount);
 FRESULT countFilesInDirectory(const char *DirectoryPath, uint16_t *FileCount);
 bool isWavFile(const char *FileName);
-bool getWavFileHeader(char *WavFileName, uint32_t WavFileSize, Type_WavHeader *WavHeader);
-void buildPathFileName(char*PathFileName, const char *DirectoryPath, char *FileName);
+bool getWavFileHeader(char *WavPathFileName, uint32_t WavFileSize, Type_WavHeader *WavHeader);
+void buildPathFileName(char *PathFileName, const char *DirectoryPath, char *FileName);
+bool init_CB(Type_int16_t_CircularBuffer *CircularBuffer, uint16_t Size);
+void free_CB(Type_int16_t_CircularBuffer *CircularBuffer);
+bool isFull_CB(Type_int16_t_CircularBuffer *CircularBuffer);
+bool isEmpty_CB(Type_int16_t_CircularBuffer *CircularBuffer);
+bool write_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element);
+bool read_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, bool *CB_Half_Empty, bool *CB_Half_Full);
+uint32_t unusedElements(Type_int16_t_CircularBuffer *CircularBuffer);
+
 
 #ifdef __cplusplus
 }

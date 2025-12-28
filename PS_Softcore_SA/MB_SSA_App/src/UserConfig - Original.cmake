@@ -2,10 +2,6 @@
 # SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.16)
 
-# --- Hab added next two lines - helps but not perfect Force C99 so CDT indexer matches mb-gcc ---
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-
 ###    USER SETTINGS  START    ###
 # Below settings can be customized
 # User needs to edit it manually as per their needs.
