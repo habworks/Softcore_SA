@@ -24,8 +24,23 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
- // DEFINES
- 
+#ifndef HAB_TYPES_H_
+#define HAB_TYPES_H_
+#include <limits.h>
+#ifdef __cplusplus
+extern"C" {
+#endif
 
- // MACROS
- #define NOT_USED(x)            (void)(x)
+// DEFINES
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+// MACROS
+#define NOT_USED(x)            (void)(x)
+
+
+#ifdef __cplusplus
+}
+#endif
+#endif /* HAB_TYPES_H_ */

@@ -34,18 +34,47 @@ extern"C" {
 #include <stdbool.h>
 #include "Audio_File_API.h"
 
+
 // DEFINES
 #define FFT_SIZE                1024U
+#define CHUNK_MULTIPLIER        8
+#if ((CHUNK_MULTIPLIER / 2) * 2) != CHUNK_MULTIPLIER
+    #error "MULTIPLER must be even"
+#endif
+#if CHUNK_MULTIPLIER < 4
+    #error "CHUNK_MULTIPLIER must be >= 4 and be an even value
+#endif
+#define MAX_CHUNK_BUFFER          (FFT_SIZE * CHUNK_MULTIPLIER)
 
+typedef struct
+{
+    bool                        FrameReady;
+    uint16_t                    Size;
+    float                       HannWindow[FFT_SIZE];
+    float                       Samples[FFT_SIZE];
+} Type_FFT;
+
+typedef struct
+{
+    float                       Samples[FFT_SIZE];
+} Type_PWM;
 
 // TYPEDEFS AND ENUMS
 typedef struct
 {
+    bool                        Enable;
+    bool                        IsFirstRead;
+    bool                        IsRawBufferEmpty;
     Type_AudioFile              File;
+    Type_int16_t_CircularBuffer CircularBuffer;
+    Type_FFT                    FFT;
+    Type_PWM                    PWM
 } Type_Audio_SA;
 
+
 // FUNCTION PROTOTYPES
-int16_t convert_PCM16_ToMono(int16_t Left_PCM16_Audio, int16_t Right_PCM16_Audion);
+void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA);
+
 
 #ifdef __cplusplus
 }

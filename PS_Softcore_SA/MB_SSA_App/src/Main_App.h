@@ -24,7 +24,7 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
- #ifndef MAIN_APP_H_
+#ifndef MAIN_APP_H_
 #define MAIN_APP_H_
 #include <limits.h>
 #ifdef __cplusplus

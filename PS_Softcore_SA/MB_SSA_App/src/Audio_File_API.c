@@ -254,9 +254,13 @@ bool getWavFileHeader(char *WavPathFileName, uint32_t WavFileSize, Type_WavHeade
     // Must be no compression
     if (WavHeader->Compression != COMPRESSION_NONE)
         return(false);
+    // Must be mono or stero
+    if ((WavHeader->ChannelNumber != MONO) && (WavHeader->ChannelNumber != STEREO))
+        return(false);
     // Only supporting 16 bit samples at this time
     if (WavHeader->BitsPerSample != PCM_16_BIT_SIGNED)
         return(false);
+    
 
     return(true);
 }

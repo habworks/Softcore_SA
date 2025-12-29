@@ -3,8 +3,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 # --- Hab added next two lines - helps but not perfect Force C99 so CDT indexer matches mb-gcc ---
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD "99")
+set(CMAKE_C_STANDARD_REQUIRED "ON")
 
 ###    USER SETTINGS  START    ###
 # Below settings can be customized
@@ -273,6 +273,7 @@ set(USER_LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/lscript.ld")
 # Add linker options to be passed, they will be added as extra linker options
 # Example : Adding -s will pass -s to the linker.
 set(USER_LINK_OTHER_FLAGS
+"-u _printf_float"
 )
 
 # -----------------------------------------

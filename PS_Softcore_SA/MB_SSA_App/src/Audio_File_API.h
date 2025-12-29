@@ -80,9 +80,6 @@ Total                         16 bytes
 #define MAX_FILE_NAME_LENGTH    (8+1+3)U
 #define MAX_PATH_FILE_LENGTH    100U
 #endif
-#define MAX_CHUNK_BUFFER        4096U
-#define MAX_READ_BUFFER         2048U
-#define HALF_READ_BUFFER        (MAX_READ_BUFFER / 2)
 
 
 // TYPEDEFS AND ENAUMS
@@ -142,7 +139,7 @@ typedef union
 typedef enum 
 {
     NONE = 0,
-    SINGLE_CHANNEL,
+    MONO,
     STEREO
 } Type_AudioChannel;
 
@@ -174,7 +171,6 @@ bool isEmpty_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 bool write_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element);
 bool read_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, bool *CB_Half_Empty, bool *CB_Half_Full);
 uint32_t unusedElements(Type_int16_t_CircularBuffer *CircularBuffer);
-
 
 #ifdef __cplusplus
 }

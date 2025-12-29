@@ -155,26 +155,62 @@ drv_info:
     driver: gpio
     ip_name: axi_gpio
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\gpio_v4_12
+    examples:
+      xgpio_example.c: []
+      xgpio_low_level_example.c: []
+      xgpio_tapp_example.c: []
   axi_intc_0:
     driver: intc
     ip_name: axi_intc
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\intc_v3_19
+    examples:
+      xintc_example.c: []
+      xintc_low_level_example.c: []
+      xintc_tapp_example.c: []
   axi_quad_spi_0:
     driver: spi
     ip_name: axi_quad_spi
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\spi_v4_13
+    examples:
+      xspi_polled_example.c: []
+      xspi_slave_polled_example.c: []
+      xspi_low_level_example.c: []
+      xspi_winbond_flash_xip_example.c: []
+      xspi_selftest_example.c: []
+      xspi_stm_flash_example.c: []
   axi_quad_spi_1:
     driver: spi
     ip_name: axi_quad_spi
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\spi_v4_13
+    examples:
+      xspi_polled_example.c: []
+      xspi_slave_polled_example.c: []
+      xspi_low_level_example.c: []
+      xspi_winbond_flash_xip_example.c: []
+      xspi_selftest_example.c: []
+      xspi_stm_flash_example.c: []
   axi_timer_0:
     driver: tmrctr
     ip_name: axi_timer
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\tmrctr_v4_13
+    examples:
+      xtmrctr_selftest_example.c: []
+      xtmrctr_polled_example.c: []
+      xtmrctr_low_level_example.c: []
+      xtmrctr_intr_example.c: []
+      xtmrctr_fast_intr_example.c: []
+      xtmrctr_intr_64bit_example.c: []
+      xtmrctr_pwm_example.c: []
   axi_uartlite_0:
     driver: uartlite
     ip_name: axi_uartlite
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\uartlite_v3_11
+    examples:
+      xuartlite_intr_example.c: []
+      xuartlite_intr_tapp_example.c: []
+      xuartlite_low_level_example.c: []
+      xuartlite_polled_example.c: []
+      xuartlite_selftest_example.c: []
 lib_info:
   xiltimer:
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\lib\sw_services\xiltimer_v2_1

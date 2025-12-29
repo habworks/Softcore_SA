@@ -44,11 +44,13 @@
 #include "xstatus.h"
 #include "ff.h"
 #include <stdio.h>
+#include <math.h>
 #include "AXI_Timer_PWM_Support.h"
 #include "AXI_UART_Lite_Support.h"
 #include "AXI_IRQ_Controller_Support.h"
 #include "Terminal_Emulator_Support.h"
 #include "Audio_File_API.h"
+#include "Softcore_Audio_SA.h"
 #include "IO_Support.h"
 
 // STATIC FUNCTIONS
@@ -181,31 +183,43 @@ static void main_WhileLoop(void)
     char PrintBuffer[MAX_PRINT_BUFFER] = {0};
 
 
-    for (uint8_t FileIndex = 0; FileIndex < SoftCore_SA.Audio_SA.File.DirectoryFileCount; FileIndex++)
-    {
-        FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
-        if (FileResult != FR_OK)
-            printBrightRed("Error: getting next file\r\n");
+    // for (uint8_t FileIndex = 0; FileIndex < SoftCore_SA.Audio_SA.File.DirectoryFileCount; FileIndex++)
+    // {
+    //     FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
+    //     if (FileResult != FR_OK)
+    //         printBrightRed("Error: getting next file\r\n");
 
-        Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
-        if (Status == true)
-        {
-            xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
-            fflush(stdout);
-        }
-        else
-        {
-            snprintf(PrintBuffer, sizeof(PrintBuffer), "%s Not a valid audio file\r\n", SoftCore_SA.Audio_SA.File.Name);
-            printBrightRed(PrintBuffer);
-            fflush(stdout);
-        }
-    }
+    //     Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
+    //     if (Status == true)
+    //     {
+    //         xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
+    //         fflush(stdout);
+    //     }
+    //     else
+    //     {
+    //         snprintf(PrintBuffer, sizeof(PrintBuffer), "%s Not a valid audio file\r\n", SoftCore_SA.Audio_SA.File.Name);
+    //         printBrightRed(PrintBuffer);
+    //         fflush(stdout);
+    //     }
+    // }
 
     for (uint8_t Test = 0; Test < 10; Test++)
     {
-        xil_printf("Test: %d\r\n", Test);
-        fflush(stdout);
+        xil_printf("HannWindow[%d]: %1.6f\r\n", Test, SoftCore_SA.Audio_SA.FFT.HannWindow[Test]);
     }
+
+
+    FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
+    if (FileResult != FR_OK)
+        printBrightRed("Error: getting next file\r\n");
+
+    Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
+    if (Status == true)
+    {
+        xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
+    }
+
+        
 
     f_closedir(&Directory);
     f_mount(0, ROOT_PATH, 0);
@@ -236,6 +250,8 @@ static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle)
     Handle->Mode = MODE_AUDIO;
 
     // STEP 2: Set defaults for audio File 
+    Handle->Audio_SA.Enable = false;
+    Handle->Audio_SA.File.IsOpen = false;
     memset(Handle->Audio_SA.File.Name, 0x00, sizeof(Handle->Audio_SA.File.Name));
     memset(Handle->Audio_SA.File.PathFileName, 0x00, sizeof(Handle->Audio_SA.File.PathFileName));
     Handle->Audio_SA.File.DirectoryFileCount = 0;
@@ -244,6 +260,11 @@ static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle)
         return(false);
     else
         return(true);
+    // Calculate the FFT Hann Window
+    for (uint16_t N = 0; N < FFT_SIZE; N++)
+    {
+        Handle->Audio_SA.FFT.HannWindow[N] = 0.5 * (1 - cos((2* M_PI* N)/(FFT_SIZE - 1)));
+    }
 
 } // END OF init_SoftCoreHandle
 
