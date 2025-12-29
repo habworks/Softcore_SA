@@ -66,7 +66,10 @@ Type_SoftCore_SA SoftCore_SA;
 XGpio AXI_GPIO_Handle;
 
 // AXI TIMER SUPPORT
-XTmrCtr AXI_TimerHandle_0;
+XTmrCtr AXI_TimerHandle;
+
+// AXI PWM SUPPORT
+XTmrCtr AXI_PWM_Handle;
 
 // AXI UART SUPPORT
 XUartLite AXI_UART_Handle;
@@ -100,7 +103,7 @@ void mainApplication(void)
 *
 * @note: Must be the first function call of mainApplication
 * 
-* STEP 1: Init peripherals for use
+* STEP 1: Init AXI peripherals for use
 * STEP 2: Init of libraries
 * STEP 3: Init SoftCore SA Handle
 * STEP 4: Welcome
@@ -112,7 +115,7 @@ static void main_InitApplication(void)
     uint16_t InitFailMode = 0;
     char PrintBuffer[MAX_PRINT_BUFFER] = {0};
     
-    // STEP 1: Init peripherals for use
+    // STEP 1: Init AXI peripherals for use
     // Init AXI GPIO
     AXI_Status = XGpio_Initialize(&AXI_GPIO_Handle, XPAR_AXI_GPIO_0_BASEADDR);
     if (AXI_Status != XST_SUCCESS)
@@ -124,6 +127,11 @@ static void main_InitApplication(void)
     Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TxCallback_ISR, UART_RxCallback_ISR);
     if (Status == false)
         InitFailMode |= INIT_FAIL_GPIO;
+
+    // Init AXI Timer as PWM
+    Status = init_PWM(&AXI_PWM_Handle, XPAR_AXI_TIMER_1_BASEADDR);
+    if (Status == false)
+        InitFailMode |= INIT_FAIL_PWM;
 
 
     // STEP 2: Init of libraries
@@ -219,10 +227,12 @@ static void main_WhileLoop(void)
         xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
     }
 
-        
+    
 
     f_closedir(&Directory);
     f_mount(0, ROOT_PATH, 0);
+
+    setup_PWM(&AXI_PWM_Handle, 200000, 50.0);
 
     while(1);
 }

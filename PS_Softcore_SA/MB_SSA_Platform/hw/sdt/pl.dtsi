@@ -358,6 +358,25 @@
 			interrupt-names = "interrupt";
 			xlnx,name = "axi_timer_0";
 		};
+		axi_timer_1: timer@41c10000 {
+			compatible = "xlnx,axi-timer-2.0" , "xlnx,xps-timer-1.00.a";
+			xlnx,gen1-assert = <1>;
+			clock-frequency = <100000000>;
+			xlnx,trig0-assert = <1>;
+			xlnx,rable = <0>;
+			xlnx,count-width = <32>;
+			xlnx,ip-name = "axi_timer";
+			xlnx,one-timer-only = <0>;
+			reg = <0x41c10000 0x10000>;
+			clocks = <&clk_bus_0>;
+			xlnx,gen0-assert = <1>;
+			xlnx,mode-64bit = <0>;
+			xlnx,edk-iptype = "PERIPHERAL";
+			status = "okay";
+			xlnx,trig1-assert = <1>;
+			xlnx,enable-timer2 = <1>;
+			xlnx,name = "axi_timer_1";
+		};
 		axi_uartlite_0: serial@40600000 {
 			interrupts = < 2 0 >;
 			compatible = "xlnx,axi-uartlite-2.0" , "xlnx,xps-uartlite-1.00.a";

@@ -281,7 +281,7 @@ TOOLCHAIN_EXTRA_C_FLAGS:STRING= -g -ffunction-sections -fdata-sections -Wall -We
 XILTIMER_en_interval_timer:BOOL=OFF
 
 //This parameter is used to select specific timer for sleep functionality
-XILTIMER_sleep_timer:STRING=Default;
+XILTIMER_sleep_timer:STRING=axi_timer_0
 
 //This parameter is used to select specific timer for tick functionality
 XILTIMER_tick_timer:STRING=None
@@ -539,7 +539,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=15
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=16
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -581,9 +581,9 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //STRINGS property for variable: XILTIMER_sleep_timer
-XILTIMER_sleep_timer-STRINGS:INTERNAL=Default;axi_timer_0
+XILTIMER_sleep_timer-STRINGS:INTERNAL=Default;axi_timer_0;axi_timer_1
 //STRINGS property for variable: XILTIMER_tick_timer
-XILTIMER_tick_timer-STRINGS:INTERNAL=None;axi_timer_0
+XILTIMER_tick_timer-STRINGS:INTERNAL=None;axi_timer_0;axi_timer_1
 //STRINGS property for variable: standalone_enable_sw_intrusive_profiling
 standalone_enable_sw_intrusive_profiling-STRINGS:INTERNAL=None
 //STRINGS property for variable: standalone_microblaze_exceptions

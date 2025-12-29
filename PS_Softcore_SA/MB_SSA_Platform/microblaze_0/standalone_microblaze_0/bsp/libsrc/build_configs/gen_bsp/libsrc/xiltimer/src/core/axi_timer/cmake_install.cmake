@@ -1,4 +1,4 @@
-# Install script for directory: C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/libsrc/build_configs/exmetadata
+# Install script for directory: C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/libsrc/xiltimer/src/core/axi_timer
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -37,13 +37,3 @@ if(NOT DEFINED CMAKE_OBJDUMP)
   set(CMAKE_OBJDUMP "C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microblaze/nt/bin/mb-objdump.exe")
 endif()
 
-if(CMAKE_INSTALL_COMPONENT)
-  set(CMAKE_INSTALL_MANIFEST "install_manifest_${CMAKE_INSTALL_COMPONENT}.txt")
-else()
-  set(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
-endif()
-
-string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
-       "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/libsrc/build_configs/exmetadata/${CMAKE_INSTALL_MANIFEST}"
-     "${CMAKE_INSTALL_MANIFEST_CONTENT}")

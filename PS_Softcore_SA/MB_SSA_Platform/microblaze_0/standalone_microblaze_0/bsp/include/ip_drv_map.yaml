@@ -13,6 +13,9 @@ axi_quad_spi_1:
 axi_timer_0:
 - axi_timer
 - tmrctr
+axi_timer_1:
+- axi_timer
+- tmrctr
 axi_uartlite_0:
 - axi_uartlite
 - uartlite

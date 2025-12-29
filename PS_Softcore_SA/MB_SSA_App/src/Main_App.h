@@ -41,7 +41,8 @@ extern"C" {
 #define INIT_FAIL_GPIO                  ((uint16_t)(0x01 << 0))
 #define INIT_FAIL_UART                  ((uint16_t)(0x01 << 1))
 #define INIT_FAIL_FAT_FS                ((uint16_t)(0x01 << 2))
-#define INIT_FAIL_SOFTCORE_HANDLE       ((uint16_t)(0x01 << 3))
+#define INIT_FAIL_PWM                   ((uint16_t)(0x01 << 3))
+#define INIT_FAIL_SOFTCORE_HANDLE       ((uint16_t)(0x01 << 4))
 // MISC
 #define MAX_PRINT_BUFFER                255U
 

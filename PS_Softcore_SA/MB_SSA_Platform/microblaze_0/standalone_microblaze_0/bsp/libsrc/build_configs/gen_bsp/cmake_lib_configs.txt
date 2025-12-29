@@ -71,7 +71,7 @@ TOOLCHAIN_EXTRA_C_FLAGS:STRING= -g -ffunction-sections -fdata-sections -Wall -We
 XILTIMER_en_interval_timer:BOOL=OFF
 
 // This parameter is used to select specific timer for sleep functionality
-XILTIMER_sleep_timer:STRING=Default;
+XILTIMER_sleep_timer:STRING=axi_timer_0
 
 // This parameter is used to select specific timer for tick functionality
 XILTIMER_tick_timer:STRING=None

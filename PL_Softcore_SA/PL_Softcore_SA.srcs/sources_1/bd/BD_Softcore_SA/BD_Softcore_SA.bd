@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xFF84D3B70A49C9B5",
+      "boundary_crc": "0xCD92C8B80A5828D4",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA",
       "name": "BD_Softcore_SA",
@@ -41,7 +41,8 @@
       "xlconstant_0": "",
       "util_vector_logic_1": "",
       "mig_7series_0": "",
-      "axi_quad_spi_1": ""
+      "axi_quad_spi_1": "",
+      "axi_timer_1": ""
     },
     "interface_ports": {
       "DDR3_0": {
@@ -305,6 +306,9 @@
       },
       "USD_CD": {
         "direction": "I"
+      },
+      "AUDIO_PWM": {
+        "direction": "O"
       }
     },
     "components": {
@@ -716,7 +720,7 @@
         "inst_hier_path": "smartconnect_CPU",
         "parameters": {
           "NUM_MI": {
-            "value": "7"
+            "value": "8"
           },
           "NUM_SI": {
             "value": "3"
@@ -742,7 +746,8 @@
               "M03_AXI",
               "M04_AXI",
               "M05_AXI",
-              "M06_AXI"
+              "M06_AXI",
+              "M07_AXI"
             ]
           },
           "S01_AXI": {
@@ -764,7 +769,8 @@
               "M03_AXI",
               "M04_AXI",
               "M05_AXI",
-              "M06_AXI"
+              "M06_AXI",
+              "M07_AXI"
             ]
           },
           "S02_AXI": {
@@ -786,7 +792,8 @@
               "M03_AXI",
               "M04_AXI",
               "M05_AXI",
-              "M06_AXI"
+              "M06_AXI",
+              "M07_AXI"
             ]
           },
           "M00_AXI": {
@@ -981,6 +988,37 @@
             "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
             "parameters": {
               "MAX_BURST_LENGTH": {
+                "value": "1"
+              },
+              "NUM_READ_OUTSTANDING": {
+                "value": "2"
+              },
+              "NUM_READ_THREADS": {
+                "value": "1"
+              },
+              "NUM_WRITE_OUTSTANDING": {
+                "value": "32"
+              },
+              "NUM_WRITE_THREADS": {
+                "value": "1"
+              },
+              "RUSER_BITS_PER_BYTE": {
+                "value": "0"
+              },
+              "SUPPORTS_NARROW_BURST": {
+                "value": "0"
+              },
+              "WUSER_BITS_PER_BYTE": {
+                "value": "0"
+              }
+            }
+          },
+          "M07_AXI": {
+            "mode": "Master",
+            "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "parameters": {
+              "MAX_BURST_LENGTH": {
                 "value": "4"
               },
               "NUM_READ_OUTSTANDING": {
@@ -1114,7 +1152,7 @@
         "inst_hier_path": "xlconstant_3",
         "parameters": {
           "CONST_VAL": {
-            "value": "4"
+            "value": "2"
           },
           "CONST_WIDTH": {
             "value": "4"
@@ -1204,7 +1242,7 @@
             "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
             "parameters": {
               "MAX_BURST_LENGTH": {
-                "value": "4"
+                "value": "256"
               },
               "NUM_READ_OUTSTANDING": {
                 "value": "2"
@@ -1331,6 +1369,13 @@
             "value": "0"
           }
         }
+      },
+      "axi_timer_1": {
+        "vlnv": "xilinx.com:ip:axi_timer:2.0",
+        "ip_revision": "35",
+        "xci_name": "BD_Softcore_SA_axi_timer_1_0",
+        "xci_path": "ip\\BD_Softcore_SA_axi_timer_1_0\\BD_Softcore_SA_axi_timer_1_0.xci",
+        "inst_hier_path": "axi_timer_1"
       }
     },
     "interface_nets": {
@@ -1420,19 +1465,25 @@
       },
       "smartconnect_CPU_M04_AXI": {
         "interface_ports": [
-          "smartconnect_CPU/M04_AXI",
-          "axi_intc_0/s_axi"
+          "axi_quad_spi_1/AXI_LITE",
+          "smartconnect_CPU/M04_AXI"
         ]
       },
       "smartconnect_CPU_M05_AXI": {
         "interface_ports": [
           "smartconnect_CPU/M05_AXI",
-          "axi_quad_spi_1/AXI_LITE"
+          "axi_timer_1/S_AXI"
         ]
       },
       "smartconnect_CPU_M06_AXI": {
         "interface_ports": [
           "smartconnect_CPU/M06_AXI",
+          "axi_intc_0/s_axi"
+        ]
+      },
+      "smartconnect_CPU_M07_AXI": {
+        "interface_ports": [
+          "smartconnect_CPU/M07_AXI",
           "axi_clock_converter_0/S_AXI"
         ]
       }
@@ -1542,6 +1593,12 @@
           "xlconcat_1/In3"
         ]
       },
+      "axi_timer_1_pwm0": {
+        "ports": [
+          "axi_timer_1/pwm0",
+          "AUDIO_PWM"
+        ]
+      },
       "axi_uartlite_0_interrupt": {
         "ports": [
           "axi_uartlite_0/interrupt",
@@ -1610,7 +1667,8 @@
           "axi_intc_0/s_axi_aclk",
           "axi_quad_spi_0/s_axi_aclk",
           "MB_CLK",
-          "axi_quad_spi_1/s_axi_aclk"
+          "axi_quad_spi_1/s_axi_aclk",
+          "axi_timer_1/s_axi_aclk"
         ]
       },
       "mig_7series_0_init_calib_complete": {
@@ -1659,7 +1717,8 @@
           "axi_uartlite_0/s_axi_aresetn",
           "axi_intc_0/s_axi_aresetn",
           "axi_quad_spi_0/s_axi_aresetn",
-          "axi_quad_spi_1/s_axi_aresetn"
+          "axi_quad_spi_1/s_axi_aresetn",
+          "axi_timer_1/s_axi_aresetn"
         ]
       },
       "rst_clk_wiz_1_100M_bus_struct_reset": {
@@ -1739,11 +1798,6 @@
         ]
       }
     },
-    "comments": {
-      "/": {
-        "comment_0": "This is the custom IP"
-      }
-    },
     "addressing": {
       "/microblaze_0": {
         "address_spaces": {
@@ -1774,6 +1828,11 @@
               "SEG_axi_timer_0_Reg": {
                 "address_block": "/axi_timer_0/S_AXI/Reg",
                 "offset": "0x41C00000",
+                "range": "64K"
+              },
+              "SEG_axi_timer_1_Reg": {
+                "address_block": "/axi_timer_1/S_AXI/Reg",
+                "offset": "0x41C10000",
                 "range": "64K"
               },
               "SEG_axi_uartlite_0_Reg": {
@@ -1821,6 +1880,11 @@
               "SEG_axi_timer_0_Reg": {
                 "address_block": "/axi_timer_0/S_AXI/Reg",
                 "offset": "0x41C00000",
+                "range": "64K"
+              },
+              "SEG_axi_timer_1_Reg": {
+                "address_block": "/axi_timer_1/S_AXI/Reg",
+                "offset": "0x41C10000",
                 "range": "64K"
               },
               "SEG_axi_uartlite_0_Reg": {

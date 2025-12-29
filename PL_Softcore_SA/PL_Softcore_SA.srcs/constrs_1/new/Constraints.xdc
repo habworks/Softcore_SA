@@ -113,6 +113,12 @@ set_property PACKAGE_PIN K15 [get_ports {USD_CD}]
 set_property IOSTANDARD LVCMOS33 [get_ports {USD_CD}]
 
 
+#AUDIO PWM
+# AUDIO PWM (CK_IO1 ON J4.3)
+set_property PACKAGE_PIN U16 [get_ports {AUDIO_PWM}]
+set_property IOSTANDARD LVCMOS33 [get_ports {AUDIO_PWM}]
+
+
 #TEST SIGNALS
 # MB RESET (JA3 ON A11)
 set_property PACKAGE_PIN A11 [get_ports {MB_RST}]

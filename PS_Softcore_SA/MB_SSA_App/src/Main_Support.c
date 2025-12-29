@@ -32,7 +32,7 @@
 #include "xiltimer.h"
 
 
-extern XTmrCtr AXI_TimerHandle_0;
+extern XTmrCtr AXI_TimerHandle;
 extern XGpio AXI_GPIO_Handle;
 
 uint32_t volatile ReceivedBytes = 0;
@@ -40,7 +40,7 @@ uint8_t RxDataBuffer[RX_BUFFER_SIZE] = {0};
 
 void sleep_10us_Wrapper(uint32_t WaitTime)
 {
-    sleep_10us(&AXI_TimerHandle_0, XTC_TIMER_0, WaitTime);
+    sleep_10us(&AXI_TimerHandle, XTC_TIMER_0, WaitTime);
 }
 void sleep_10us(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime)
 {
@@ -53,7 +53,7 @@ void sleep_10us(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime)
 
 void sleep_ms_Wrapper(uint32_t WaitTime)
 {
-    sleep_ms(&AXI_TimerHandle_0, XTC_TIMER_0, WaitTime);    
+    sleep_ms(&AXI_TimerHandle, XTC_TIMER_0, WaitTime);    
 }
 void sleep_ms(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime)
 {
