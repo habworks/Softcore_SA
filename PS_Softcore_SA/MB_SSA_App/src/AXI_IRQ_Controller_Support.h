@@ -36,9 +36,12 @@ extern"C" {
 
 
 // FUNCTION PROTOTYPES
-bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, uint8_t IRQ_ControllerDevice_ID);
+bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress);
 bool connectPeripheral_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabric_ID, XInterruptHandler ISR_Handler, void *ISR_CallbackReference);
-void enableExceptionHandling(XIntc *IRQ_ControllerHandle);
+void enableExceptionHandling(XIntc *IRQ_ControllerHandle, bool UseFastInterrupts);
+
+
+bool connectPeripheralFast_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabric_ID, XInterruptHandler ISR_Handler, void *ISR_CallbackReference);
 
 #ifdef __cplusplus
 }

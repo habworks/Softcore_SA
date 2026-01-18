@@ -9,7 +9,7 @@ XUartLite_Config XUartLite_ConfigTable[] __attribute__ ((section (".drvcfg_sec")
 		0x0, /* xlnx,use-parity */
 		0x0, /* xlnx,odd-parity */
 		0x8, /* xlnx,data-bits */
-		0x2, /* interrupts */
+		0x1, /* interrupts */
 		0x41200001 /* interrupt-parent */
 	},
 	 {

@@ -16,7 +16,7 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x1,  /* xlnx,use-msr-instr */
 		0x10,  /* d-cache-line-size */
 		0x0,  /* xlnx,dcache-always-used */
-		0x2000,  /* d-cache-size */
+		0x4000,  /* d-cache-size */
 		0x10,  /* i-cache-line-size */
 		0x4000,  /* i-cache-size */
 		0xe,  /* xlnx,addr-tag-bits */
@@ -30,8 +30,8 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x1,  /* xlnx,i-lmb */
 		 0,  /* xlnx,i-opb */
 		 0,  /* xlnx,i-plb */
-		0xf,  /* xlnx,dcache-addr-tag */
-		0x2000,  /* xlnx,dcache-byte-size */
+		0xe,  /* xlnx,dcache-addr-tag */
+		0x4000,  /* xlnx,dcache-byte-size */
 		0x4,  /* xlnx,dcache-line-len */
 		 0,  /* xlnx,dcache-use-fsl */
 		0x0,  /* xlnx,dcache-use-writeback */
@@ -69,7 +69,7 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x0,  /* xlnx,use-fpu */
 		0x1,  /* xlnx,use-hw-mul */
 		0x1,  /* xlnx,use-icache */
-		0x1,  /* xlnx,use-interrupt */
+		0x2,  /* xlnx,use-interrupt */
 		0x0,  /* xlnx,use-mmu */
 		0x1,  /* xlnx,use-pcmp-instr */
 		0x80000000,  /* d-cache-baseaddr */

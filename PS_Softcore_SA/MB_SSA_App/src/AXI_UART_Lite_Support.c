@@ -73,7 +73,7 @@ bool init_UART_Lite(XUartLite *UART_Handle, UINTPTR IPB_BaseAddress, Type_Operat
     // STEP 4: If in IRQ mode assign the Tx and Rx ISR callbacks
     if (OperatingMode == POLLING)
         return(true);
-    XUartLite_SetSendHandler(UART_Handle, TxCallBack, UART_Handle);
+    // XUartLite_SetSendHandler(UART_Handle, TxCallBack, UART_Handle);
     XUartLite_SetRecvHandler(UART_Handle, RxCallBack, UART_Handle);
 
     return(true);

@@ -25,6 +25,8 @@
  ********************************************************************************************************/
 
 #include "AXI_IRQ_Controller_Support.h"
+#include "Hab_Types.h"
+
 
 
 /********************************************************************************************************
@@ -41,19 +43,19 @@
 * @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
 * 
 * @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
-* @param IRQ_ControllerDevice_ID: If there is only 1, and there should only be 1 IRQ Controller in your design the device ID = 0
+* @param IPB_BaseAddress: The base address of the IRQ Controller IP block
 *
 * @return True if init OK
 *
 * STEP 1: Initializes a specific AXI INTC instance
 * STEP 2: Starts the interrupt controller operation
 ********************************************************************************************************/
-bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, uint8_t IRQ_ControllerDevice_ID)
+bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress)
 {
     int AXI_Status;
 
     // STEP 1: Initializes a specific AXI INTC instance
-    AXI_Status = XIntc_Initialize(IRQ_ControllerHandle, IRQ_ControllerDevice_ID);
+    AXI_Status = XIntc_Initialize(IRQ_ControllerHandle, IPB_BaseAddress);
     if (AXI_Status != XST_SUCCESS)
         return(false);
 
@@ -122,20 +124,26 @@ bool connectPeripheral_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabri
 * @note: See peripheral AXI IRQ Controller
 * @note: Generally speaking there is only 1 AXI IRQ Controller in the design ID is 0
 * @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
+* @note: REMOVE STEP 2 IF USING FAST INTERRUPT.  Do NOT register XIntc_InterruptHandler here 
+*        if you are using Fast Interrupts for the Timer. 
+*        The MicroBlaze hardware handles the jump directly to your 
+*        FastHandler and your normal handlers via the INTC's own vector table.
 * 
 * @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
+* @param UseFastInterrupts: If true use fast interrupts - if false use normal interrupts
 *
 * STEP 1: Initializes the exception handling system
-* STEP 2: For the AXI INTC  register the AXI INTC interrupt handler itself as a general exception handler
+* STEP 2: Register, or not the AXI INTC interrupt handler as a general exception handler - see notes
 * STEP 3: Enables exceptions globally in the processor
 ********************************************************************************************************/
-void enableExceptionHandling(XIntc *IRQ_ControllerHandle)
+void enableExceptionHandling(XIntc *IRQ_ControllerHandle, bool UseFastInterrupts)
 {
     // STEP 1: Initializes the exception handling system
     Xil_ExceptionInit();
 
-    // STEP 2: For the AXI INTC  register the AXI INTC interrupt handler itself as a general exception handler
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XIntc_InterruptHandler, IRQ_ControllerHandle);
+    // STEP 2: Register, or not the AXI INTC interrupt handler as a general exception handler - see notes
+    if (!UseFastInterrupts)
+        Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XIntc_InterruptHandler, IRQ_ControllerHandle);
 
     // STEP 3: Enables exceptions globally in the processor
     Xil_ExceptionEnable();
@@ -143,3 +151,18 @@ void enableExceptionHandling(XIntc *IRQ_ControllerHandle)
 } // END OF enableExceptionHandling
 
 
+
+bool connectPeripheralFast_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabric_ID, XInterruptHandler ISR_Handler, void *ISR_CallbackReference)
+{
+    NOT_USED(ISR_CallbackReference);
+    int AXI_Status;
+
+    // STEP 1: Registers a specific interrupt handler function for a given interrupt source in the AXI INTC
+    AXI_Status = XIntc_ConnectFastHandler(IRQ_ControllerHandle, ISR_HandlerFabric_ID, (XFastInterruptHandler)ISR_Handler);
+    if (AXI_Status != XST_SUCCESS)
+        return false;
+
+    // STEP 2: Enables the specific interrupt source within the AXI INTC
+    XIntc_Enable(IRQ_ControllerHandle, ISR_HandlerFabric_ID);
+    return(true);
+}

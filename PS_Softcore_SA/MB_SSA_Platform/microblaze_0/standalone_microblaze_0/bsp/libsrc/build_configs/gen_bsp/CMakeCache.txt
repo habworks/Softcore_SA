@@ -581,9 +581,9 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //STRINGS property for variable: XILTIMER_sleep_timer
-XILTIMER_sleep_timer-STRINGS:INTERNAL=Default;axi_timer_0;axi_timer_1
+XILTIMER_sleep_timer-STRINGS:INTERNAL=Default;axi_timer_0;axi_timer_1;axi_timer_2
 //STRINGS property for variable: XILTIMER_tick_timer
-XILTIMER_tick_timer-STRINGS:INTERNAL=None;axi_timer_0;axi_timer_1
+XILTIMER_tick_timer-STRINGS:INTERNAL=None;axi_timer_0;axi_timer_1;axi_timer_2
 //STRINGS property for variable: standalone_enable_sw_intrusive_profiling
 standalone_enable_sw_intrusive_profiling-STRINGS:INTERNAL=None
 //STRINGS property for variable: standalone_microblaze_exceptions

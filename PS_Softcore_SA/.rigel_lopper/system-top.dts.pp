@@ -21,7 +21,7 @@
    xlnx,dynamic-bus-sizing = <0>;
    xlnx,rable = <0>;
    xlnx,temporal-depth = <0>;
-   xlnx,use-interrupt = <1>;
+   xlnx,use-interrupt = <2>;
    xlnx,optimization = <0>;
    xlnx,ip-axi-mon = <0>;
    xlnx,ip-name = "microblaze";
@@ -48,7 +48,7 @@
    xlnx,use-config-reset = <0>;
    xlnx,pvr = <0>;
    xlnx,i-lmb-mon = <0>;
-   xlnx,dcache-byte-size = <8192>;
+   xlnx,dcache-byte-size = <16384>;
    xlnx,fault-tolerant = <0>;
    xlnx,family = "artix7";
    compatible = "xlnx,microblaze-11.0" , "xlnx,microblaze";
@@ -119,11 +119,11 @@
    xlnx,edge-is-positive = <1>;
    xlnx,use-pcmp-instr = <1>;
    xlnx,use-icache = <1>;
-   d-cache-size = <8192>;
+   d-cache-size = <16384>;
    xlnx,memory-ip-list = "microblaze_0_local_memory_ilmb_bram_if_cntlr_memory" , "microblaze_0_local_memory_dlmb_bram_if_cntlr_memory" , "mig_7series_0_memory" , "mig_7series_0_memory";
    xlnx,async-wakeup = <3>;
    xlnx,use-non-secure = <0>;
-   xlnx,dcache-addr-tag = <15>;
+   xlnx,dcache-addr-tag = <14>;
    xlnx,number-of-rd-addr-brk = <0>;
    d-cache-baseaddr = <0x80000000>;
    xlnx,area-optimized = <1>;
@@ -185,14 +185,14 @@
    #interrupt-cells = <2>;
    xlnx,sense-of-irq-edge-type = "Rising";
    xlnx,edk-special = "INTR_CTRL";
-   xlnx,kind-of-intr = <0x3>;
+   xlnx,kind-of-intr = <0x2>;
    xlnx,kind-of-edge = <0xffffffff>;
    xlnx,irq-is-level = <1>;
    xlnx,has-ivr = <1>;
    compatible = "xlnx,axi-intc-4.1" , "xlnx,xps-intc-1.00.a";
-   xlnx,disable-synchronizers = <0>;
+   xlnx,disable-synchronizers = <1>;
    xlnx,kind-of-lvl = <0xffffffff>;
-   xlnx,ivar-reset-value = <0x10>;
+   xlnx,ivar-reset-value = <0x80000010>;
    xlnx,irq-active = <0x1>;
    xlnx,rable = <0>;
    xlnx,en-cascade-mode = <0>;
@@ -203,7 +203,7 @@
    xlnx,s-axi-aclk-freq-mhz = <100>;
    xlnx,num-sw-intr = <0>;
    xlnx,irq-connection = <0>;
-   xlnx,num-intr-inputs = <0x4>;
+   xlnx,num-intr-inputs = <0x3>;
    xlnx,has-sie = <1>;
    xlnx,enable-async = <0>;
    xlnx,has-cie = <1>;
@@ -215,11 +215,11 @@
    xlnx,cascade-master = <0>;
    xlnx,processor-clk-freq-mhz = <100>;
    status = "okay";
-   xlnx,is-fast = <0x0>;
-   xlnx,has-fast = <0>;
-   xlnx,ivar-rst-val = <0x10>;
+   xlnx,is-fast = <0x1>;
+   xlnx,has-fast = <1>;
+   xlnx,ivar-rst-val = <0x80000010>;
    interrupt-controller;
-   xlnx,async-intr = <0xfffffff3>;
+   xlnx,async-intr = <0xfffffff8>;
    xlnx,name = "axi_intc_0";
   };
   axi_gpio_0: gpio@40000000 {
@@ -343,12 +343,10 @@
    xlnx,name = "axi_quad_spi_1";
   };
   axi_timer_0: timer@41c00000 {
-   interrupts = < 3 2 >;
    compatible = "xlnx,axi-timer-2.0" , "xlnx,xps-timer-1.00.a";
    xlnx,gen1-assert = <1>;
    clock-frequency = <100000000>;
    xlnx,trig0-assert = <1>;
-   interrupt-parent = <&axi_intc_0>;
    xlnx,rable = <0>;
    xlnx,count-width = <32>;
    xlnx,ip-name = "axi_timer";
@@ -361,18 +359,19 @@
    status = "okay";
    xlnx,trig1-assert = <1>;
    xlnx,enable-timer2 = <1>;
-   interrupt-names = "interrupt";
    xlnx,name = "axi_timer_0";
   };
   axi_timer_1: timer@41c10000 {
+   interrupts = < 0 2 >;
    compatible = "xlnx,axi-timer-2.0" , "xlnx,xps-timer-1.00.a";
    xlnx,gen1-assert = <1>;
    clock-frequency = <100000000>;
    xlnx,trig0-assert = <1>;
+   interrupt-parent = <&axi_intc_0>;
    xlnx,rable = <0>;
    xlnx,count-width = <32>;
    xlnx,ip-name = "axi_timer";
-   xlnx,one-timer-only = <0>;
+   xlnx,one-timer-only = <1>;
    reg = <0x41c10000 0x10000>;
    clocks = <&clk_bus_0>;
    xlnx,gen0-assert = <1>;
@@ -380,11 +379,34 @@
    xlnx,edk-iptype = "PERIPHERAL";
    status = "okay";
    xlnx,trig1-assert = <1>;
-   xlnx,enable-timer2 = <1>;
+   xlnx,enable-timer2 = <0>;
+   interrupt-names = "interrupt";
    xlnx,name = "axi_timer_1";
   };
+  axi_timer_2: timer@41c20000 {
+   interrupts = < 2 2 >;
+   compatible = "xlnx,axi-timer-2.0" , "xlnx,xps-timer-1.00.a";
+   xlnx,gen1-assert = <1>;
+   clock-frequency = <100000000>;
+   xlnx,trig0-assert = <1>;
+   interrupt-parent = <&axi_intc_0>;
+   xlnx,rable = <0>;
+   xlnx,count-width = <32>;
+   xlnx,ip-name = "axi_timer";
+   xlnx,one-timer-only = <0>;
+   reg = <0x41c20000 0x10000>;
+   clocks = <&clk_bus_0>;
+   xlnx,gen0-assert = <1>;
+   xlnx,mode-64bit = <0>;
+   xlnx,edk-iptype = "PERIPHERAL";
+   status = "okay";
+   xlnx,trig1-assert = <1>;
+   xlnx,enable-timer2 = <1>;
+   interrupt-names = "interrupt";
+   xlnx,name = "axi_timer_2";
+  };
   axi_uartlite_0: serial@40600000 {
-   interrupts = < 2 0 >;
+   interrupts = < 1 0 >;
    compatible = "xlnx,axi-uartlite-2.0" , "xlnx,xps-uartlite-1.00.a";
    clock-frequency = <100000000>;
    xlnx,uartlite-board-interface = "Custom";
@@ -456,7 +478,7 @@
    xlnx,arbitration = <0>;
    xlnx,num-lmb = <1>;
    xlnx,mask4 = <0x800000>;
-   reg = <0x00000000 0x8000>;
+   reg = <0x00000000 0x10000>;
    xlnx,s-axi-ctrl-addr-width = <32>;
    xlnx,mask5 = <0x800000>;
    xlnx,ecc-status-registers = <0>;
@@ -514,6 +536,7 @@
          <0x41200000 &axi_intc_0 0x41200000 0x10000>,
          <0x41c00000 &axi_timer_0 0x41c00000 0x10000>,
          <0x41c10000 &axi_timer_1 0x41c10000 0x10000>,
+         <0x41c20000 &axi_timer_2 0x41c20000 0x10000>,
          <0x44a00000 &axi_quad_spi_1 0x44a00000 0x10000>,
          <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>;
   #ranges-address-cells = <0x1>;

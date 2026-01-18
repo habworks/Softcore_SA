@@ -175,6 +175,10 @@ drv_info:
     driver: tmrctr
     ip_name: axi_timer
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\tmrctr_v4_13
+  axi_timer_2:
+    driver: tmrctr
+    ip_name: axi_timer
+    path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\tmrctr_v4_13
   axi_uartlite_0:
     driver: uartlite
     ip_name: axi_uartlite
@@ -204,6 +208,7 @@ lib_config:
       - Default
       - axi_timer_0
       - axi_timer_1
+      - axi_timer_2
       description: This parameter is used to select specific timer for sleep functionality
     XILTIMER_tick_timer:
       name: XILTIMER_tick_timer
@@ -215,4 +220,5 @@ lib_config:
       - None
       - axi_timer_0
       - axi_timer_1
+      - axi_timer_2
       description: This parameter is used to select specific timer for tick functionality

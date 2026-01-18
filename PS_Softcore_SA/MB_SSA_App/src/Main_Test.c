@@ -78,7 +78,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <xstatus.h>
-#include <xtmrctr_l.h>
+// #include <xtmrctr_l.h>
 #include "ff.h"
 #include "AXI_Timer_PWM_Support.h"
 #include "AXI_UART_Lite_Support.h"
@@ -111,23 +111,21 @@ uint32_t Test_u32_var __attribute__ ((section (".Hab_Mixed_Data"))) = 100000;
 // GPIO SUPPORT
 XGpio AXI_GPIO_Handle;
 
-
 // UART SUPPORT
-XUartLite AXI_UART_Handle;
-// #define RX_BUFFER_SIZE 10
-// uint32_t volatile ReceivedBytes = 0;
-// uint8_t RxDataBuffer[RX_BUFFER_SIZE] = {0};
+XUartLite __attribute__ ((section (".Hab_Mixed_Data"))) AXI_UART_Handle;
 
-// TIMER SUPPORT
-XTmrCtr AXI_TimerHandle_0;
+// TIMER PWM SUPPORT
+XTmrCtr __attribute__ ((section (".Hab_Mixed_Data"))) AXI_TimerHandle_0;
 
+// TIMER SUPPORT - AUDIO PLAYBACK
+#define AUDIO_IRQ_COUNT 25E3
+XTmrCtr __attribute__ ((section (".Hab_Mixed_Data"))) AXI_TimerHandle_1;
+
+// TIMER SUPPORT - GENERIC
+XTmrCtr __attribute__ ((section (".Hab_Mixed_Data"))) AXI_TimerHandle_2;
 
 // IRQ CONTROLLER SUPPORT
-XIntc AXI_IRQ_ControllerHandle;
-
-// IMR ADC7676A_X2 SUPPORT
-Type_AXI_IMR_7476A_Handle AXI_IMR_7476A_Handle;
-#define ADC_SAMPLE_SIZE 3
+XIntc __attribute__ ((section (".Hab_Mixed_Data"))) AXI_IRQ_ControllerHandle;
 
 // FAT FS SUPPORT
 static void readFileTest(const char *FileName);
@@ -139,14 +137,51 @@ const char *ReadWriteFileName = "Test_RW.txt";
 
 
 
-
-
 // ISR FUNCTIONS:
 // ISR Callback function for Timer Number 0 and 1
-#ifndef USE_AXI_TIMER_IRQ_CALLBACK_API
-void TimerCallback_ISR(void *CallbackRef, u8 TmrCtrNumber) __attribute__((interrupt_handler));
-#endif
-void TimerCallback_ISR(void *CallbackRef, u8 TmrCtrNumber)
+// #ifndef USE_AXI_TIMER_IRQ_CALLBACK_API
+// void TimerCallback_ISR_0(void *CallbackRef, u8 TmrCtrNumber) __attribute__((interrupt_handler));
+// #endif
+volatile float __attribute__ ((section (".Hab_Mixed_Data"))) DutyCyclePercent = 1.0;
+void TmrCtr_FastHandler(void) __attribute__((fast_interrupt));
+void TimerCallbackAudio_ISR(void *CallbackRef, u8 TmrCtrNumber);
+void TimerCallbackGeneric_ISR(void*CallbackRef, u8 TmrCtrNumber);
+
+__attribute__((section(".Hab_Fast_Memory")))
+void TmrCtr_FastHandler(void)
+{
+
+	/* Call the TmrCtr Interrupt handler */
+    XTmrCtr_InterruptHandler(&AXI_TimerHandle_1); 
+}
+
+__attribute__((section(".Hab_Fast_Memory")))
+void TimerCallbackAudio_ISR(void *CallbackRef, u8 TmrCtrNumber)
+{
+    // Cast the CallbackRef to the XTmrCtr instance
+    XTmrCtr *InstancePtr = (XTmrCtr *)CallbackRef; 
+    if (TmrCtrNumber != XTC_TIMER_0)
+        return;
+    DutyCyclePercent += 0.01;
+    if (DutyCyclePercent >= 100.0)
+        DutyCyclePercent = 1.0;
+
+    // /* 
+    //  * CLEAR THE IRQ (The "Rearm")
+    //  * Do NOT use XTmrCtr_Reset/Start. Just clear the interrupt flag 
+    //  * in the Timer Control/Status Register (TCSR).
+    //  * 2024.2 uses XPAR_TMRCTR_1_BASEADDR (verify instance 0 or 1 in your xparameters.h)
+    //  */
+    // uint32_t RegVal = Xil_In32(XPAR_AXI_TIMER_1_BASEADDR + XTC_TCSR_OFFSET);
+    
+    // // Write 1 to the TINT bit (Bit 8) to clear it
+    // Xil_Out32(XPAR_AXI_TIMER_1_BASEADDR + XTC_TCSR_OFFSET, RegVal | XTC_CSR_INT_OCCURED_MASK);
+
+}
+
+
+__attribute__((section(".Hab_Fast_Memory")))
+void TimerCallbackGeneric_ISR(void*CallbackRef, u8 TmrCtrNumber)
 {
     // Cast the CallbackRef to the XTmrCtr instance
     XTmrCtr *InstancePtr = (XTmrCtr *)CallbackRef; 
@@ -156,25 +191,16 @@ void TimerCallback_ISR(void *CallbackRef, u8 TmrCtrNumber)
     if (TmrCtrNumber == XTC_TIMER_0)
     {
         if (ToggleTimer_0)
-            XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_0_OUTPUT);
-        else
-            XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_0_OUTPUT);
-    ToggleTimer_0 = !ToggleTimer_0;
-    }
-
-    // USER: Add your periodic timer 1 task here
-    static volatile bool ToggleTimer_1 = false;
-    if (TmrCtrNumber == XTC_TIMER_1)
-    {
-        if (ToggleTimer_1)
             XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_1_OUTPUT);
         else
             XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_1_OUTPUT);
-    ToggleTimer_1 = !ToggleTimer_1;
+        ToggleTimer_0 = !ToggleTimer_0;
     }
 
     // Clear the IRQ - rearm
     XTmrCtr_ClearStats(InstancePtr);    
+    XTmrCtr_Reset(&AXI_TimerHandle_2, XTC_TIMER_0);
+    XTmrCtr_Start(&AXI_TimerHandle_2, XTC_TIMER_0);
 }
 
 
@@ -189,22 +215,21 @@ void UART_ReceiveCallback_ISR(void *CallBackRef, unsigned int EventData)
 
     // Check for received data
     // Read data into the buffer - read until BytesReceived is zero - necessary to clear the IRQ
-    uint16_t NotUsedBytesReceived;
-    receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &NotUsedBytesReceived);
-    ReceivedBytes++;
+    uint16_t FIFO_BytesReceivedCount;
 
-    // Avoid buffer overflow - just wrap
+    receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &FIFO_BytesReceivedCount);
+    ReceivedBytes++;
     if (ReceivedBytes > RX_BUFFER_SIZE)
         ReceivedBytes = 0;
 }
 
 
 // ISR Callback function for UART Transmit
-uint32_t TxSendEvents = 0;
 void UART_TransmitCallback_ISR(void *CallBackRef, unsigned int EventData)
 {
     // Unused 
     (void)EventData;
+    static uint32_t TxSendEvents = 0;
     
     XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
 
@@ -215,22 +240,8 @@ void UART_TransmitCallback_ISR(void *CallBackRef, unsigned int EventData)
 }
 
 
-// ISR Callback function for Custom ADC IP
-uint16_t ADC_BufferDataA[ADC_SAMPLE_SIZE];
-uint16_t ADC_BufferDataB[ADC_SAMPLE_SIZE];
-void ADC_IP_Callback_ISR(void *CallbackRef)
-{
-    Type_AXI_IMR_7476A_Handle *IP_Handle = (Type_AXI_IMR_7476A_Handle *)CallbackRef;
-    IMR_ADC_7476A_X2_ClrIrq(IP_Handle);
-}
 
-bool ADC_ConversionCompleteFlag = false;
-void ADC_GPIO_ConversionComplete_ISR(void *CallbackRef)
-{
-    XGpio *IP_Handle = (XGpio *)CallbackRef;
-    ADC_ConversionCompleteFlag = true;
-    XGpio_DiscreteClear(IP_Handle, GPIO_OUTPUT_CHANNEL, 0x20);
-}
+
 
 
 
@@ -246,6 +257,7 @@ void mainTest(void)
 
     // Init AXI UART
     Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TransmitCallback_ISR, UART_ReceiveCallback_ISR);
+    // Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, POLLING, NULL, NULL);
     if (Status == false)
         while(1);
 
@@ -256,11 +268,25 @@ void mainTest(void)
     XGpio_SetDataDirection(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL, 0xFFFF);     // Switches and push buttons as input
     XGpio_SetDataDirection(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x0000);    
 
-    // Init AXI Timer 0 Timer Number 0 for Periodic IRQ (250ms) / Timer Number 1 for Periodic IRQ (100ms)
-    Status = init_PeriodicTimer(&AXI_TimerHandle_0, XPAR_AXI_TIMER_0_BASEADDR, XTC_TIMER_0, 400e6, TimerCallback_ISR);
+    // Wait for DDR3 to be ready
+    u32 GPIO_InputState;
+    do 
+    {
+        GPIO_InputState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
+    }while (!(GPIO_InputState & DDR_CALIB_COMPLETE));
+
+    // Init AXI Timer 1: Audio Playblack
+    Status = init_FastPeriodicTimer(&AXI_TimerHandle_1, XPAR_AXI_TIMER_1_BASEADDR, XTC_TIMER_0, AUDIO_IRQ_COUNT, TimerCallbackAudio_ISR);
     if (Status == false)
         while(1);
-    Status = init_PeriodicTimer(&AXI_TimerHandle_0, XPAR_AXI_TIMER_0_BASEADDR, XTC_TIMER_1, 10e6, TimerCallback_ISR);
+
+    // Init AXI Timer 2: Generic Timer
+    Status = init_PeriodicTimer(&AXI_TimerHandle_2, XPAR_AXI_TIMER_2_BASEADDR, XTC_TIMER_0, 100e6, TimerCallbackGeneric_ISR);
+    if (Status == false)
+        while(1);
+
+    // Init AXI Timer 0: Audio PWM
+    Status = init_PWM(&AXI_TimerHandle_0, XPAR_AXI_TIMER_0_BASEADDR);
     if (Status == false)
         while(1);
 
@@ -294,41 +320,36 @@ void mainTest(void)
         xil_printf("Drive mounted OK\r\n");
     }
 
-    // Init AXI IMR ADC IP
-    // init_IMR_ADC_7476A_X2(&AXI_IMR_7476A_Handle, XPAR_IMR_ADC_7476A_X2_0_BASEADDR ,IMR_ADC_CLOCK_DIVIDER);
-    // init_IMR_ADC_7476A_X2(&AXI_IMR_7476A_Handle, XPAR_IMR_ADC_7476A_X2_0_BASEADDR ,IMR_ADC_CLOCK_DIVIDER);
-
     // Init AXI IRQ Controller (4x Steps)
     // Step 1 of 4 IRQ Controller setup: Init or IRQ Controller
-    Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, 0);
+    Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_AXI_INTC_0_BASEADDR);
     if (Status == false)
         while(1);
-    // // Step 2A of 4 IRQ Controller setup: AXI Timer 
-    Status = connectPeripheral_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_0_INTR, XTmrCtr_InterruptHandler, &AXI_TimerHandle_0);
-    if (Status == false)
-        while(1);
-    // Step 2B of 4 IRQ Controller setup: AXI URT Lite
-    Status = connectPeripheral_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_UARTLITE_0_INTR, XUartLite_InterruptHandler, &AXI_UART_Handle);
-    if (Status == false)
-        while(1);
-    // Step 2C of 4 IRQ Controller setup: ADC IP
-    // Status = connectPeripheral_IRQ(&AXI_IRQ_ControllerHandle, ADC_7476A_X2_FABRIC_ID, ADC_IP_Callback_ISR, &AXI_IMR_7476A_Handle);
+    // Step 2A of 4 IRQ Controller setup: AXI Audio Timer 
+    // Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR, XTmrCtr_InterruptHandler, &AXI_TimerHandle_1);
     // if (Status == false)
     //     while(1);
-     // Step 2D of 4 IRQ Controller setup: 
-    Status = connectPeripheral_IRQ(&AXI_IRQ_ControllerHandle, 0, ADC_GPIO_ConversionComplete_ISR, &AXI_GPIO_Handle);
+    // Step 2B of 4 IRQ Controller setup: AXI Generic Timer 
+    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, XTmrCtr_InterruptHandler, &AXI_TimerHandle_2);
+    if (Status == false)
+        while(1);
+    // Step 2C of 4 IRQ Controller setup: AXI URT Lite
+    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_UARTLITE_0_INTR, XUartLite_InterruptHandler, &AXI_UART_Handle);
     if (Status == false)
         while(1);
     // Step 3 of 4 IRQ Controller setup: Enable IRQs
-    enableExceptionHandling(&AXI_IRQ_ControllerHandle);
+    enableExceptionHandling(&AXI_IRQ_ControllerHandle, true); // true = use fast interrupts
     // Step 4 of 4 Start the IRQ funtions - not part of the AXI IRQ Controller - unique to the AXI peripheral
-    startPeriodicTimer(&AXI_TimerHandle_0, XTC_TIMER_0);
-    startPeriodicTimer(&AXI_TimerHandle_0, XTC_TIMER_1);
+    startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+    startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
+    // XUartLite_Recv(&AXI_UART_Handle, RxDataBuffer, 1);
     XUartLite_EnableInterrupt(&AXI_UART_Handle);
+
+    setup_PWM(&AXI_TimerHandle_0, 200000, 50.0);
 
     // DDR3 Self Test
     // Wait for DDR3 to be ready
-    u32 GPIO_InputState;
+    // u32 GPIO_InputState;
     do 
     {
         GPIO_InputState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
@@ -374,6 +395,7 @@ void mainTest(void)
     u32 PreviousSwitchState = 0xFFFFFFFF;
     bool SwitchStateChange = false;
     uint16_t BytesTransmitted = 0; 
+    float PreviousDutyCyclePercent = 0;
     while (1)
     {
         // Simple Echo of the input UART
@@ -383,6 +405,12 @@ void mainTest(void)
             ReceivedBytes -= BytesTransmitted;
         }
 
+        if (DutyCyclePercent != PreviousDutyCyclePercent)
+        {
+            setup_PWM(&AXI_TimerHandle_0, 200000, DutyCyclePercent);
+            PreviousDutyCyclePercent = DutyCyclePercent;
+        }
+        
         // Read and check the input stats for change
         SwitchState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
         if (SwitchState ^ PreviousSwitchState)
@@ -395,23 +423,23 @@ void mainTest(void)
             // SWITCH 1
             if (SwitchState & SW_0)
             {
-                startPeriodicTimer(&AXI_TimerHandle_0, XTC_TIMER_0);
+                startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 xil_printf("Timer 0 started\r\n");
             }
             else
             {
-                stopPeriodicTimer(&AXI_TimerHandle_0, XTC_TIMER_0);
+                stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 xil_printf("Timer 0 stopped\r\n");
             }
             // SWITCH 2
             if (SwitchState & SW_1)
             {
-                startPeriodicTimer(&AXI_TimerHandle_0, XTC_TIMER_1);
+                startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_1);
                 xil_printf("Timer 1 started\r\n");
             }
             else
             {
-                stopPeriodicTimer(&AXI_TimerHandle_0, XTC_TIMER_1);
+                stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_1);
                 xil_printf("Timer 1 stopped\r\n");
             }
             // Push Button 1
@@ -451,8 +479,10 @@ void mainTest(void)
                 //     displayTrasmitReceive(&AXI_SPI_DisplayHandle, DISPLAY_CSN, &TxByte, NULL, 1);
                 // }
                 // displayChipSelect(CS_DISABLE);
+                stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 drawSpectrumMock(&Display_SSD1309);
                 xil_printf("End display test\r\n");
+                startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
             }
             // Push Button 3
             if (SwitchState & PB_3)
@@ -482,11 +512,13 @@ void mainTest(void)
                 // }
                 // xil_printf("\r\n");
 
+                stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 writeFileTest(ReadWriteFileName);
-                sleep_ms(&AXI_TimerHandle_0, XTC_TIMER_0, 1000);
+                sleep_ms(&AXI_TimerHandle_2, XTC_TIMER_0, 1000);
                 readFileTest(ReadWriteFileName);
-                sleep_ms(&AXI_TimerHandle_0, XTC_TIMER_0, 1000);
+                sleep_ms(&AXI_TimerHandle_2, XTC_TIMER_0, 1000);
                 readFileTest(ReadOnlyFileName); 
+                startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
             }
             // Update switch state for chage
             PreviousSwitchState = SwitchState;

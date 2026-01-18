@@ -139,11 +139,11 @@ set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_CSn[0]}]
 set_property PACKAGE_PIN H5 [get_ports {LED_4}]
 set_property IOSTANDARD LVCMOS33 [get_ports {LED_4}]
 # GENERIC LED USE (LED_5 on J5)
-set_property PACKAGE_PIN J5 [get_ports {gpio_io_o_0[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[0]}]
-# GENERIC LED USE (LED_6 on T9)
-set_property PACKAGE_PIN T9 [get_ports {gpio_io_o_0[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[1]}]
-# GENERIC LED USE (LED_7 on T10)
-set_property PACKAGE_PIN T10 [get_ports {gpio_io_o_0[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[2]}]
+set_property PACKAGE_PIN J5 [get_ports {LED_5}]
+set_property IOSTANDARD LVCMOS33 [get_ports {LED_5}]
+## GENERIC LED USE (LED_6 on T9)
+#set_property PACKAGE_PIN T9 [get_ports {gpio_io_o_0[1]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[1]}]
+## GENERIC LED USE (LED_7 on T10)
+#set_property PACKAGE_PIN T10 [get_ports {gpio_io_o_0[2]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[2]}]

@@ -31,38 +31,46 @@
 #include "xtmrctr.h"
 #include "xiltimer.h"
 
-
-extern XTmrCtr AXI_TimerHandle;
+#ifdef RUN_MAIN_APPLICATION
+    extern XTmrCtr AXI_TimerGenericHandle;
+    #define AXI_Timer AXI_TimerGenericHandle
+#else    
+    extern XTmrCtr AXI_TimerHandle_2;
+    #define AXI_Timer AXI_TimerHandle_2
+#endif
 extern XGpio AXI_GPIO_Handle;
 
-uint32_t volatile ReceivedBytes = 0;
-uint8_t RxDataBuffer[RX_BUFFER_SIZE] = {0};
+volatile uint32_t __attribute__ ((section (".Hab_Mixed_Data"))) ReceivedBytes = 0;
+volatile uint8_t __attribute__ ((section (".Hab_Mixed_Data"))) RxDataBuffer[RX_BUFFER_SIZE] = {0};
+
 
 void sleep_10us_Wrapper(uint32_t WaitTime)
 {
-    sleep_10us(&AXI_TimerHandle, XTC_TIMER_0, WaitTime);
+    sleep_10us(&AXI_Timer, XTC_TIMER_0, WaitTime);
 }
-void sleep_10us(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime)
+
+void sleep_10us(XTmrCtr *TimerHandle, uint8_t Timer, uint32_t WaitTime)
 {
-    uint32_t StartCount = XTmrCtr_GetValue(AXI_TimerHandle, Timer);
+    uint32_t StartCount = XTmrCtr_GetValue(TimerHandle, Timer);
     uint32_t DelayCount = (TICKS_PER_10_US * WaitTime);    
-    while(StartCount - XTmrCtr_GetValue(AXI_TimerHandle, Timer) < DelayCount);
+    while(StartCount - XTmrCtr_GetValue(TimerHandle, Timer) < DelayCount);
 }
 
 
 
 void sleep_ms_Wrapper(uint32_t WaitTime)
 {
-    sleep_ms(&AXI_TimerHandle, XTC_TIMER_0, WaitTime);    
+    sleep_ms(&AXI_Timer, XTC_TIMER_0, WaitTime);    
 }
-void sleep_ms(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime)
+
+void sleep_ms(XTmrCtr *TimerHandle, uint8_t Timer, uint32_t WaitTime)
 {
-    uint32_t StartCount = (uint32_t)XTmrCtr_GetValue(AXI_TimerHandle, Timer);
+    uint32_t StartCount = (uint32_t)XTmrCtr_GetValue(TimerHandle, Timer);
     uint32_t DelayCount = (TICKS_PER_MILLISECOND * WaitTime);
     do 
     {
         // asm volatile("nop");
-    } while(StartCount - XTmrCtr_GetValue(AXI_TimerHandle, Timer) < DelayCount);
+    } while(StartCount - XTmrCtr_GetValue(TimerHandle, Timer) < DelayCount);
 }
 
 
@@ -151,3 +159,4 @@ void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData)
     static uint32_t TxSendEvents = 0;
     TxSendEvents++; 
 }
+

@@ -39,7 +39,7 @@ extern"C" {
 
 // DEFINES
 // PRE-PROCESSOR
-#define                         RUN_MAIN_APPLICATION    // ****Comment out this line if running testing****
+// #define                         RUN_MAIN_APPLICATION    // ****Comment out this line if running testing****
 // PS FW REVSION
 #define FW_MAJOR_REV            1
 #define FW_MINOR_REV            0
@@ -54,13 +54,13 @@ extern"C" {
 
 
 // EXTERNS
-extern uint32_t volatile ReceivedBytes;
-extern uint8_t RxDataBuffer[RX_BUFFER_SIZE];
+extern volatile uint32_t volatile ReceivedBytes;
+extern volatile uint8_t RxDataBuffer[RX_BUFFER_SIZE];
 
 // FUNCTION PROTOTYPES
 void sleep_10us_Wrapper(uint32_t WaitTime);
-void sleep_10us(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime);
 void sleep_ms_Wrapper(uint32_t WaitTime);
+void sleep_10us(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime);
 void sleep_ms(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime);
 void displayResetOrRun(Type_DisplayResetRun ResetRunAction);
 void displayCommandOrData(Type_DisplayCommandData CommandDataAction);

@@ -9,6 +9,7 @@ _HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x800;
 MEMORY
 {
 	mig_0 : ORIGIN = 0x80000000, LENGTH = 0x10000000
+    /* vectors_bram : ORIGIN = 0x00000000, LENGTH = 0x00000050 */ /* Hab added this to move vectors to LBM */
 	lmb_bram_0 : ORIGIN = 0x50, LENGTH = 0x7fb0
 }
 
@@ -189,10 +190,19 @@ SECTIONS
 .Hab_Mixed_Data : {
     . = ALIGN(4); /* Align the start of the section to a 4-byte boundary */
     __Hab_Mixed_Data_start = .;
-    *(.Hab_Mixed_Data)
-    *(.Hab_Mixed_Data.*)
+    KEEP(*(.Hab_Mixed_Data))
+    KEEP(*(.Hab_Mixed_Data.*))
     . = ALIGN(4); /* Crucial: Align the end to the largest natural alignment needed */
     __Hab_Mixed_Data_end = .;
+  } > lmb_bram_0
+  
+.Hab_Fast_Memory : {
+    . = ALIGN(4); /* Align the start of the section to a 4-byte boundary */
+    __Hab_Fast_Memory_start = .;
+    KEEP(*(.Hab_Fast_Memory))
+    KEEP(*(.Hab_Fast_Memory*))
+    . = ALIGN(4); /* Crucial: Align the end to the largest natural alignment needed */
+    __Hab_Fast_Memory_end = .;
   } > lmb_bram_0
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );
@@ -215,7 +225,7 @@ _SDA2_BASE_ = __sdata2_start + ((__sbss2_end - __sdata2_start) / 2 );
    . = ALIGN(8);
    _stack = .;
    __stack = _stack;
-} > mig_0
+} > lmb_bram_0
 
 _end = .;
 }
