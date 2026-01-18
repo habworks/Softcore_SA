@@ -47,3 +47,12 @@
 # Eclipse-style metadata (still used in 2024.2)
 .metadata/
 .sdk/
+
+
+#Added for Schematic & PCB (Altium / CircuitStudio)
+Hardware/Softcore_SA_HW/History/
+Hardware/Softcore_SA_HW/Logs/
+*.SchDocPreview
+Hardware/SCH/__Previews/
+Hardware/PCB/__Previews/
+Hardware/PCB/*.html
