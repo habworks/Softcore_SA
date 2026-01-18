@@ -31,13 +31,15 @@ R15 N011 0 10K
 .model D D
 .lib C:\Users\habco\Documents\LTspiceXVII\lib\cmp\standard.dio
 .tran 0 4000e-6 200e-6 uic
-.param Rw = 110K
+.param Rw = 10K
 .param Cw = 330pF
 * V3 is a pulse - necessary to get the ossiclation going.  It would not \nbe necessary in a real circuit, but is necessary in a mathematical model due to \nOp Amp modeled too ideal
 * Capacitors should be ceramic of COG, NP0 type for stability
 * AD8608 x4 Op Amps\nAD8606 x2 Op Amps\nAD8605 x1 Op Amp
 * Double diodes in circuit work to limit out to 2x Vd.  On diode condution R5 in parallel with\nR1 to limit gain.  This type of ossicaltor requires a gain of 3 to work.  Without diode circuit\nin feedback the ouput would swing to the rails and be clipped creating harmonics
 * F = 1 / (2*PI*Rw*Cw)
+* At R = 110K Frequency = 4.384KHz\nAt R = 10K Frequency = 48.22KHz
+.four 48.22k V(VO_2)
 .lib ADI.lib
 .backanno
 .end
