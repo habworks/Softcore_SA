@@ -29,7 +29,7 @@ PushECOToAnnotationFile=1
 DItemRevisionGUID=
 ReportSuppressedErrorsInMessages=0
 ForceUpdateCount=0
-OutputPath=
+OutputPath=Outputs
 LogFolderPath=
 ManagedProjectGUID=
 LinkedManagedProjectGUID=
@@ -257,6 +257,9 @@ GenerateBOM=0
 OutputJobsCount=1
 DocumentReferenceClass1=DocumentReference
 OutputJobFileName1=Softcore_SA_HW.OutJob
+
+[Generic_EDE]
+OutputDir=Outputs
 
 [OutputGroup1]
 Name=Netlist Outputs
