@@ -1,0 +1,864 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<style type="text/css">
+		h1, h2, h3, h4, h5, h6 {
+			font-family : segoe ui;
+			color : black;
+			background-color : #E2F2F8;
+			padding: 0.3em;
+		}
+
+		h1 {
+			font-size: 1.2em;
+		}		
+
+		h2 {
+			font-size: 1.2em;
+		}
+
+		body {
+			font-family : segoe ui;
+		}
+
+		td, th {
+			padding: 0.5em;
+			text-align : left;
+			width: 10em;
+		}
+		th {
+			background-color : #EEEEEE;
+
+		}
+		th.column1, td.column1 {
+			text-align: left;
+			width : auto;
+		}
+		table {
+			width : 100%;
+			font-size: 0.9em;
+		}
+
+		.DRC_summary_header {
+			padding-bottom : 0.1em;
+			border : 0px solid black;
+			width: 100%;
+			align: left;
+		}
+
+		.DRC_summary_header_col1,
+		.DRC_summary_header_col2, 
+		.DRC_summary_header_col3 {
+			color : black;
+			font-size:100%;
+			padding : 0em;
+			padding-top : 0.2em;
+			padding-bottom 0.2em;
+			border : 0px solid black;
+			vertical-align: top;
+			text-align: left;
+		}
+
+		.DRC_summary_header_col1 {
+			font-weight: bold;
+			width: 8em;
+		}
+
+		.DRC_summary_header_col2 {
+			width: 0.1em;
+		
+		}
+
+		.DRC_summary_header_col3 {
+			width : auto;
+		}
+
+		.header_holder {
+		    Width = 100%;
+		    border = 0px solid green;
+		    padding = 0;
+		}
+
+
+		.front_matter, .front_matter_column1, .front_matter_column2, .front_matter_column3
+		{
+			left : 0;
+			top : 0;
+			padding: 0em;
+			padding-top : 0.1em;
+			border : 0px solid black;
+			width : 100%;
+			vertical-align: top;
+			text-align: left;
+		}
+
+		.front_matter_column1 {
+			width : 8em;
+			font-weight: bold;
+		}
+
+		.front_matter_column2 {
+			width: 0.1em;
+		}
+
+		.front_matter_column3 {
+			width : auto;
+		}
+
+		.total_column1, .total_column {
+			font-weight : bold;
+		}
+		.total_column1 {
+			text-align : left;
+		}
+		.warning, .error {
+			color : red;
+			font-weight : bold;
+		}
+		tr.onmouseout_odd {
+			background-color : #white;
+		}
+		tr.onmouseout_even { 
+			background-color : #FAFAFA;
+		}
+		tr.onmouseover_odd, tr.onmouseover_even { 
+			background-color : #EEEEEE;
+		} 
+		a:link, a:visited, .q a:link,.q a:active,.q {
+			color: #21489e; 
+		}
+		a:link.callback, a:visited.callback { 
+			color: #21489e;
+		}
+		a:link.customize, a:visited.customize {
+			color: #C0C0C0;
+			position: absolute; 
+			right: 10px;
+		}	
+		p.contents_level1 {
+			font-weight : bold;
+			font-size : 110%;
+			margin : 0.5em;
+		}
+		p.contents_level2 {
+			position : relative;
+			left : 20px;
+			margin : 0.5em;
+		}
+	</style><script type="text/javascript">
+		function coordToMils(coord) {
+			var number = coord / 10000;
+			
+			if (number != number.toFixed(3))
+				number = number.toFixed(3);
+
+			return number + 'mil'
+		}
+
+		function coordToMM(coord) {
+			var number = 0.0254 * coord / 10000;
+			
+			if (number != number.toFixed(4))
+				number = number.toFixed(4);
+			
+			return number + 'mm'
+		}
+	
+		function convertCoord(coordNode, units) {
+			for (var i = 0; i < coordNode.childNodes.length; i++) {
+				coordNode.removeChild(coordNode.childNodes[i]);
+			}
+
+			var coord = coordNode.getAttribute('value');
+			if (coord != null) {
+				if (units == 'mm') {
+					textNode = document.createTextNode(coordToMM(coord));
+					coordNode.appendChild(textNode);
+				} else if (units == 'mil') {
+					textNode = document.createTextNode(coordToMils(coord));		
+					coordNode.appendChild(textNode);	
+				}
+			}
+		}
+	
+		function convertUnits(unitNode, units) {
+			for (var i = 0; i < unitNode.childNodes.length; i++) {
+				unitNode.removeChild(unitNode.childNodes[i]);		
+			}
+		
+			textNode = document.createTextNode(units); 
+			unitNode.appendChild(textNode);
+		}
+	
+		function changeUnits(radio_input, units) {
+			if (radio_input.checked) {
+			
+				var elements = document.getElementsByName('coordinate');
+				if (elements) {
+					for (var i = 0; i < elements.length; i++) {
+						convertCoord(elements[i], units);
+					}
+				}
+	
+				var elements = document.getElementsByName('units');
+				if (elements) {
+					for (var i = 0; i < elements.length; i++) {
+						convertUnits(elements[i], units);
+					}
+				}
+			}
+		}
+	</script><title>Design Rule Verification Report</title>
+</head>
+<body onload=""><img ALT="Altium" src="
+			file://C:\Users\Public\Documents\Altium\CS\Templates\CircuitStudio_logo.png
+		"><h1>Design Rule Verification Report</h1>
+<table class="header_holder">
+<td class="column1">
+<table class="front_matter">
+<tr class="front_matter">
+<td class="front_matter_column1">Date:</td>
+<td class="front_matter_column2"></td>
+<td class="front_matter_column3">1/22/2026</td>
+</tr>
+<tr class="front_matter">
+<td class="front_matter_column1">Time:</td>
+<td class="front_matter_column2"></td>
+<td class="front_matter_column3">6:42:56 AM</td>
+</tr>
+<tr class="front_matter">
+<td class="front_matter_column1">Elapsed Time:</td>
+<td class="front_matter_column2"></td>
+<td class="front_matter_column3">00:00:00</td>
+</tr>
+<tr class="front_matter">
+<td class="front_matter_column1">Filename:</td>
+<td class="front_matter_column2"></td>
+<td class="front_matter_column3"><a href="file:///C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc" class="file"><acronym title="C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc">C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc</acronym></a></td>
+</tr>
+</table>
+</td>
+<td class="column2">
+<table class="DRC_summary_header">
+<tr>
+<td class="DRC_summary_header_col1">Errors:</td>
+<td class="DRC_summary_header_col2"></td>
+<td class="DRC_summary_header_col3">0</td></tr>
+<tr>
+<td class="DRC_summary_header_col1">Warnings:</td>
+<td class="DRC_summary_header_col2"></td>
+<td class="DRC_summary_header_col3">0</td></tr>
+<tr>
+<td class="DRC_summary_header_col1">Rule Violations:</td>
+<td class="DRC_summary_header_col2"></td>
+<td class="DRC_summary_header_col3" style="color : red">167</td></tr>
+</table>
+</td>
+</table><a name="IDK31TGORAIFBUO1SROFKVLNLTHHCBIIZBAGLYLMOTM5ES0MPYJDOG"><h2>Summary</h2></a><table>
+<tr>
+<th class="column1">Errors</th>
+<th class="column2">Count</th>
+</tr>
+<tr>
+<td style="font-weight : bold; text-align : right" class="column1">Total</td>
+<td style="font-weight : bold" class="column2">0</td>
+</tr>
+</table><br><table>
+<tr>
+<th class="column1">Warnings</th>
+<th class="column2">Count</th>
+</tr>
+<tr>
+<td style="font-weight : bold; text-align : right" class="column1">Total</td>
+<td style="font-weight : bold" class="column2">0</td>
+</tr>
+</table><br><table>
+<tr>
+<th class="column1">Rule Violations</th>
+<th class="column2">Count</th>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="#IDVE144PD4P5VGFVYRWCJ2Q023OP1M3XGT24DBI4ELT3AWSOCXVKYP">Unpoured Polygon (Allow unpoured: False)</a></td>
+<td class="column2">0</td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="#IDQMBSBE04WXZ0JZDI3IH2BSWZZO3FRGJ31JVDCTO1SZKYIPCSSRK">Silk primitive without silk layer</a></td>
+<td class="column2">13</td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="#ID1W5NR0ZAYW52HQDCDALDFDUUFIVBAYVYLQJ23MIC4RWSYREYY0HJ">Hole To Hole Clearance (Gap=0.254mm) (All),(All)</a></td>
+<td class="column2">0</td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="#IDHVGHA5JZHA1SERJ2EP5NJUIW1GZPBY1WITSM3EFMRGZSHR5EFJEG">Hole Size Constraint (Min=0.025mm) (Max=2.54mm) (All)</a></td>
+<td class="column2">10</td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="#IDEOZSJZYKOM5FD45NFWCQNV2USM43V1MXXHGBI1JFQ0RGFR5WJWQN">Height Constraint (Min=0mm) (Max=25.4mm) (Prefered=12.7mm) (All)</a></td>
+<td class="column2">1</td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="#ID0LXOZQGGEEMFCWMNKS5TRYEX1NVDAOMILFH20ZCBQTTR0BXGY4P">Width Constraint (Min=0.203mm) (Max=1.016mm) (Preferred=0.254mm) (All)</a></td>
+<td class="column2">0</td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="#IDAUNEYFN2FNQ3HZNRXS1AOOX01BH0M2DH01HO01LJTQBXFR0G2VUM">Power Plane Connect Rule(Relief Connect )(Expansion=0.508mm) (Conductor Width=0.254mm) (Air Gap=0.254mm) (Entries=4) (All)</a></td>
+<td class="column2">0</td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="#IDDU2J40UT2PZDRFKDW2FCAXXENXRWBLBG5ILFKHCTITLGUIMRKEJ">Clearance Constraint (Gap=0.254mm) (All),(All)</a></td>
+<td class="column2">10</td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="#ID2CSB4B4IW2EJMWIOFT5PCGH2ELJJFKVGD3EZ03BP1OIG15UL2BI">Un-Routed Net Constraint ( (All) )</a></td>
+<td class="column2">129</td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="#IDQ3R2GVCSH5X4POOWKHLNQPSOULRU2NQNJZFLY3BQVYNDBJ1J54AE">Short-Circuit Constraint (Allowed=No) (All),(All)</a></td>
+<td class="column2">4</td>
+</tr>
+<tr>
+<td style="font-weight : bold; text-align : right" class="column1">Total</td>
+<td style="font-weight : bold" class="column2">167</td>
+</tr>
+</table><br><a name="IDQMBSBE04WXZ0JZDI3IH2BSWZZO3FRGJ31JVDCTO1SZKYIPCSSRK"><table>
+<tr>
+<th style="text-align : left" colspan="1" class="rule">Silk primitive without silk layer</th>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3719.837mil|Location2.X=5186.446mil|Location1.Y=4792.672mil|Location2.Y=6230.951mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3719.837mil|Location2.X=5186.446mil|Location1.Y=4792.672mil|Location2.Y=6230.951mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (50.5mm,100mm)(105mm,100mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5865.506mil|Location2.X=7332.115mil|Location1.Y=4792.672mil|Location2.Y=6230.951mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5865.506mil|Location2.X=7332.115mil|Location1.Y=4792.672mil|Location2.Y=6230.951mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (105mm,100mm)(159.5mm,100mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6658.997mil|Location2.X=7093.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6658.997mil|Location2.X=7093.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (131.68mm,100.02mm)(146.92mm,100.02mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5758.997mil|Location2.X=6193.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5758.997mil|Location2.X=6193.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (108.82mm,100.02mm)(124.06mm,100.02mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3958.997mil|Location2.X=4393.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3958.997mil|Location2.X=4393.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (63.1mm,100.02mm)(78.34mm,100.02mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4858.997mil|Location2.X=5293.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4858.997mil|Location2.X=5293.743mil|Location1.Y=5309.391mil|Location2.Y=5715.807mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (85.96mm,100.02mm)(101.2mm,100.02mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3362.225mil|Location2.X=3398.388mil|Location1.Y=5813.013mil|Location2.Y=5820.846mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3362.225mil|Location2.X=3398.388mil|Location1.Y=5813.013mil|Location2.Y=5820.846mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (50.5mm,100mm)(50.5mm,115.5mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7653.564mil|Location2.X=7689.727mil|Location1.Y=5832.698mil|Location2.Y=5840.531mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7653.564mil|Location2.X=7689.727mil|Location1.Y=5832.698mil|Location2.Y=5840.531mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Track (159.5mm,100mm)(159.5mm,116.5mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6570.411mil|Location2.X=6679.886mil|Location1.Y=5772.418mil|Location2.Y=5853.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6570.411mil|Location2.X=6679.886mil|Location1.Y=5772.418mil|Location2.Y=5853.563mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Text "J6" (131.649mm,106.888mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3870.411mil|Location2.X=3979.886mil|Location1.Y=5772.418mil|Location2.Y=5853.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3870.411mil|Location2.X=3979.886mil|Location1.Y=5772.418mil|Location2.Y=5853.563mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Text "J4" (63.069mm,106.888mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5670.411mil|Location2.X=5779.886mil|Location1.Y=5772.418mil|Location2.Y=5853.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5670.411mil|Location2.X=5779.886mil|Location1.Y=5772.418mil|Location2.Y=5853.563mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Text "J3" (108.789mm,106.888mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4767.079mil|Location2.X=4863.225mil|Location1.Y=5779.082mil|Location2.Y=5846.898mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4767.079mil|Location2.X=4863.225mil|Location1.Y=5779.082mil|Location2.Y=5846.898mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Text "J1" (85.929mm,106.888mm)  Top Overlay</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1437.402mil|Location2.X=1666.838mil|Location1.Y=5496.437mil|Location2.Y=5697.543mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1437.402mil|Location2.X=1666.838mil|Location1.Y=5496.437mil|Location2.Y=5697.543mil|Absolute=True">Silk To Board Region Clearance (Out of silkscreen region) : Text "MECH9" (0.509mm,101.402mm)  Top Overlay</acronym></a><br></td>
+</tr>
+</table></a><hr color="#EEEEEE"><a href="#top" style="font-size: 0.9em">Back to top</a><br><br><a name="IDHVGHA5JZHA1SERJ2EP5NJUIW1GZPBY1WITSM3EFMRGZSHR5EFJEG"><table>
+<tr>
+<th style="text-align : left" colspan="1" class="rule">Hole Size Constraint (Min=0.025mm) (Max=2.54mm) (All)</th>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1468.705mil|Location2.X=1589.955mil|Location1.Y=3831.697mil|Location2.Y=3952.947mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1468.705mil|Location2.X=1589.955mil|Location1.Y=3831.697mil|Location2.Y=3952.947mil|Absolute=True">Hole Size Constraint (3.048mm &gt; 2.54mm) : Pad U3-8(3.845mm,58.865mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1468.705mil|Location2.X=1589.955mil|Location1.Y=2273.036mil|Location2.Y=2394.286mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1468.705mil|Location2.X=1589.955mil|Location1.Y=2273.036mil|Location2.Y=2394.286mil|Absolute=True">Hole Size Constraint (3.048mm &gt; 2.54mm) : Pad U3-8(3.845mm,19.275mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4110.044mil|Location2.X=4231.294mil|Location1.Y=3831.697mil|Location2.Y=3952.947mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4110.044mil|Location2.X=4231.294mil|Location1.Y=3831.697mil|Location2.Y=3952.947mil|Absolute=True">Hole Size Constraint (3.048mm &gt; 2.54mm) : Pad U3-8(70.935mm,58.865mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4110.044mil|Location2.X=4231.294mil|Location1.Y=2273.036mil|Location2.Y=2394.286mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4110.044mil|Location2.X=4231.294mil|Location1.Y=2273.036mil|Location2.Y=2394.286mil|Absolute=True">Hole Size Constraint (3.048mm &gt; 2.54mm) : Pad U3-8(70.935mm,19.275mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=9442.288mil|Location2.X=9573.459mil|Location1.Y=5308.43mil|Location2.Y=5439.601mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=9442.288mil|Location2.X=9573.459mil|Location1.Y=5308.43mil|Location2.Y=5439.601mil|Absolute=True">Hole Size Constraint (3.3mm &gt; 2.54mm) : Pad MTN4-1(206.5mm,96.5mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=9442.288mil|Location2.X=9573.459mil|Location1.Y=1647.012mil|Location2.Y=1778.184mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=9442.288mil|Location2.X=9573.459mil|Location1.Y=1647.012mil|Location2.Y=1778.184mil|Absolute=True">Hole Size Constraint (3.3mm &gt; 2.54mm) : Pad MTN3-1(206.5mm,3.5mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1450.162mil|Location2.X=1581.333mil|Location1.Y=1647.012mil|Location2.Y=1778.184mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1450.162mil|Location2.X=1581.333mil|Location1.Y=1647.012mil|Location2.Y=1778.184mil|Absolute=True">Hole Size Constraint (3.3mm &gt; 2.54mm) : Pad MTN2-1(3.5mm,3.5mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1450.162mil|Location2.X=1581.333mil|Location1.Y=5308.43mil|Location2.Y=5439.601mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1450.162mil|Location2.X=1581.333mil|Location1.Y=5308.43mil|Location2.Y=5439.601mil|Absolute=True">Hole Size Constraint (3.3mm &gt; 2.54mm) : Pad MTN1-1(3.5mm,96.5mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2906.855mil|Location2.X=3038.027mil|Location1.Y=4698.194mil|Location2.Y=4829.365mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2906.855mil|Location2.X=3038.027mil|Location1.Y=4698.194mil|Location2.Y=4829.365mil|Absolute=True">Hole Size Constraint (3.3mm &gt; 2.54mm) : Pad MECH9-1(40.5mm,81mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1469.848mil|Location2.X=1601.019mil|Location1.Y=4698.194mil|Location2.Y=4829.365mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1469.848mil|Location2.X=1601.019mil|Location1.Y=4698.194mil|Location2.Y=4829.365mil|Absolute=True">Hole Size Constraint (3.3mm &gt; 2.54mm) : Pad MECH9-2(4mm,81mm)  Multi-Layer</acronym></a><br></td>
+</tr>
+</table></a><hr color="#EEEEEE"><a href="#top" style="font-size: 0.9em">Back to top</a><br><br><a name="IDEOZSJZYKOM5FD45NFWCQNV2USM43V1MXXHGBI1JFQ0RGFR5WJWQN"><table>
+<tr>
+<th style="text-align : left" colspan="1" class="rule">Height Constraint (Min=0mm) (Max=25.4mm) (Prefered=12.7mm) (All)</th>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8325.986mil|Location2.X=8366.926mil|Location1.Y=1944.558mil|Location2.Y=1953.078mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8325.986mil|Location2.X=8366.926mil|Location1.Y=1944.558mil|Location2.Y=1953.078mil|Absolute=True">Height Constraint: SIP Component R42-PRS12R-4115K-103B1 (177mm,9.5mm) on Top Layer</acronym></a><br></td>
+</tr>
+</table></a><hr color="#EEEEEE"><a href="#top" style="font-size: 0.9em">Back to top</a><br><br><a name="IDDU2J40UT2PZDRFKDW2FCAXXENXRWBLBG5ILFKHCTITLGUIMRKEJ"><table>
+<tr>
+<th style="text-align : left" colspan="2" class="rule">Clearance Constraint (Gap=0.254mm) (All),(All)</th>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8138.779mil|Location2.X=8180.118mil|Location1.Y=5039.37mil|Location2.Y=5196.85mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8138.779mil|Location2.X=8180.118mil|Location1.Y=5039.37mil|Location2.Y=5196.85mil|Absolute=True">Region (0 hole(s)) Keep-Out Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8083.599mil|Location2.X=8138.842mil|Location1.Y=5039.307mil|Location2.Y=5196.913mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8083.599mil|Location2.X=8138.842mil|Location1.Y=5039.307mil|Location2.Y=5196.913mil|Absolute=True">Pad L1-1(171.025mm,90mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8138.779mil|Location2.X=8180.118mil|Location1.Y=5039.37mil|Location2.Y=5196.85mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8138.779mil|Location2.X=8180.118mil|Location1.Y=5039.37mil|Location2.Y=5196.85mil|Absolute=True">Region (0 hole(s)) Keep-Out Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8180.055mil|Location2.X=8235.299mil|Location1.Y=5039.307mil|Location2.Y=5196.913mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8180.055mil|Location2.X=8235.299mil|Location1.Y=5039.307mil|Location2.Y=5196.913mil|Absolute=True">Pad L1-2(173.475mm,90mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8270.59mil|Location2.X=8292.712mil|Location1.Y=4908.385mil|Location2.Y=4930.507mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8270.59mil|Location2.X=8292.712mil|Location1.Y=4908.385mil|Location2.Y=4930.507mil|Absolute=True">Track (175.2mm,84.8mm)(175.508mm,85.108mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8260.09mil|Location2.X=8315.334mil|Location1.Y=4931.528mil|Location2.Y=4989.528mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8260.09mil|Location2.X=8315.334mil|Location1.Y=4931.528mil|Location2.Y=4989.528mil|Absolute=True">Pad C33-2(175.508mm,85.997mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8282.712mil|Location2.X=8292.712mil|Location1.Y=4920.507mil|Location2.Y=4965.528mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8282.712mil|Location2.X=8292.712mil|Location1.Y=4920.507mil|Location2.Y=4965.528mil|Absolute=True">Track (175.508mm,85.108mm)(175.508mm,85.997mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8260.09mil|Location2.X=8315.334mil|Location1.Y=4931.528mil|Location2.Y=4989.528mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8260.09mil|Location2.X=8315.334mil|Location1.Y=4931.528mil|Location2.Y=4989.528mil|Absolute=True">Pad C33-2(175.508mm,85.997mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8026.185mil|Location2.X=8036.185mil|Location1.Y=4916.57mil|Location2.Y=4965.733mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8026.185mil|Location2.X=8036.185mil|Location1.Y=4916.57mil|Location2.Y=4965.733mil|Absolute=True">Track (168.992mm,85.008mm)(168.992mm,86.003mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8003.563mil|Location2.X=8058.807mil|Location1.Y=4931.733mil|Location2.Y=4989.733mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8003.563mil|Location2.X=8058.807mil|Location1.Y=4931.733mil|Location2.Y=4989.733mil|Absolute=True">Pad C32-2(168.992mm,86.003mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8162.795mil|Location2.X=8175.787mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8162.795mil|Location2.X=8175.787mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True">Region (0 hole(s)) Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8143.11mil|Location2.X=8152.953mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8143.11mil|Location2.X=8152.953mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True">Pad U11-8(171.96mm,82.5mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8162.795mil|Location2.X=8175.787mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8162.795mil|Location2.X=8175.787mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True">Region (0 hole(s)) Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8185.63mil|Location2.X=8195.472mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8185.63mil|Location2.X=8195.472mil|Location1.Y=4755.906mil|Location2.Y=4889.764mil|Absolute=True">Pad U11-10(173.04mm,82.5mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8224.921mil|Location2.X=8234.921mil|Location1.Y=4872.953mil|Location2.Y=4908.15mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8224.921mil|Location2.X=8234.921mil|Location1.Y=4872.953mil|Location2.Y=4908.15mil|Absolute=True">Track (174.04mm,83.9mm)(174.04mm,84.54mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8225mil|Location2.X=8234.842mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8225mil|Location2.X=8234.842mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True">Pad U11-19(174.04mm,83.9mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8085.551mil|Location2.X=8113.661mil|Location1.Y=4890.275mil|Location2.Y=4918.385mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8085.551mil|Location2.X=8113.661mil|Location1.Y=4890.275mil|Location2.Y=4918.385mil|Absolute=True">Track (170.5mm,84.8mm)(170.96mm,84.34mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.74mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.74mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True">Pad U11-20(170.96mm,83.9mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.661mil|Location2.X=8113.661mil|Location1.Y=4872.953mil|Location2.Y=4900.275mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.661mil|Location2.X=8113.661mil|Location1.Y=4872.953mil|Location2.Y=4900.275mil|Absolute=True">Track (170.96mm,83.9mm)(170.96mm,84.34mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.74mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.74mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True">Pad U11-20(170.96mm,83.9mm)  Top Layer</acronym></a></td>
+</tr>
+</table></a><hr color="#EEEEEE"><a href="#top" style="font-size: 0.9em">Back to top</a><br><br><a name="ID2CSB4B4IW2EJMWIOFT5PCGH2ELJJFKVGD3EZ03BP1OIG15UL2BI"><table>
+<tr>
+<th style="text-align : left" colspan="1" class="rule">Un-Routed Net Constraint ( (All) )</th>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8653.169mil|Location2.X=8708.413mil|Location1.Y=4941.574mil|Location2.Y=5084.708mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8653.169mil|Location2.X=8708.413mil|Location1.Y=4941.574mil|Location2.Y=5084.708mil|Absolute=True">Un-Routed Net Constraint: Net VCC Between Pad R66-2 (185.492,86.253mm) And Pad Q3-1 (185.55,88.575mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=9041.079mil|Location2.X=9124.276mil|Location1.Y=2087.338mil|Location2.Y=2233.623mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=9041.079mil|Location2.X=9124.276mil|Location1.Y=2087.338mil|Location2.Y=2233.623mil|Absolute=True">Un-Routed Net Constraint: Net VCC Between Pad C23-1 (195.508,15.997mm) And Pad U7-8 (195.7,13.405mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7367.851mil|Location2.X=7646.043mil|Location1.Y=1781.921mil|Location2.Y=2117.779mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7367.851mil|Location2.X=7646.043mil|Location1.Y=1781.921mil|Location2.Y=2117.779mil|Absolute=True">Un-Routed Net Constraint: Net VCC Between Pad U8-8 (153.2,13.405mm) And Pad R43-2 (158.508,5.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3679.838mil|Location2.X=7598.425mil|Location1.Y=5096.747mil|Location2.Y=4075.215mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3679.838mil|Location2.X=7598.425mil|Location1.Y=5096.747mil|Location2.Y=4075.215mil|Absolute=True">Un-Routed Net Constraint: Net VCC Between Pad R47-2 (61.008,91.997mm) And Track on layer Top Layer (155.46,60.97mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7367.851mil|Location2.X=9124.276mil|Location1.Y=2087.338mil|Location2.Y=2117.779mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7367.851mil|Location2.X=9124.276mil|Location1.Y=2087.338mil|Location2.Y=2117.779mil|Absolute=True">Un-Routed Net Constraint: Net VCC Between Pad U8-8 (153.2,13.405mm) And Pad U7-8 (195.7,13.405mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7491.752mil|Location2.X=8708.413mil|Location1.Y=3967.164mil|Location2.Y=4999.574mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7491.752mil|Location2.X=8708.413mil|Location1.Y=3967.164mil|Location2.Y=4999.574mil|Absolute=True">Un-Routed Net Constraint: Net VCC Between Pad R62-1 (155.992,61.503mm) And Pad R66-2 (185.492,86.253mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6472.063mil|Location2.X=6643.275mil|Location1.Y=3752.217mil|Location2.Y=3807.461mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6472.063mil|Location2.X=6643.275mil|Location1.Y=3752.217mil|Location2.Y=3807.461mil|Absolute=True">Un-Routed Net Constraint: Net NetR26_2 Between Pad TP9-1 (130,56mm) And Pad R27-1 (133.003,56.008mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6515.075mil|Location2.X=6781.244mil|Location1.Y=2046.571mil|Location2.Y=2447.386mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6515.075mil|Location2.X=6781.244mil|Location1.Y=2046.571mil|Location2.Y=2447.386mil|Absolute=True">Un-Routed Net Constraint: Net NetJ7_1 Between Pad J7-1 (131.3,12.8mm) And Pad REL1-14 (136.38,21.3mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8062.992mil|Location2.X=8093.898mil|Location1.Y=4827.756mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8062.992mil|Location2.X=8093.898mil|Location1.Y=4827.756mil|Location2.Y=4889.764mil|Absolute=True">Un-Routed Net Constraint: Net NetC34_1 Between Pad U11-2 (170.1,82.75mm) And Pad U11-21 (170.46,83.875mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7826.398mil|Location2.X=7881.641mil|Location1.Y=4754.566mil|Location2.Y=4910.991mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7826.398mil|Location2.X=7881.641mil|Location1.Y=4754.566mil|Location2.Y=4910.991mil|Absolute=True">Un-Routed Net Constraint: Net NetC34_1 Between Pad R56-1 (164.492,81.503mm) And Pad R53-1 (164.492,84.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8084.055mil|Location2.X=8254.528mil|Location1.Y=4864.173mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8084.055mil|Location2.X=8254.528mil|Location1.Y=4864.173mil|Location2.Y=4889.764mil|Absolute=True">Un-Routed Net Constraint: Net NetC34_1 Between Pad U11-21 (170.46,83.875mm) And Pad U11-18 (174.54,83.875mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8244.685mil|Location2.X=8472.193mil|Location1.Y=4864.173mil|Location2.Y=5186.582mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8244.685mil|Location2.X=8472.193mil|Location1.Y=4864.173mil|Location2.Y=5186.582mil|Absolute=True">Un-Routed Net Constraint: Net NetC34_1 Between Pad U11-18 (174.54,83.875mm) And Pad C34-1 (179.492,91.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7826.398mil|Location2.X=8093.898mil|Location1.Y=4852.991mil|Location2.Y=4910.991mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7826.398mil|Location2.X=8093.898mil|Location1.Y=4852.991mil|Location2.Y=4910.991mil|Absolute=True">Un-Routed Net Constraint: Net NetC34_1 Between Pad R53-1 (164.492,84.003mm) And Pad U11-21 (170.46,83.875mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8225mil|Location2.X=8315.334mil|Location1.Y=4866.142mil|Location2.Y=4989.528mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8225mil|Location2.X=8315.334mil|Location1.Y=4866.142mil|Location2.Y=4989.528mil|Absolute=True">Un-Routed Net Constraint: Net NetC33_2 Between Pad U11-19 (174.04,83.9mm) And Pad C33-2 (175.508,85.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8003.563mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4989.733mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8003.563mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4989.733mil|Absolute=True">Un-Routed Net Constraint: Net NetC32_2 Between Pad C32-2 (168.992,86.003mm) And Pad U11-20 (170.96,83.9mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4835.96mil|Location2.X=4919.157mil|Location1.Y=4275.527mil|Location2.Y=4357.149mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4835.96mil|Location2.X=4919.157mil|Location1.Y=4275.527mil|Location2.Y=4357.149mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U1-5 (88.89,69mm) And Pad U1-4 (88.89,70.27mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8084.055mil|Location2.X=8164.37mil|Location1.Y=4755.905mil|Location2.Y=4781.496mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8084.055mil|Location2.X=8164.37mil|Location1.Y=4755.905mil|Location2.Y=4781.496mil|Absolute=True">Un-Routed Net Constraint: Pad U11-5(170.46mm,81.125mm)  Top Layer</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8732.531mil|Location2.X=8787.775mil|Location1.Y=4941.37mil|Location2.Y=5084.708mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8732.531mil|Location2.X=8787.775mil|Location1.Y=4941.37mil|Location2.Y=5084.708mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad Q3-2 (187.45,88.575mm) And Pad R66-1 (187.508,86.247mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6350.02mil|Location2.X=6405.264mil|Location1.Y=4734.882mil|Location2.Y=4891.306mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6350.02mil|Location2.X=6405.264mil|Location1.Y=4734.882mil|Location2.Y=4891.306mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R29-1 (126.992,83.503mm) And Pad C13-2 (126.992,81.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8378.201mil|Location2.X=8433.445mil|Location1.Y=2785.859mil|Location2.Y=2942.283mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8378.201mil|Location2.X=8433.445mil|Location1.Y=2785.859mil|Location2.Y=2942.283mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R69-2 (178.508,33.997mm) And Pad C44-1 (178.508,31.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=3947.275mil|Location2.Y=4103.7mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=3947.275mil|Location2.Y=4103.7mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad LED1-K (112.008,60.997mm) And Pad LED2-K (112.008,63.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3455.15mil|Location2.Y=3611.576mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3455.15mil|Location2.Y=3611.576mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R11-1 (108.008,48.497mm) And Pad R10-1 (108.008,50.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3258.3mil|Location2.Y=3414.725mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3258.3mil|Location2.Y=3414.725mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R13-1 (108.008,43.497mm) And Pad R12-1 (108.008,45.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4045.7mil|Location2.Y=4202.125mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4045.7mil|Location2.Y=4202.125mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad LED2-K (112.008,63.497mm) And Pad LED3-K (112.008,65.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4340.976mil|Location2.Y=4497.401mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4340.976mil|Location2.Y=4497.401mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad LED5-K (112.008,70.997mm) And Pad LED6-K (112.008,73.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4144.125mil|Location2.Y=4300.551mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4144.125mil|Location2.Y=4300.551mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad LED3-K (112.008,65.997mm) And Pad LED4-K (112.008,68.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3159.875mil|Location2.Y=3316.3mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3159.875mil|Location2.Y=3316.3mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R14-1 (108.008,40.997mm) And Pad R13-1 (108.008,43.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1734.499mil|Location2.X=1789.743mil|Location1.Y=1624.44mil|Location2.Y=1800.551mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1734.499mil|Location2.X=1789.743mil|Location1.Y=1624.44mil|Location2.Y=1800.551mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad LED8-K (9.758,1.997mm) And Pad LED7-K (9.758,4.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6100.331mil|Location2.X=6269.056mil|Location1.Y=2029.465mil|Location2.Y=2094.24mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6100.331mil|Location2.X=6269.056mil|Location1.Y=2029.465mil|Location2.Y=2094.24mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad J2-S2 (120.65,12.25mm) And Pad R22-1 (123.497,12.492mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8030.232mil|Location2.X=8265.118mil|Location1.Y=4565.252mil|Location2.Y=4856.339mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8030.232mil|Location2.X=8265.118mil|Location1.Y=4565.252mil|Location2.Y=4856.339mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C31-2 (171.508,78.497mm) And PolyRegion on layer Top Layer (172.394,80.811mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3102.61mil|Location2.X=3188.33mil|Location1.Y=3883.322mil|Location2.Y=4054.488mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3102.61mil|Location2.X=3188.33mil|Location1.Y=3883.322mil|Location2.Y=4054.488mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C5-2 (44.508,62.247mm) And Pad U3-1 (45.12,59.5mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7256.153mil|Location2.X=7409.201mil|Location1.Y=1782.126mil|Location2.Y=1879.292mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7256.153mil|Location2.X=7409.201mil|Location1.Y=1782.126mil|Location2.Y=1879.292mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C26-1 (150.008,6.997mm) And Pad C20-2 (152.492,6.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7925.445mil|Location2.X=8080.079mil|Location1.Y=3494.52mil|Location2.Y=3590.303mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7925.445mil|Location2.X=8080.079mil|Location1.Y=3494.52mil|Location2.Y=3590.303mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R65-1 (167.008,49.497mm) And Pad C41-2 (169.497,50.492mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3752.216mil|Location2.X=3831.165mil|Location1.Y=4824.346mil|Location2.Y=5028.897mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3752.216mil|Location2.X=3831.165mil|Location1.Y=4824.346mil|Location2.Y=5028.897mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C16-2 (61.008,86.997mm) And Pad C15-2 [Unplated] (61.58,84mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5297.491mil|Location2.X=5376.44mil|Location1.Y=4577.196mil|Location2.Y=4781.952mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5297.491mil|Location2.X=5376.44mil|Location1.Y=4577.196mil|Location2.Y=4781.952mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C2-2 (100.258,76.997mm) And Pad C1-2 [Unplated] (100.83,80mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8378.201mil|Location2.X=8447.307mil|Location1.Y=3081.135mil|Location2.Y=3305.575mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8378.201mil|Location2.X=8447.307mil|Location1.Y=3081.135mil|Location2.Y=3305.575mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R68-1 (178.508,38.997mm) And Pad C43-2 [Unplated] (178.83,42.5mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3102.61mil|Location2.X=3181.559mil|Location1.Y=3996.488mil|Location2.Y=4211.086mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3102.61mil|Location2.X=3181.559mil|Location1.Y=3996.488mil|Location2.Y=4211.086mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C5-2 (44.508,62.247mm) And Pad C4-2 [Unplated] (45.08,65.5mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6665.602mil|Location2.X=6743.173mil|Location1.Y=5089.008mil|Location2.Y=5284.512mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6665.602mil|Location2.X=6743.173mil|Location1.Y=5089.008mil|Location2.Y=5284.512mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C11-2 (135.008,89.997mm) And Pad J6-5 (135.49,93.44mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8307.456mil|Location2.X=8491.878mil|Location1.Y=2077.401mil|Location2.Y=2179.669mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8307.456mil|Location2.X=8491.878mil|Location1.Y=2077.401mil|Location2.Y=2179.669mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R42-03 (177,14.5mm) And Pad R36-1 (179.992,13.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6720.846mil|Location1.Y=4984.386mil|Location2.Y=5147.008mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6720.846mil|Location1.Y=4984.386mil|Location2.Y=5147.008mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U6-2 (133.345,87mm) And Pad C11-2 (135.008,89.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8653.791mil|Location2.X=8787.775mil|Location1.Y=4833.102mil|Location2.Y=4999.37mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8653.791mil|Location2.X=8787.775mil|Location1.Y=4833.102mil|Location2.Y=4999.37mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C38-2 (185.508,83.497mm) And Pad R66-1 (187.508,86.247mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8496.311mil|Location2.X=8551.555mil|Location1.Y=4734.678mil|Location2.Y=4989.528mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8496.311mil|Location2.X=8551.555mil|Location1.Y=4734.678mil|Location2.Y=4989.528mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C39-2 (181.508,85.997mm) And Pad R60-1 (181.508,80.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7909.386mil|Location2.X=8139.338mil|Location1.Y=3244.031mil|Location2.Y=3370.142mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7909.386mil|Location2.X=8139.338mil|Location1.Y=3244.031mil|Location2.Y=3370.142mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad L2-2 (166.5,44mm) And Pad C45-1 (171.003,44.508mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4835.96mil|Location2.X=4919.157mil|Location1.Y=4075.527mil|Location2.Y=4307.149mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4835.96mil|Location2.X=4919.157mil|Location1.Y=4075.527mil|Location2.Y=4307.149mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U1-9 (88.89,63.92mm) And Pad U1-5 (88.89,69mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6740.531mil|Location1.Y=4649.74mil|Location2.Y=4812.361mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6740.531mil|Location1.Y=4649.74mil|Location2.Y=4812.361mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U4-2 (133.345,78.5mm) And Pad C10-2 (135.508,81.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7603.972mil|Location2.X=7881.641mil|Location1.Y=4946.492mil|Location2.Y=5014.137mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7603.972mil|Location2.X=7881.641mil|Location1.Y=4946.492mil|Location2.Y=5014.137mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad SW6-3 (159,86.5mm) And Pad R55-1 (164.492,86.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3545.803mil|Location2.X=3807.46mil|Location1.Y=4970.897mil|Location2.Y=5045.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3545.803mil|Location2.X=3807.46mil|Location1.Y=4970.897mil|Location2.Y=5045.929mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U9-7 (55.9,87.825mm) And Pad C16-2 (61.008,86.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4875.33mil|Location2.X=4958.527mil|Location1.Y=3229.07mil|Location2.Y=3510.692mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4875.33mil|Location2.X=4958.527mil|Location1.Y=3229.07mil|Location2.Y=3510.692mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U2-9 (89.89,42.42mm) And Pad U2-4 (89.89,48.77mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7787.028mil|Location2.X=8032.15mil|Location1.Y=2943.543mil|Location2.Y=3070.142mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7787.028mil|Location2.X=8032.15mil|Location1.Y=2943.543mil|Location2.Y=3070.142mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R67-2 (163.492,35.503mm) And Pad U13-5 (168.13,37.675mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5655.449mil|Location2.X=5988.252mil|Location1.Y=2190.882mil|Location2.Y=2254mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5655.449mil|Location2.X=5988.252mil|Location1.Y=2190.882mil|Location2.Y=2254mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad J2-S1 (109.25,16.45mm) And Pad J2-6 (116.65,16.45mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7826.398mil|Location2.X=7881.641mil|Location1.Y=4656.141mil|Location2.Y=5009.417mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7826.398mil|Location2.X=7881.641mil|Location1.Y=4656.141mil|Location2.Y=5009.417mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R58-1 (164.492,79.003mm) And Pad R55-1 (164.492,86.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8052.693mil|Location2.X=8433.445mil|Location1.Y=2753.48mil|Location2.Y=2843.859mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8052.693mil|Location2.X=8433.445mil|Location1.Y=2753.48mil|Location2.Y=2843.859mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C46-1 [Unplated] (171,30.67mm) And Pad C44-1 (178.508,31.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7353.957mil|Location2.X=7646.043mil|Location1.Y=1782.126mil|Location2.Y=1938.347mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7353.957mil|Location2.X=7646.043mil|Location1.Y=1782.126mil|Location2.Y=1938.347mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C20-2 (152.492,6.003mm) And Pad R46-1 (158.508,8.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6452.693mil|Location2.X=6805.378mil|Location1.Y=3484.189mil|Location2.Y=3601.638mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6452.693mil|Location2.X=6805.378mil|Location1.Y=3484.189mil|Location2.Y=3601.638mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad D2-1 (129.8,49mm) And Pad U5-4 (136.8,51.095mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3773.559mil|Location2.X=4025.165mil|Location1.Y=4687.255mil|Location2.Y=4939.432mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3773.559mil|Location2.X=4025.165mil|Location1.Y=4687.255mil|Location2.Y=4939.432mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C15-2 [Unplated] (61.58,84mm) And Pad C17-2 (66.503,79.758mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6100.331mil|Location2.X=6454.787mil|Location1.Y=1604.268mil|Location2.Y=1828.803mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6100.331mil|Location2.X=6454.787mil|Location1.Y=1604.268mil|Location2.Y=1828.803mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad J2-S3 (120.65,2.45mm) And Pad J7-MH1 (127.5,5mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5797.874mil|Location2.X=5988.252mil|Location1.Y=2190.882mil|Location2.Y=2488.562mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5797.874mil|Location2.X=5988.252mil|Location1.Y=2190.882mil|Location2.Y=2488.562mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C6-2 (113.003,22.508mm) And Pad J2-6 (116.65,16.45mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3161.043mil|Location2.X=3611.677mil|Location1.Y=5000.63mil|Location2.Y=5058.63mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3161.043mil|Location2.X=3611.677mil|Location1.Y=5000.63mil|Location2.Y=5058.63mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C21-2 (45.992,87.753mm) And Pad U9-7 (55.9,87.825mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8929.382mil|Location2.X=9023.374mil|Location1.Y=1821.292mil|Location2.Y=2233.827mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8929.382mil|Location2.X=9023.374mil|Location1.Y=1821.292mil|Location2.Y=2233.827mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C27-1 (192.508,6.997mm) And Pad C23-2 (193.492,16.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7256.153mil|Location2.X=7350.146mil|Location1.Y=1821.292mil|Location2.Y=2233.827mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7256.153mil|Location2.X=7350.146mil|Location1.Y=1821.292mil|Location2.Y=2233.827mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C26-1 (150.008,6.997mm) And Pad C22-2 (150.992,16.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6722.181mil|Location2.X=6936.76mil|Location1.Y=3571.197mil|Location2.Y=3867.685mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6722.181mil|Location2.X=6936.76mil|Location1.Y=3571.197mil|Location2.Y=3867.685mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U5-4 (136.8,51.095mm) And Pad C12-2 (140.492,57.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6722.181mil|Location2.X=7135.197mil|Location1.Y=3476.004mil|Location2.Y=3601.638mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6722.181mil|Location2.X=7135.197mil|Location1.Y=3476.004mil|Location2.Y=3601.638mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U5-4 (136.8,51.095mm) And Pad C9-2 (145.497,48.992mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6639.701mil|Location2.X=6838.335mil|Location1.Y=1714.504mil|Location2.Y=2115.715mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6639.701mil|Location2.X=6838.335mil|Location1.Y=1714.504mil|Location2.Y=2115.715mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad J7-MH2 (135.1,5mm) And Pad R31-1 (137.992,13.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8594.114mil|Location2.X=8984.626mil|Location1.Y=1683.699mil|Location2.Y=1879.292mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8594.114mil|Location2.X=8984.626mil|Location1.Y=1683.699mil|Location2.Y=1879.292mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C19-1 (183.992,3.503mm) And Pad C27-1 (192.508,6.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3757.614mil|Location2.X=4220.846mil|Location1.Y=4252.393mil|Location2.Y=4399.472mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3757.614mil|Location2.X=4220.846mil|Location1.Y=4252.393mil|Location2.Y=4399.472mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U10-4 (61.53,71.345mm) And Pad C28-2 (71.508,68.747mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5633.858mil|Location2.X=6155.575mil|Location1.Y=1604.268mil|Location2.Y=1738.252mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5633.858mil|Location2.X=6155.575mil|Location1.Y=1604.268mil|Location2.Y=1738.252mil|Absolute=True">Un-Routed Net Constraint: </acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4875.33mil|Location2.X=5224.161mil|Location1.Y=3479.07mil|Location2.Y=3788.945mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4875.33mil|Location2.X=5224.161mil|Location1.Y=3479.07mil|Location2.Y=3788.945mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U2-4 (89.89,48.77mm) And Pad C3-2 (96.992,55.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7146.063mil|Location2.X=7914.65mil|Location1.Y=2850.578mil|Location2.Y=3072.543mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7146.063mil|Location2.X=7914.65mil|Location1.Y=2850.578mil|Location2.Y=3072.543mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Track on layer Top Layer (149.05,34.945mm) And Pad R67-2 (163.492,35.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7687.433mil|Location2.X=8303.212mil|Location1.Y=3889.39mil|Location2.Y=3993.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7687.433mil|Location2.X=8303.212mil|Location1.Y=3889.39mil|Location2.Y=3993.764mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C40-2 (160.997,59.492mm) And Pad J8-2 (175,60.54mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3356.725mil|Location2.Y=3513.15mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5657.854mil|Location1.Y=3356.725mil|Location2.Y=3513.15mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R12-1 (108.008,45.997mm) And Pad R11-1 (108.008,48.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4242.551mil|Location2.Y=4398.976mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5760.09mil|Location2.X=5815.334mil|Location1.Y=4242.551mil|Location2.Y=4398.976mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad LED4-K (112.008,68.497mm) And Pad LED5-K (112.008,70.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8378.201mil|Location2.X=8433.445mil|Location1.Y=2884.283mil|Location2.Y=3139.135mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8378.201mil|Location2.X=8433.445mil|Location1.Y=2884.283mil|Location2.Y=3139.135mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R69-2 (178.508,33.997mm) And Pad R68-1 (178.508,38.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7909.386mil|Location2.X=7980.689mil|Location1.Y=3244.031mil|Location2.Y=3552.52mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7909.386mil|Location2.X=7980.689mil|Location1.Y=3244.031mil|Location2.Y=3552.52mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad L2-2 (166.5,44mm) And Pad R65-1 (167.008,49.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6740.531mil|Location1.Y=4754.361mil|Location2.Y=5015.614mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6740.531mil|Location1.Y=4754.361mil|Location2.Y=5015.614mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U6-2 (133.345,87mm) And Pad C10-2 (135.508,81.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1433.007mil|Location2.X=1789.743mil|Location1.Y=1629.858mil|Location2.Y=1800.551mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1433.007mil|Location2.X=1789.743mil|Location1.Y=1629.858mil|Location2.Y=1800.551mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad MTN2-1 (3.5,3.5mm) And Pad LED7-K (9.758,4.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7909.386mil|Location2.X=8032.15mil|Location1.Y=3046mil|Location2.Y=3370.142mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7909.386mil|Location2.X=8032.15mil|Location1.Y=3046mil|Location2.Y=3370.142mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad L2-2 (166.5,44mm) And Pad U13-5 (168.13,37.675mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5952.693mil|Location2.X=6155.575mil|Location1.Y=2029.465mil|Location2.Y=2254mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5952.693mil|Location2.X=6155.575mil|Location1.Y=2029.465mil|Location2.Y=2254mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad J2-6 (116.65,16.45mm) And Pad J2-S2 (120.65,12.25mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3535.566mil|Location2.X=3611.677mil|Location1.Y=4688.716mil|Location2.Y=5045.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3535.566mil|Location2.X=3611.677mil|Location1.Y=4688.716mil|Location2.Y=5045.929mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R50-1 (55.54,79.83mm) And Pad U9-7 (55.9,87.825mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6350.02mil|Location2.X=6660.299mil|Location1.Y=4649.74mil|Location2.Y=4792.882mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6350.02mil|Location2.X=6660.299mil|Location1.Y=4649.74mil|Location2.Y=4792.882mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C13-2 (126.992,81.003mm) And Pad U4-2 (133.345,78.5mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8174.213mil|Location2.X=8551.555mil|Location1.Y=4734.678mil|Location2.Y=4792.678mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8174.213mil|Location2.X=8551.555mil|Location1.Y=4734.678mil|Location2.Y=4792.678mil|Absolute=True">Un-Routed Net Constraint: </acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3757.614mil|Location2.X=3843.173mil|Location1.Y=4367.85mil|Location2.Y=4939.432mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3757.614mil|Location2.X=3843.173mil|Location1.Y=4367.85mil|Location2.Y=4939.432mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U10-4 (61.53,71.345mm) And Pad C15-2 [Unplated] (61.58,84mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8436.634mil|Location2.X=8649.358mil|Location1.Y=1683.699mil|Location2.Y=2135.401mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8436.634mil|Location2.X=8649.358mil|Location1.Y=1683.699mil|Location2.Y=2135.401mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R36-1 (179.992,13.503mm) And Pad C19-1 (183.992,3.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5297.491mil|Location2.X=5815.334mil|Location1.Y=4439.401mil|Location2.Y=4635.196mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5297.491mil|Location2.X=5815.334mil|Location1.Y=4439.401mil|Location2.Y=4635.196mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C2-2 (100.258,76.997mm) And Pad LED6-K (112.008,73.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5168.917mil|Location2.X=5657.854mil|Location1.Y=3553.576mil|Location2.Y=3788.945mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5168.917mil|Location2.X=5657.854mil|Location1.Y=3553.576mil|Location2.Y=3788.945mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C3-2 (96.992,55.503mm) And Pad R10-1 (108.008,50.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6783.091mil|Location2.X=7350.146mil|Location1.Y=2057.715mil|Location2.Y=2233.827mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6783.091mil|Location2.X=7350.146mil|Location1.Y=2057.715mil|Location2.Y=2233.827mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R31-1 (137.992,13.003mm) And Pad C22-2 (150.992,16.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4835.96mil|Location2.X=4958.527mil|Location1.Y=3479.07mil|Location2.Y=4107.149mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4835.96mil|Location2.X=4958.527mil|Location1.Y=3479.07mil|Location2.Y=4107.149mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad U1-9 (88.89,63.92mm) And Pad U2-4 (89.89,48.77mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7077.197mil|Location2.X=7271.405mil|Location1.Y=2923.857mil|Location2.Y=3531.248mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=7077.197mil|Location2.X=7271.405mil|Location1.Y=2923.857mil|Location2.Y=3531.248mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C9-2 (145.497,48.992mm) And Pad R30-1 (148.992,35.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6100.331mil|Location2.X=6155.575mil|Location1.Y=1604.268mil|Location2.Y=2084.709mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6100.331mil|Location2.X=6155.575mil|Location1.Y=1604.268mil|Location2.Y=2084.709mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad J2-S3 (120.65,2.45mm) And Pad J2-S2 (120.65,12.25mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8081.338mil|Location2.X=8447.307mil|Location1.Y=3190.488mil|Location2.Y=3354.705mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8081.338mil|Location2.X=8447.307mil|Location1.Y=3190.488mil|Location2.Y=3354.705mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C45-1 (171.003,44.508mm) And Pad C43-2 [Unplated] (178.83,42.5mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5815.334mil|Location1.Y=3553.576mil|Location2.Y=4005.275mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5602.61mil|Location2.X=5815.334mil|Location1.Y=3553.576mil|Location2.Y=4005.275mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad R10-1 (108.008,50.997mm) And Pad LED1-K (112.008,60.997mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8022.079mil|Location2.X=8303.212mil|Location1.Y=3535.059mil|Location2.Y=3993.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8022.079mil|Location2.X=8303.212mil|Location1.Y=3535.059mil|Location2.Y=3993.764mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C41-2 (169.497,50.492mm) And Pad J8-2 (175,60.54mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4165.602mil|Location2.X=4919.157mil|Location1.Y=4252.393mil|Location2.Y=4310.393mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4165.602mil|Location2.X=4919.157mil|Location1.Y=4252.393mil|Location2.Y=4310.393mil|Absolute=True">Un-Routed Net Constraint: Net GND Between Pad C28-2 (71.508,68.747mm) And Pad U1-5 (88.89,69mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6661.169mil|Location1.Y=4687.142mil|Location2.Y=4812.565mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6661.169mil|Location1.Y=4687.142mil|Location2.Y=4812.565mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad U4-1 (133.345,79.45mm) And Pad C10-1 (133.492,81.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6586.24mil|Location2.X=6660.299mil|Location1.Y=5021.788mil|Location2.Y=5147.212mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6586.24mil|Location2.X=6660.299mil|Location1.Y=5021.788mil|Location2.Y=5147.212mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad C11-1 (132.992,90.003mm) And Pad U6-1 (133.345,87.95mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5896.299mil|Location2.X=6052.725mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5896.299mil|Location2.X=6052.725mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R20-2 (115.503,22.508mm) And Pad R15-2 (118.003,22.508mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5502.599mil|Location2.X=5659.024mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5502.599mil|Location2.X=5659.024mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R17-2 (105.503,22.508mm) And Pad R18-2 (108.003,22.508mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5601.024mil|Location2.X=5757.449mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5601.024mil|Location2.X=5757.449mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R18-2 (108.003,22.508mm) And Pad R19-2 (110.503,22.508mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5994.725mil|Location2.X=6151.15mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5994.725mil|Location2.X=6151.15mil|Location1.Y=2433.319mil|Location2.Y=2488.563mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R15-2 (118.003,22.508mm) And Pad R16-2 (120.503,22.508mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3952.102mil|Location2.X=4037.661mil|Location1.Y=4517.85mil|Location2.Y=4663.137mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3952.102mil|Location2.X=4037.661mil|Location1.Y=4517.85mil|Location2.Y=4663.137mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad U10-8 (66.47,75.155mm) And Pad C17-1 (66.497,77.742mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3020.33mil|Location2.X=3088.33mil|Location1.Y=3883.322mil|Location2.Y=4054.691mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3020.33mil|Location2.X=3088.33mil|Location1.Y=3883.322mil|Location2.Y=4054.691mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad C5-1 (42.492,62.253mm) And Pad U3-2 (42.58,59.5mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6934.78mil|Location2.X=7017.976mil|Location1.Y=3721.197mil|Location2.Y=3867.481mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6934.78mil|Location2.X=7017.976mil|Location1.Y=3721.197mil|Location2.Y=3867.481mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad U5-8 (142.2,54.905mm) And Pad C12-1 (142.508,57.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5238.322mil|Location2.X=5321.519mil|Location1.Y=3629.07mil|Location2.Y=3788.74mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5238.322mil|Location2.X=5321.519mil|Location1.Y=3629.07mil|Location2.Y=3788.74mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad C3-1 (99.008,55.497mm) And Pad U2-18 (99.11,52.58mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5198.952mil|Location2.X=5282.149mil|Location1.Y=4475.527mil|Location2.Y=4635.4mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5198.952mil|Location2.X=5282.149mil|Location1.Y=4475.527mil|Location2.Y=4635.4mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad U1-18 (98.11,74.08mm) And Pad C2-1 (98.242,77.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5214.11mil|Location2.X=5273.373mil|Location1.Y=4577.4mil|Location2.Y=4781.952mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5214.11mil|Location2.X=5273.373mil|Location1.Y=4577.4mil|Location2.Y=4781.952mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad C1-1 [Unplated] (98.17,80mm) And Pad C2-1 (98.242,77.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3019.228mil|Location2.X=3078.492mil|Location1.Y=3996.691mil|Location2.Y=4211.086mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3019.228mil|Location2.X=3078.492mil|Location1.Y=3996.691mil|Location2.Y=4211.086mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad C4-1 [Unplated] (42.42,65.5mm) And Pad C5-1 (42.492,62.253mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5699.449mil|Location2.X=5855.67mil|Location1.Y=2353.956mil|Location2.Y=2488.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5699.449mil|Location2.X=5855.67mil|Location1.Y=2353.956mil|Location2.Y=2488.563mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R19-2 (110.503,22.508mm) And Pad C6-1 (112.997,20.492mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5797.67mil|Location2.X=5901.638mil|Location1.Y=2190.882mil|Location2.Y=2409.2mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5797.67mil|Location2.X=5901.638mil|Location1.Y=2190.882mil|Location2.Y=2409.2mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad C6-1 (112.997,20.492mm) And Pad J2-4 (114.45,16.45mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1767.653mil|Location2.X=2169.354mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=1767.653mil|Location2.X=2169.354mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW5-2 (11.6,12mm) And Pad SW5-2 (18.4,12mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3578.677mil|Location2.X=3980.378mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3578.677mil|Location2.X=3980.378mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW3-2 (57.6,12mm) And Pad SW3-2 (64.4,12mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4442.976mil|Location1.Y=2436.945mil|Location2.Y=2838.646mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4442.976mil|Location1.Y=2436.945mil|Location2.Y=2838.646mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW2-2 (77.25,23.6mm) And Pad SW2-2 (77.25,30.4mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2663.322mil|Location2.X=3065.023mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2663.322mil|Location2.X=3065.023mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW4-2 (34.35,12mm) And Pad SW4-2 (41.15,12mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4442.976mil|Location1.Y=3450.724mil|Location2.Y=3852.425mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4442.976mil|Location1.Y=3450.724mil|Location2.Y=3852.425mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW1-2 (77.25,49.35mm) And Pad SW1-2 (77.25,56.15mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3752.216mil|Location2.X=3943.173mil|Location1.Y=5069.322mil|Location2.Y=5284.512mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3752.216mil|Location2.X=3943.173mil|Location1.Y=5069.322mil|Location2.Y=5284.512mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R48-2 (61.008,89.497mm) And Pad J4-6 (64.37,93.44mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4722.192mil|Location1.Y=3415.983mil|Location2.Y=3584.709mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4722.192mil|Location1.Y=3415.983mil|Location2.Y=3584.709mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW1-2 (77.25,49.35mm) And Pad R9-1 (84.242,47.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6452.693mil|Location2.X=7017.976mil|Location1.Y=3582.614mil|Location2.Y=3751.638mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6452.693mil|Location2.X=7017.976mil|Location1.Y=3582.614mil|Location2.Y=3751.638mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad D1-2 (129.8,51.5mm) And Pad U5-8 (142.2,54.905mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5866.079mil|Location2.X=6155.575mil|Location1.Y=1793.244mil|Location2.Y=2254mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5866.079mil|Location2.X=6155.575mil|Location1.Y=1793.244mil|Location2.Y=2254mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad J2-4 (114.45,16.45mm) And Pad J2-SW-A (120.65,6.05mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6581.236mil|Location2.X=6643.173mil|Location1.Y=5089.212mil|Location2.Y=5284.512mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6581.236mil|Location2.X=6643.173mil|Location1.Y=5089.212mil|Location2.Y=5284.512mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad J6-6 (132.95,93.44mm) And Pad C11-1 (132.992,90.003mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5797.67mil|Location2.X=5954.299mil|Location1.Y=2353.956mil|Location2.Y=2488.563mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5797.67mil|Location2.X=5954.299mil|Location1.Y=2353.956mil|Location2.Y=2488.563mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad C6-1 (112.997,20.492mm) And Pad R20-2 (115.503,22.508mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6661.169mil|Location1.Y=4754.565mil|Location2.Y=5053.016mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=6661.169mil|Location1.Y=4754.565mil|Location2.Y=5053.016mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad U6-1 (133.345,87.95mm) And Pad C10-1 (133.492,81.503mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2035.37mil|Location2.X=2797.307mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2035.37mil|Location2.X=2797.307mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW5-2 (18.4,12mm) And Pad SW4-2 (34.35,12mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2931.039mil|Location2.X=3712.661mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=2931.039mil|Location2.X=3712.661mil|Location1.Y=2023.559mil|Location2.Y=2070.929mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW4-2 (41.15,12mm) And Pad SW3-2 (57.6,12mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3752.216mil|Location2.X=4024.961mil|Location1.Y=4607.893mil|Location2.Y=5127.322mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3752.216mil|Location2.X=4024.961mil|Location1.Y=4607.893mil|Location2.Y=5127.322mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R48-2 (61.008,89.497mm) And Pad C17-1 (66.497,77.742mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4442.976mil|Location1.Y=2704.661mil|Location2.Y=3584.709mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=4442.976mil|Location1.Y=2704.661mil|Location2.Y=3584.709mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW2-2 (77.25,30.4mm) And Pad SW1-2 (77.25,49.35mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5198.952mil|Location2.X=5303.523mil|Location1.Y=3730.74mil|Location2.Y=4507.149mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=5198.952mil|Location2.X=5303.523mil|Location1.Y=3730.74mil|Location2.Y=4507.149mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad U1-18 (98.11,74.08mm) And Pad C3-1 (99.008,55.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=7016.122mil|Location1.Y=3809.481mil|Location2.Y=4718.37mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=6595.213mil|Location2.X=7016.122mil|Location1.Y=3809.481mil|Location2.Y=4718.37mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad U4-1 (133.345,79.45mm) And Pad C12-1 (142.508,57.497mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4666.948mil|Location2.X=5321.519mil|Location1.Y=3415.983mil|Location2.Y=3660.692mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4666.948mil|Location2.X=5321.519mil|Location1.Y=3415.983mil|Location2.Y=3660.692mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad R9-1 (84.242,47.503mm) And Pad U2-18 (99.11,52.58mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4781.236mil|Location2.X=5271.716mil|Location1.Y=4666.866mil|Location2.Y=5284.512mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4781.236mil|Location2.X=5271.716mil|Location1.Y=4666.866mil|Location2.Y=5284.512mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad J1-6 (87.23,93.44mm) And Pad C1-1 [Unplated] (98.17,80mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3846.393mil|Location2.X=4442.976mil|Location1.Y=2023.559mil|Location2.Y=2570.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=3846.393mil|Location2.X=4442.976mil|Location1.Y=2023.559mil|Location2.Y=2570.929mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW3-2 (64.4,12mm) And Pad SW2-2 (77.25,23.6mm)</acronym></a><br></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=5560.599mil|Location1.Y=2433.319mil|Location2.Y=2570.929mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=4395.606mil|Location2.X=5560.599mil|Location1.Y=2433.319mil|Location2.Y=2570.929mil|Absolute=True">Un-Routed Net Constraint: Net 3V3 Between Pad SW2-2 (77.25,23.6mm) And Pad R17-2 (105.503,22.508mm)</acronym></a><br></td>
+</tr>
+</table></a><hr color="#EEEEEE"><a href="#top" style="font-size: 0.9em">Back to top</a><br><br><a name="IDQ3R2GVCSH5X4POOWKHLNQPSOULRU2NQNJZFLY3BQVYNDBJ1J54AE"><table>
+<tr>
+<th style="text-align : left" colspan="2" class="rule">Short-Circuit Constraint (Allowed=No) (All),(All)</th>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8282.712mil|Location2.X=8292.712mil|Location1.Y=4920.507mil|Location2.Y=4965.528mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8282.712mil|Location2.X=8292.712mil|Location1.Y=4920.507mil|Location2.Y=4965.528mil|Absolute=True">Track (175.508mm,85.108mm)(175.508mm,85.997mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8260.09mil|Location2.X=8315.334mil|Location1.Y=4931.528mil|Location2.Y=4989.528mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8260.09mil|Location2.X=8315.334mil|Location1.Y=4931.528mil|Location2.Y=4989.528mil|Absolute=True">Pad C33-2(175.508mm,85.997mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8026.185mil|Location2.X=8036.185mil|Location1.Y=4916.57mil|Location2.Y=4965.733mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8026.185mil|Location2.X=8036.185mil|Location1.Y=4916.57mil|Location2.Y=4965.733mil|Absolute=True">Track (168.992mm,85.008mm)(168.992mm,86.003mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8003.563mil|Location2.X=8058.807mil|Location1.Y=4931.733mil|Location2.Y=4989.733mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8003.563mil|Location2.X=8058.807mil|Location1.Y=4931.733mil|Location2.Y=4989.733mil|Absolute=True">Pad C32-2(168.992mm,86.003mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_odd" onmouseover="className = 'onmouseover_odd'" onmouseout="className = 'onmouseout_odd'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8224.921mil|Location2.X=8234.921mil|Location1.Y=4872.953mil|Location2.Y=4908.15mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8224.921mil|Location2.X=8234.921mil|Location1.Y=4872.953mil|Location2.Y=4908.15mil|Absolute=True">Track (174.04mm,83.9mm)(174.04mm,84.54mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8225mil|Location2.X=8234.842mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8225mil|Location2.X=8234.842mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True">Pad U11-19(174.04mm,83.9mm)  Top Layer</acronym></a></td>
+</tr>
+<tr class="onmouseout_even" onmouseover="className = 'onmouseover_even'" onmouseout="className = 'onmouseout_even'">
+<td style="width:50%; text-align:left" class="column1"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.661mil|Location2.X=8113.661mil|Location1.Y=4872.953mil|Location2.Y=4900.275mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.661mil|Location2.X=8113.661mil|Location1.Y=4872.953mil|Location2.Y=4900.275mil|Absolute=True">Track (170.96mm,83.9mm)(170.96mm,84.34mm)  Top Layer</acronym></a></td>
+<td style="width:50%; text-align:left" class="column2"><a href="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.74mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True" class="callback"><acronym title="dxpprocess://PCB:Zoom?document=C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc;viewname=PCBEditor;Action=AREA_DYNAMICZOOM|Location1.X=8103.74mil|Location2.X=8113.583mil|Location1.Y=4866.142mil|Location2.Y=4889.764mil|Absolute=True">Pad U11-20(170.96mm,83.9mm)  Top Layer</acronym></a></td>
+</tr>
+</table></a><hr color="#EEEEEE"><a href="#top" style="font-size: 0.9em">Back to top</a><br><br></body>
+</html>
