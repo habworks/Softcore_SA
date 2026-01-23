@@ -1,88 +1,56 @@
 Protel Design System Design Rule Check
 PCB File : C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc
 Date     : 1/22/2026
-Time     : 5:44:09 PM
+Time     : 7:02:53 PM
 
 Processing Rule : Unpoured Polygon (Allow unpoured: False)
 Rule Violations :0
 
 Processing Rule : Silk primitive without silk layer
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (1988.189mil,3937.009mil)(4133.859mil,3937.009mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (4133.859mil,3937.009mil)(6279.528mil,3937.009mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (5184.252mil,3937.796mil)(5784.252mil,3937.796mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (4284.252mil,3937.796mil)(4884.252mil,3937.796mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (2484.253mil,3937.796mil)(3084.253mil,3937.796mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (3384.253mil,3937.796mil)(3984.253mil,3937.796mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (1988.189mil,3937.009mil)(1988.189mil,4547.245mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (6279.528mil,3937.009mil)(6279.528mil,4586.615mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J6" (5183.048mil,4208.197mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J4" (2483.048mil,4208.197mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J3" (4283.048mil,4208.197mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J1" (3383.048mil,4208.197mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "MECH9" (20.048mil,3992.197mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (50.5mm,100mm)(105mm,100mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (105mm,100mm)(159.5mm,100mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (131.68mm,100.02mm)(146.92mm,100.02mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (108.82mm,100.02mm)(124.06mm,100.02mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (63.1mm,100.02mm)(78.34mm,100.02mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (85.96mm,100.02mm)(101.2mm,100.02mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (50.5mm,100mm)(50.5mm,115.5mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (159.5mm,100mm)(159.5mm,116.5mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J6" (131.649mm,106.888mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J4" (63.069mm,106.888mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J3" (108.789mm,106.888mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "J1" (85.929mm,106.888mm)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "MECH9" (0.509mm,101.402mm)  Top Overlay
 Rule Violations :13
 
-Processing Rule : Hole To Hole Clearance (Gap=10mil) (All),(All)
+Processing Rule : Hole To Hole Clearance (Gap=0.254mm) (All),(All)
 Rule Violations :0
 
-Processing Rule : Hole Size Constraint (Min=1mil) (Max=129.921mil) (All)
+Processing Rule : Hole Size Constraint (Min=0.025mm) (Max=3.3mm) (All)
 Rule Violations :0
 
-Processing Rule : Height Constraint (Min=0mil) (Max=1574.803mil) (Prefered=500mil) (All)
+Processing Rule : Height Constraint (Min=0mm) (Max=40mm) (Prefered=12.7mm) (All)
 Rule Violations :0
 
-Processing Rule : Width Constraint (Min=8mil) (Max=40mil) (Preferred=10mil) (All)
+Processing Rule : Width Constraint (Min=0.203mm) (Max=1.016mm) (Preferred=0.254mm) (All)
 Rule Violations :0
 
-Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=20mil) (Conductor Width=10mil) (Air Gap=10mil) (Entries=4) (All)
+Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=0.508mm) (Conductor Width=0.254mm) (Air Gap=0.254mm) (Entries=4) (All)
 Rule Violations :0
 
-Processing Rule : Clearance Constraint (Gap=10mil) (All),(All)
-   Violation between Region (0 hole(s)) Keep-Out Layer and 
-                     Pad L1-1(6733.268mil,3543.308mil)  Top Layer
-   Violation between Region (0 hole(s)) Keep-Out Layer and 
-                     Pad L1-2(6829.725mil,3543.308mil)  Top Layer
+Processing Rule : Clearance Constraint (Gap=0.254mm) (All),(All)
    Violation between Region (0 hole(s)) Top Layer and 
-                     Pad U11-8(6770.079mil,3248.032mil)  Top Layer
+                     Pad U11-8(171.96mm,82.5mm)  Top Layer
    Violation between Region (0 hole(s)) Top Layer and 
-                     Pad U11-10(6812.599mil,3248.032mil)  Top Layer
-Rule Violations :4
+                     Pad U11-10(173.04mm,82.5mm)  Top Layer
+Rule Violations :2
 
 Processing Rule : Un-Routed Net Constraint ( (All) )
-   Violation between Un-Routed Net Constraint: Net VCC Between Pad R66-2 (7302.839,3395.772mil) And Pad Q3-1 (7305.118,3487.205mil)
-   Violation between Un-Routed Net Constraint: Net VCC Between Pad U8-8 (6031.497,527.756mil) And Pad R43-2 (6240.469,236.118mil)
-   Violation between Un-Routed Net Constraint: Net VCC Between Track on layer Top Layer (6023.622,3858.268mil) And Pad Q3-1 (7305.118,3487.205mil)
-   Violation between Un-Routed Net Constraint: Net NetJ7_1 Between Pad J7-1 (5169.292,503.938mil) And Pad REL1-14 (5369.292,838.583mil)
-   Violation between Un-Routed Net Constraint: Net NetC34_1 Between Pad U11-2 (6696.851,3257.875mil) And Pad U11-21 (6711.024,3302.166mil)
-   Violation between Un-Routed Net Constraint: Net NetC34_1 Between Pad R56-1 (6476.067,3208.764mil) And Pad R53-1 (6476.067,3307.189mil)
-   Violation between Un-Routed Net Constraint: Net NetC34_1 Between Pad U11-21 (6711.024,3302.166mil) And Pad U11-18 (6871.654,3302.166mil)
-   Violation between Un-Routed Net Constraint: Net NetC34_1 Between Pad R53-1 (6476.067,3307.189mil) And Pad U11-21 (6711.024,3302.166mil)
-   Violation between Un-Routed Net Constraint: Pad U11-5(6711.024mil,3193.898mil)  Top Layer
-   Violation between Un-Routed Net Constraint: Net GND Between Pad Q3-2 (7379.922,3487.205mil) And Pad R66-1 (7382.201,3395.568mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad R69-2 (7027.87,1338.481mil) And Pad C44-1 (7027.871,1240.056mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C31-2 (6752.28,3090.449mil) And PolyRegion on layer Top Layer (6787.166,3181.536mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C5-2 (1752.279,2450.685mil) And Pad U3-1 (1776.378,2342.52mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad R65-1 (6575.115,1948.718mil) And Pad C41-2 (6673.126,1987.879mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad R68-1 (7027.871,1535.332mil) And Pad C43-2 [Unplated] (7040.552,1673.229mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C5-2 (1752.279,2450.685mil) And Pad C4-2 [Unplated] (1774.803,2578.74mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C38-2 (7303.46,3287.299mil) And Pad R66-1 (7382.201,3395.568mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C39-2 (7145.98,3385.725mil) And Pad R60-1 (7145.981,3188.876mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad L2-2 (6555.119,1732.284mil) And Pad C45-1 (6732.386,1752.28mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad SW6-3 (6259.842,3405.512mil) And Pad R55-1 (6476.067,3405.614mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad R67-2 (6436.698,1397.741mil) And Pad U13-5 (6619.292,1483.268mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad R58-1 (6476.067,3110.338mil) And Pad R55-1 (6476.067,3405.614mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C46-1 [Unplated] (6732.284,1207.481mil) And Pad C44-1 (7027.871,1240.056mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad R69-2 (7027.87,1338.481mil) And Pad R68-1 (7027.871,1535.332mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad L2-2 (6555.119,1732.284mil) And Pad R65-1 (6575.115,1948.718mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Pad L2-2 (6555.119,1732.284mil) And Pad U13-5 (6619.292,1483.268mil)
-   Violation between Un-Routed Net Constraint: 
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C45-1 (6732.386,1752.28mil) And Pad C43-2 [Unplated] (7040.552,1673.229mil)
-   Violation between Un-Routed Net Constraint: Net GND Between Track on layer Top Layer (6338.583,2283.465mil) And Pad R65-1 (6575.115,1948.718mil)
-Rule Violations :29
+   Violation between Un-Routed Net Constraint: Net GND Between Pad C38-2 (185.508,83.497mm) And Track on layer Top Layer (187.5,85mm)
+Rule Violations :1
 
 Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
 Rule Violations :0
 
 
-Violations Detected : 46
+Violations Detected : 16
 Time Elapsed        : 00:00:01
