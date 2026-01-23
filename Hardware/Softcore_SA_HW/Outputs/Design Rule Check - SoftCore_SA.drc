@@ -1,7 +1,7 @@
 Protel Design System Design Rule Check
 PCB File : C:\IMR_Projects\IMR\Softcore_SA\Hardware\PCB\SoftCore_SA.CSPcbDoc
-Date     : 1/22/2026
-Time     : 7:02:53 PM
+Date     : 1/23/2026
+Time     : 4:34:05 AM
 
 Processing Rule : Unpoured Polygon (Allow unpoured: False)
 Rule Violations :0
@@ -38,19 +38,14 @@ Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=0.508mm) (
 Rule Violations :0
 
 Processing Rule : Clearance Constraint (Gap=0.254mm) (All),(All)
-   Violation between Region (0 hole(s)) Top Layer and 
-                     Pad U11-8(171.96mm,82.5mm)  Top Layer
-   Violation between Region (0 hole(s)) Top Layer and 
-                     Pad U11-10(173.04mm,82.5mm)  Top Layer
-Rule Violations :2
+Rule Violations :0
 
 Processing Rule : Un-Routed Net Constraint ( (All) )
-   Violation between Un-Routed Net Constraint: Net GND Between Pad C38-2 (185.508,83.497mm) And Track on layer Top Layer (187.5,85mm)
-Rule Violations :1
+Rule Violations :0
 
 Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
 Rule Violations :0
 
 
-Violations Detected : 16
+Violations Detected : 13
 Time Elapsed        : 00:00:01
