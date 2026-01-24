@@ -226,25 +226,105 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
+[GeneratedDocument1]
+DocumentPath=Default Configuration\Outputs\BOM\BOM_PartType-Softcore_SA_HW.xlsx
+DItemRevisionGUID=
+
+[GeneratedDocument2]
+DocumentPath=Outputs\Design Rule Check - SoftCore_SA.html
+DItemRevisionGUID=
+
+[GeneratedDocument3]
+DocumentPath=Default Configuration\Outputs\NC Drill\SoftCore_SA.DRR
+DItemRevisionGUID=
+
+[GeneratedDocument4]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.EXTREP
+DItemRevisionGUID=
+
+[GeneratedDocument5]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.G1
+DItemRevisionGUID=
+
+[GeneratedDocument6]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.G2
+DItemRevisionGUID=
+
+[GeneratedDocument7]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBL
+DItemRevisionGUID=
+
+[GeneratedDocument8]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBO
+DItemRevisionGUID=
+
+[GeneratedDocument9]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBP
+DItemRevisionGUID=
+
+[GeneratedDocument10]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBS
+DItemRevisionGUID=
+
+[GeneratedDocument11]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GD1
+DItemRevisionGUID=
+
+[GeneratedDocument12]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GG1
+DItemRevisionGUID=
+
+[GeneratedDocument13]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTL
+DItemRevisionGUID=
+
+[GeneratedDocument14]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTO
+DItemRevisionGUID=
+
+[GeneratedDocument15]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTP
+DItemRevisionGUID=
+
+[GeneratedDocument16]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTS
+DItemRevisionGUID=
+
+[GeneratedDocument17]
+DocumentPath=Default Configuration\Outputs\NC Drill\SoftCore_SA.LDP
+DItemRevisionGUID=
+
+[GeneratedDocument18]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.REP
+DItemRevisionGUID=
+
+[GeneratedDocument19]
+DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.RUL
+DItemRevisionGUID=
+
+[GeneratedDocument20]
+DocumentPath=Default Configuration\Outputs\NC Drill\SoftCore_SA.TXT
+DItemRevisionGUID=
+
 [Parameter1]
-Name=ProjectDate
-Value=01/21/26
+Name=ProjectTitle
+Value=SoftCore SA Adapter
 
 [Parameter2]
-Name=ProjectDocumentNumber
-Value=IMR-006-SCH
+Name=ProjectTime
+Value=08:00
 
 [Parameter3]
 Name=ProjectRevision
 Value=1
 
 [Parameter4]
-Name=ProjectTime
-Value=08:00
+Name=ProjectDocumentNumber
+Value=IMR-006-SCH
 
 [Parameter5]
-Name=ProjectTitle
-Value=SoftCore SA Adapter
+Name=ProjectDate
+Value=02/26/26
 
 [Configuration1]
 Name=Default Configuration

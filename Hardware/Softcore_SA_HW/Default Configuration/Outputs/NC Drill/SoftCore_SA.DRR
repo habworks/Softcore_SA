@@ -1,0 +1,26 @@
+---------------------------------------------------------------------------
+NCDrill File Report For: SoftCore_SA.CSPcbDoc   1/24/2026  7:15:45 AM
+---------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : SoftCore_SA.TXT
+
+Tool         Hole Size           Hole Type     Hole Count Plated       Tool Travel
+---------------------------------------------------------------------------
+T1        15mil (0.381mm)          Round          116              48.78 Inch (1238.97 mm)
+T2        20mil (0.508mm)          Round          9                10.68 Inch (271.36 mm)
+T3        30mil (0.762mm)          Round          11               5.58 Inch (141.66 mm)
+T4        35mil (0.889mm)          Round          20               17.21 Inch (437.18 mm)
+T5        36mil (0.9144mm)         Round          1                0.00 Inch (0.00 mm)
+T6        40mil (1.016mm)          Round          57               11.18 Inch (283.94 mm)
+T7        63mil (1.6002mm)         Round          2                0.46 Inch (11.60 mm)
+T8        70mil (1.778mm)          Round          6                2.81 Inch (71.31 mm)
+T9        71mil (1.8034mm)         Round          2                0.30 Inch (7.60 mm)
+T10       83mil (2.1082mm)         Round          2                0.43 Inch (11.00 mm)
+T11       130mil (3.302mm)         Round          4                24.78 Inch (629.29 mm)
+T12       120mil (3.048mm)         Round          4         NPTH   6.84 Inch (173.77 mm)
+T13       130mil (3.302mm)         Round          2         NPTH   1.44 Inch (36.50 mm)
+---------------------------------------------------------------------------
+Totals                                            236              130.48 Inch (3314.19 mm)
+
+Total Processing Time (hh:mm:ss) : 00:00:00

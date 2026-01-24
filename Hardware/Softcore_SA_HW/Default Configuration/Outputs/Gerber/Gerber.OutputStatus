@@ -1,0 +1,18 @@
+[OutputStatus]
+OutputFileNames0=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GTL
+OutputFileNames1=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.G1
+OutputFileNames2=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.G2
+OutputFileNames3=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GBL
+OutputFileNames4=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GTO
+OutputFileNames5=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GTP
+OutputFileNames6=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GTS
+OutputFileNames7=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GBS
+OutputFileNames8=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GBP
+OutputFileNames9=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GBO
+OutputFileNames10=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GD1
+OutputFileNames11=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.GG1
+OutputFileNames12=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.RUL
+OutputFileNames13=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.EXTREP
+OutputFileNames14=C:\IMR_Projects\IMR\Softcore_SA\Hardware\Softcore_SA_HW\Default Configuration\Outputs\Gerber\SoftCore_SA.REP
+Success=1
+HasRun=1
