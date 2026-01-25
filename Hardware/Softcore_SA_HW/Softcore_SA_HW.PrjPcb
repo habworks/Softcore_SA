@@ -303,6 +303,10 @@ DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.RUL
 DItemRevisionGUID=
 
 [GeneratedDocument20]
+DocumentPath=Default Configuration\Outputs\ExportSTEP\SoftCore_SA.step
+DItemRevisionGUID=
+
+[GeneratedDocument21]
 DocumentPath=Default Configuration\Outputs\NC Drill\SoftCore_SA.TXT
 DItemRevisionGUID=
 

@@ -147,7 +147,7 @@ void TmrCtr_FastHandler(void) __attribute__((fast_interrupt));
 void TimerCallbackAudio_ISR(void *CallbackRef, u8 TmrCtrNumber);
 void TimerCallbackGeneric_ISR(void*CallbackRef, u8 TmrCtrNumber);
 
-__attribute__((section(".Hab_Fast_Memory")))
+// __attribute__((section(".Hab_Fast_Memory")))
 void TmrCtr_FastHandler(void)
 {
 
@@ -256,8 +256,8 @@ void mainTest(void)
     bool Status;
 
     // Init AXI UART
-    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TransmitCallback_ISR, UART_ReceiveCallback_ISR);
-    // Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, POLLING, NULL, NULL);
+    // Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TransmitCallback_ISR, UART_ReceiveCallback_ISR);
+    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, POLLING, NULL, NULL);
     if (Status == false)
         while(1);
 
@@ -281,9 +281,9 @@ void mainTest(void)
         while(1);
 
     // Init AXI Timer 2: Generic Timer
-    Status = init_PeriodicTimer(&AXI_TimerHandle_2, XPAR_AXI_TIMER_2_BASEADDR, XTC_TIMER_0, 100e6, TimerCallbackGeneric_ISR);
-    if (Status == false)
-        while(1);
+    // Status = init_PeriodicTimer(&AXI_TimerHandle_2, XPAR_AXI_TIMER_2_BASEADDR, XTC_TIMER_0, 100e6, TimerCallbackGeneric_ISR);
+    // if (Status == false)
+    //     while(1);
 
     // Init AXI Timer 0: Audio PWM
     Status = init_PWM(&AXI_TimerHandle_0, XPAR_AXI_TIMER_0_BASEADDR);
@@ -322,30 +322,34 @@ void mainTest(void)
 
     // Init AXI IRQ Controller (4x Steps)
     // Step 1 of 4 IRQ Controller setup: Init or IRQ Controller
-    Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_AXI_INTC_0_BASEADDR);
-    if (Status == false)
-        while(1);
+    // Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_AXI_INTC_0_BASEADDR);
+    // if (Status == false)
+    //     while(1);
     // Step 2A of 4 IRQ Controller setup: AXI Audio Timer 
     // Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR, XTmrCtr_InterruptHandler, &AXI_TimerHandle_1);
     // if (Status == false)
     //     while(1);
     // Step 2B of 4 IRQ Controller setup: AXI Generic Timer 
-    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, XTmrCtr_InterruptHandler, &AXI_TimerHandle_2);
-    if (Status == false)
-        while(1);
+    // Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, XTmrCtr_InterruptHandler, &AXI_TimerHandle_2);
+    // if (Status == false)
+    //     while(1);
     // Step 2C of 4 IRQ Controller setup: AXI URT Lite
-    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_UARTLITE_0_INTR, XUartLite_InterruptHandler, &AXI_UART_Handle);
+    // Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_UARTLITE_0_INTR, XUartLite_InterruptHandler, &AXI_UART_Handle);
+    // if (Status == false)
+    //     while(1);
+    // Step 3 of 4 IRQ Controller setup: Enable IRQs
+    // enableExceptionHandling(&AXI_IRQ_ControllerHandle, true); // true = use fast interrupts
+    
+    // Step 4 of 4 Start the IRQ funtions - not part of the AXI IRQ Controller - unique to the AXI peripheral
+    // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+    // startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
+    // XUartLite_Recv(&AXI_UART_Handle, RxDataBuffer, 1);
+    // XUartLite_EnableInterrupt(&AXI_UART_Handle);
+
+    setup_PWM(&AXI_TimerHandle_0, 100000, 50.0);
+    Status = startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
     if (Status == false)
         while(1);
-    // Step 3 of 4 IRQ Controller setup: Enable IRQs
-    enableExceptionHandling(&AXI_IRQ_ControllerHandle, true); // true = use fast interrupts
-    // Step 4 of 4 Start the IRQ funtions - not part of the AXI IRQ Controller - unique to the AXI peripheral
-    startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-    startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
-    // XUartLite_Recv(&AXI_UART_Handle, RxDataBuffer, 1);
-    XUartLite_EnableInterrupt(&AXI_UART_Handle);
-
-    setup_PWM(&AXI_TimerHandle_0, 200000, 50.0);
 
     // DDR3 Self Test
     // Wait for DDR3 to be ready
@@ -376,10 +380,10 @@ void mainTest(void)
         xil_printf("Memory Test 2 ERROR\r\n"); 
 
     // Init the display
-    Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_DisplayHandle, DISPLAY_CSN, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2);
-    if (Status == false)
-        while(1);
-    displaySimpleTest(&Display_SSD1309);
+    // Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_DisplayHandle, DISPLAY_CSN, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2);
+    // if (Status == false)
+    //     while(1);
+    // displaySimpleTest(&Display_SSD1309);
 
     // Setup complete - Read to start processing
     // Type_PL_Revision PL_Revision = IMR_PL_RevisionGet(XPAR_IMR_PL_REVISION_0_BASEADDR);
@@ -407,7 +411,7 @@ void mainTest(void)
 
         if (DutyCyclePercent != PreviousDutyCyclePercent)
         {
-            setup_PWM(&AXI_TimerHandle_0, 200000, DutyCyclePercent);
+            setup_PWM(&AXI_TimerHandle_0, 100000, DutyCyclePercent);
             PreviousDutyCyclePercent = DutyCyclePercent;
         }
         

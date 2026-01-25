@@ -336,8 +336,9 @@ bool init_FastPeriodicTimer(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress, u8 Ti
     XTmrCtr_SetHandler(TimerHandle, TimerFunction_ISR, TimerHandle);
 
     // STEP 6: Options to allow interrupt, reload and count down
-    XTmrCtr_SetResetValue(TimerHandle, TimerNumber, TimerIntervalTicks);
     XTmrCtr_SetOptions(TimerHandle, TimerNumber, XTC_INT_MODE_OPTION | XTC_AUTO_RELOAD_OPTION | XTC_DOWN_COUNT_OPTION); 
+
+    XTmrCtr_SetResetValue(TimerHandle, TimerNumber, TimerIntervalTicks);
     return(true);
 
 } // END OF init_FastPeriodicTimer
