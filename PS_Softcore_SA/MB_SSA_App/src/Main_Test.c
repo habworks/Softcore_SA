@@ -180,64 +180,64 @@ void TimerCallbackAudio_ISR(void *CallbackRef, u8 TmrCtrNumber)
 }
 
 
-__attribute__((section(".Hab_Fast_Memory")))
-void TimerCallbackGeneric_ISR(void*CallbackRef, u8 TmrCtrNumber)
-{
-    // Cast the CallbackRef to the XTmrCtr instance
-    XTmrCtr *InstancePtr = (XTmrCtr *)CallbackRef; 
+// __attribute__((section(".Hab_Fast_Memory")))
+// void TimerCallbackGeneric_ISR(void*CallbackRef, u8 TmrCtrNumber)
+// {
+//     // Cast the CallbackRef to the XTmrCtr instance
+//     XTmrCtr *InstancePtr = (XTmrCtr *)CallbackRef; 
 
-    // USER: Add your periodic timer 0 task here
-    static volatile bool ToggleTimer_0 = false;
-    if (TmrCtrNumber == XTC_TIMER_0)
-    {
-        if (ToggleTimer_0)
-            XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_1_OUTPUT);
-        else
-            XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_1_OUTPUT);
-        ToggleTimer_0 = !ToggleTimer_0;
-    }
+//     // USER: Add your periodic timer 0 task here
+//     static volatile bool ToggleTimer_0 = false;
+//     if (TmrCtrNumber == XTC_TIMER_0)
+//     {
+//         if (ToggleTimer_0)
+//             XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_1_OUTPUT);
+//         else
+//             XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_1_OUTPUT);
+//         ToggleTimer_0 = !ToggleTimer_0;
+//     }
 
-    // Clear the IRQ - rearm
-    XTmrCtr_ClearStats(InstancePtr);    
-    XTmrCtr_Reset(&AXI_TimerHandle_2, XTC_TIMER_0);
-    XTmrCtr_Start(&AXI_TimerHandle_2, XTC_TIMER_0);
-}
+//     // Clear the IRQ - rearm
+//     XTmrCtr_ClearStats(InstancePtr);    
+//     XTmrCtr_Reset(&AXI_TimerHandle_2, XTC_TIMER_0);
+//     XTmrCtr_Start(&AXI_TimerHandle_2, XTC_TIMER_0);
+// }
 
 
 // ISR Callback function for UART Receive
-void UART_ReceiveCallback_ISR(void *CallBackRef, unsigned int EventData) 
-{
-    // Unused 
-    (void)EventData;
+// void UART_ReceiveCallback_ISR(void *CallBackRef, unsigned int EventData) 
+// {
+//     // Unused 
+//     (void)EventData;
 
-    // Note: In a real application, you would want to process the received data and potentially clear the buffer or manage a circular buffer.
-    XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
+//     // Note: In a real application, you would want to process the received data and potentially clear the buffer or manage a circular buffer.
+//     XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
 
-    // Check for received data
-    // Read data into the buffer - read until BytesReceived is zero - necessary to clear the IRQ
-    uint16_t FIFO_BytesReceivedCount;
+//     // Check for received data
+//     // Read data into the buffer - read until BytesReceived is zero - necessary to clear the IRQ
+//     uint16_t FIFO_BytesReceivedCount;
 
-    receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &FIFO_BytesReceivedCount);
-    ReceivedBytes++;
-    if (ReceivedBytes > RX_BUFFER_SIZE)
-        ReceivedBytes = 0;
-}
+//     receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &FIFO_BytesReceivedCount);
+//     ReceivedBytes++;
+//     if (ReceivedBytes > RX_BUFFER_SIZE)
+//         ReceivedBytes = 0;
+// }
 
 
 // ISR Callback function for UART Transmit
-void UART_TransmitCallback_ISR(void *CallBackRef, unsigned int EventData)
-{
-    // Unused 
-    (void)EventData;
-    static uint32_t TxSendEvents = 0;
+// void UART_TransmitCallback_ISR(void *CallBackRef, unsigned int EventData)
+// {
+//     // Unused 
+//     (void)EventData;
+//     static uint32_t TxSendEvents = 0;
     
-    XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
+//     XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
 
-    // Check if transmit is complete
-    // All data was sent
-    // User does something useful (as necessary) indicating data was sent 
-    TxSendEvents++; 
-}
+//     // Check if transmit is complete
+//     // All data was sent
+//     // User does something useful (as necessary) indicating data was sent 
+//     TxSendEvents++; 
+// }
 
 
 

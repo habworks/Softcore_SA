@@ -27,9 +27,9 @@
 **/*.bxml
 
 # Block Design output products
-**/bd/*/hdl/
-**/bd/*/ip/
-**/bd/*/ipshared/
+#**/bd/*/hdl/
+#**/bd/*/ip/
+#**/bd/*/ipshared/
 **/bd/*/.cache/
 **/bd/*/synth/
 

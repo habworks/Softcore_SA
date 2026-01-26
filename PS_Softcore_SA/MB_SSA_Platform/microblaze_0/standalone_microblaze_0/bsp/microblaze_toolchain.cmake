@@ -13,9 +13,9 @@ set( CMAKE_AR mb-ar CACHE FILEPATH "Archiver" )
 set( CMAKE_SIZE mb-size CACHE FILEPATH "Size" )
 set( CMAKE_SYSTEM_PROCESSOR "microblaze" )
 set( CMAKE_SYSTEM_NAME "Generic" )
-set( CMAKE_HW_FLAGS "-mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-reorder -mno-xl-soft-mul -mcpu=v11.0" )
+set( CMAKE_HW_FLAGS "-mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0" )
 
-set( CMAKE_COMPILER_LIB_PATH "C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microblaze/nt/microblazeeb-xilinx-elf/usr/lib/le/bs/p/m/" )
+set( CMAKE_COMPILER_LIB_PATH "C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microblaze/nt/microblazeeb-xilinx-elf/usr/lib/le/bs/p/m/fpd/" )
 
 set( CMAKE_SPECS_FILE "$ENV{ESW_REPO}/scripts/specs/microblaze/Xilinx.spec" CACHE STRING "Specs file path for using CMAKE toolchain files" )
 set( TOOLCHAIN_C_FLAGS " -O2 ${CMAKE_HW_FLAGS} -DSDT" CACHE STRING "CFLAGS" )

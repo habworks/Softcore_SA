@@ -128,10 +128,10 @@ proc_config:
       name: proc_compiler_flags
       permission: readonly
       type: string
-      value: ' -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-reorder
-        -mno-xl-soft-mul -mcpu=v11.0 -DSDT;-c'
-      default: ' -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-reorder
-        -mno-xl-soft-mul -mcpu=v11.0 -DSDT;-c'
+      value: ' -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul
+        -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT;-c'
+      default: ' -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul
+        -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT;-c'
       options: []
       description: Compiler Flags used in BSP and library generation.'-c'flag stands
         for 'compile and assemble, but do not link'.Without this flag, gcc tries to

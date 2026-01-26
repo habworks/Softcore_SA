@@ -53,13 +53,13 @@ SCUGIC_DIR:PATH=SCUGIC_DIR-NOTFOUND
 SUBDIR_LIST:STRING=ALL
 
 // ASM FLAGS
-TOOLCHAIN_ASM_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-reorder -mno-xl-soft-mul -mcpu=v11.0 -DSDT
+TOOLCHAIN_ASM_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT
 
 // CXXFLAGS
-TOOLCHAIN_CXX_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-reorder -mno-xl-soft-mul -mcpu=v11.0 -DSDT
+TOOLCHAIN_CXX_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT
 
 // CFLAGS
-TOOLCHAIN_C_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-reorder -mno-xl-soft-mul -mcpu=v11.0 -DSDT
+TOOLCHAIN_C_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT
 
 // Flags used by compiler to generate dependency files
 TOOLCHAIN_DEP_FLAGS:STRING= -MMD -MP
@@ -89,7 +89,7 @@ proc_assembler:STRING=mb-gcc
 proc_compiler:STRING=mb-gcc.exe
 
 // Compiler Flags used in BSP and library generation.'-c'flag stands for 'compile and assemble, but do not link'.Without this flag, gcc tries to link the code, which will fail because there is no application involved during libgen.'-O2' can be overwritten by extra compile flags.
-proc_compiler_flags:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-reorder -mno-xl-soft-mul -mcpu=v11.0 -DSDT;-c
+proc_compiler_flags:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT;-c
 
 // Extra Compiler Flags used in BSP and library generation
 proc_extra_compiler_flags:STRING= -g -ffunction-sections -fdata-sections -Wall -Wextra -fno-tree-loop-distribute-patterns

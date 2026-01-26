@@ -139,8 +139,13 @@ set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_CSn[0]}]
 set_property PACKAGE_PIN H5 [get_ports {LED_4}]
 set_property IOSTANDARD LVCMOS33 [get_ports {LED_4}]
 # GENERIC LED USE (LED_5 on J5)
-set_property PACKAGE_PIN J5 [get_ports {LED_5}]
-set_property IOSTANDARD LVCMOS33 [get_ports {LED_5}]
+#set_property PACKAGE_PIN J5 [get_ports {LED_5}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED_5}]
+
+# TEST IRQ (CK_IO2 ON J4.5)
+set_property PACKAGE_PIN P14 [get_ports {TEST_IRQ}]
+set_property IOSTANDARD LVCMOS33 [get_ports {TEST_IRQ}]
+
 ## GENERIC LED USE (LED_6 on T9)
 #set_property PACKAGE_PIN T9 [get_ports {gpio_io_o_0[1]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[1]}]
