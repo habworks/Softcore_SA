@@ -34,7 +34,7 @@
 **/bd/*/synth/
 
 # Vivado exported hardware
-*.xsa
+#*.xsa
 
 # Bitstreams and programming files
 *.bit

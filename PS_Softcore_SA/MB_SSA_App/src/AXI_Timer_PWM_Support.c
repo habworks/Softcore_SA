@@ -26,7 +26,7 @@
 
 #include "AXI_Timer_PWM_Support.h"
 #include "xinterrupt_wrap.h" 
-extern void TmrCtr_FastHandler(void);
+// extern void TmrCtr_FastHandler(void);
 
 
 /********************************************************************************************************
@@ -314,11 +314,11 @@ bool init_FastPeriodicTimer(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress, u8 Ti
         return(false);
 
     // STEP 4: Connect the timer counter to the interrupt subsystem such that interrupts can occur.  This function is application specific
-    Status = XSetupInterruptSystem(TimerHandle, TmrCtr_FastHandler, \
-				       TimerHandle->Config.IntrId, TimerHandle->Config.IntrParent, \
-				       XINTERRUPT_DEFAULT_PRIORITY);
-    if (Status != XST_SUCCESS) 
-        return(false);
+    // Status = XSetupInterruptSystem(TimerHandle, TmrCtr_FastHandler, \
+	// 			       TimerHandle->Config.IntrId, TimerHandle->Config.IntrParent, \
+	// 			       XINTERRUPT_DEFAULT_PRIORITY);
+    // if (Status != XST_SUCCESS) 
+    //     return(false);
 
     // STEP 5: Set the interrupt handler for Timer counter that will be called from the interrupt context when the timer expires, specify a pointer to the timer counter driver instance as the callback reference so the handler is able to access the instance data
     XTmrCtr_SetHandler(TimerHandle, TimerFunction_ISR, TimerHandle);

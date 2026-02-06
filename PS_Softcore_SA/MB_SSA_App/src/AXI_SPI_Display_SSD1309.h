@@ -85,6 +85,7 @@ bool init_Display_SSD1309(Type_Display_SSD1309 *Display_SSD1309, XSpi *QSPI_Hand
 void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309);
 void displayTest_2(void);
 void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309);
+void displayDirectTest(Type_Display_SSD1309 *SSD1309);
 
 #ifdef __cplusplus
 }

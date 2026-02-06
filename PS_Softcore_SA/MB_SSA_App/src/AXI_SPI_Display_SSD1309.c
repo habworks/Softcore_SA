@@ -499,3 +499,76 @@ void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
 //     u8g2_SendBuffer(U);
 // }
 
+
+
+/********************************************************************************************************
+* @brief Direct SPI diagnostic test for SSD1309 (128x64).  Writes a deterministic “page band” pattern by
+* bypassing u8g2 and programming the controller directly.  The display is refreshed in 8 pages (Page 0–7),
+* where each page is 8 pixels tall by 128 pixels wide.  This function writes one full 128-byte row per
+* page, alternating black and white pages to create 8 horizontal 8-pixel bands across the full 64-pixel
+* height. This function writes directly to the display - it does not use the U8G2 library and can be used
+* as a test to see if the display is working correctly.  
+*
+* @details Page and column positioning on SSD1309 is done via COMMAND writes before each page’s DATA
+* stream.  SSD1309 column addressing is split into two separate 4-bit commands:
+*   - Set lower column nibble:  0x00–0x0F  (sets bits [3:0])
+*   - Set upper column nibble:  0x10–0x1F  (sets bits [7:4])
+* The effective column start is:
+*   ColumnStart = ((UpperNibble & 0x0F) << 4) | (LowerNibble & 0x0F)
+* Therefore, to start at column 0 you must send BOTH:
+*   - 0x00  (lower nibble = 0)
+*   - 0x10  (upper nibble = 0)
+* This is not “column 16.”  It is “set upper column bits to zero.”
+*
+* @author original: Hab Collector \n
+*
+* @note: Requires the display to be initialized and out of power-save prior to use (for example via
+*        u8g2_InitDisplay() and u8g2_SetPowerSave(..., 0)).  Uses the provided CS and C/D GPIO control
+*        function pointers and sends bytes using displaySegmented_SPI_Transfer().
+*
+* @param   SSD1309      Pointer to display handle and hardware interface function pointers.
+*
+* STEP 1: Assert display chip select (CS) for the duration of the transaction.
+* STEP 2: For each page 0–7:
+*         - Issue COMMANDS to select the page and reset the column address to 0.
+*         - Issue DATA bytes (128) to fill the page with either 0x00 (black) or 0xFF (white).
+* STEP 3: Deassert display chip select (CS).
+********************************************************************************************************/
+void displayDirectTest(Type_Display_SSD1309 *SSD1309)
+{
+    uint8_t CommandBuffer[3] = {0};
+    uint8_t PageFill[128] = {0};
+
+    // STEP 1: Assert chip select for the entire transaction
+    SSD1309->display_CS(CS_ENABLE);
+
+    // STEP 2: For each page (8 pages for 64-pixel height), set page+column, then write 128 bytes
+    for (uint8_t Page = 0; Page < 8; Page++)
+    {
+        // STEP 2.1: Set page address (0xB0..0xB7)
+        CommandBuffer[0] = (uint8_t)(0xB0u | Page);
+
+        // STEP 2.2: Set column address to 0 (lower nibble then upper nibble)
+        CommandBuffer[1] = 0x00u;  // Column low nibble = 0
+        CommandBuffer[2] = 0x10u;  // Column high nibble = 0
+
+        // STEP 2.3: Send the page and column command
+        SSD1309->displayCommandData(DISPLAY_COMMAND);
+        displaySegmented_SPI_Transfer(SSD1309, CommandBuffer, (uint32_t)sizeof(CommandBuffer));
+
+        // STEP 2.4: Fill the page with alternating pattern (even pages white, odd pages black)
+        uint8_t FillByte = (uint8_t)((Page & 0x01u) ? 0x00 : 0xFF);
+        for (uint16_t Index = 0; Index < 128; Index++)
+        {
+            PageFill[Index] = FillByte;
+        }
+
+        // STEP 2.5: Send the page data
+        SSD1309->displayCommandData(DISPLAY_DATA);
+        displaySegmented_SPI_Transfer(SSD1309, PageFill, (uint32_t)sizeof(PageFill));
+    }
+
+    // STEP 3: Deassert chip select
+    SSD1309->display_CS(CS_DISABLE);
+
+} // END OF displayDirectTest

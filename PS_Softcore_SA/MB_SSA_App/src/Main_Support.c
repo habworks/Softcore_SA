@@ -39,6 +39,8 @@
     #define AXI_Timer AXI_TimerHandle_2
 #endif
 extern XGpio AXI_GPIO_Handle;
+extern uint32_t DisplayTxError;
+extern uint32_t DisplayTxCount;
 
 volatile uint32_t __attribute__ ((section (".Hab_Mixed_Data"))) ReceivedBytes = 0;
 volatile uint8_t __attribute__ ((section (".Hab_Mixed_Data"))) RxDataBuffer[RX_BUFFER_SIZE] = {0};
@@ -99,64 +101,107 @@ void displayChipSelect(Type_Display_CS Status)
         XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CS);
 }
 
+// bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer)
+// {
+//     // STEP 1: Simple test
+//     DisplayTxCount++;
+//     if ((SPI_DisplayHandle == NULL) || (ChipSelect_N == 0))
+//         return(false);
+
+//     // STEP 2: Reset the SPI
+//     XSpi_Reset(SPI_DisplayHandle);
+
+//     // STEP 3: Pre-transfer data: Set the SPI options, select the correct slave device, and start the SPI
+//     XSpi_SetOptions(SPI_DisplayHandle,XSP_MASTER_OPTION);
+//     XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
+//     XSpi_Start(SPI_DisplayHandle);
+
+//     // STEP 4: Transfer the data
+//     int AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, RxBuffer, BytesToTransfer);    
+//     if (AXI_Status != XST_SUCCESS)
+//     {
+//         return(false);
+//         DisplayTxError++;
+//     }
+//     else
+//     {
+//         return(true);
+//     }
+
+// }
+
+
+
+
 bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer)
 {
     // STEP 1: Simple test
     if ((SPI_DisplayHandle == NULL) || (ChipSelect_N == 0))
         return(false);
 
-    // STEP 2: Reset the SPI
-    XSpi_Reset(SPI_DisplayHandle);
-
-    // STEP 3: Pre-transfer data: Set the SPI options, select the correct slave device, and start the SPI
-    XSpi_SetOptions(SPI_DisplayHandle,XSP_MASTER_OPTION);
+    // STEP 2: Select the correct slave device
     XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
-    XSpi_Start(SPI_DisplayHandle);
 
-    // STEP 4: Transfer the data
-    int AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, RxBuffer, BytesToTransfer);    
+    // STEP 3: Transfer the data
+    uint8_t DummyRxBuffer[BytesToTransfer + 10];
+    int AXI_Status;
+    AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, DummyRxBuffer, BytesToTransfer);    
     if (AXI_Status != XST_SUCCESS)
-        return(false);
-    else
-        return(true);
+    {
+        XSpi_Reset(SPI_DisplayHandle);
+        XSpi_SetOptions(SPI_DisplayHandle,XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION);
+        XSpi_Start(SPI_DisplayHandle);
+        XSpi_IntrGlobalDisable(SPI_DisplayHandle);
+        XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
+        AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, DummyRxBuffer, BytesToTransfer);        
+    }
 
+    // STEP 4: Deselect all slave devices
+    XSpi_SetSlaveSelect(SPI_DisplayHandle, 0x00);
+
+    return(AXI_Status == XST_SUCCESS);
 }
 
 
-// ISR FUNCTIONS:
-// ISR Callback function for UART Receive
-void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData) 
-{
-    // Unused 
-    (void)EventData;
-
-    // Note: In a real application, you would want to process the received data and potentially clear the buffer or manage a circular buffer.
-    XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
-
-    // Check for received data
-    // Read data into the buffer - read until BytesReceived is zero - necessary to clear the IRQ
-    uint16_t NotUsedBytesReceived;
-    receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &NotUsedBytesReceived);
-    ReceivedBytes++;
-
-    // Avoid buffer overflow - just wrap
-    if (ReceivedBytes > RX_BUFFER_SIZE)
-        ReceivedBytes = 0;
-}
 
 
-// ISR Callback function for UART Transmit
-void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData)
-{
-    // Unused 
-    (void)EventData;
+
+
+
+// // ISR FUNCTIONS:
+// // ISR Callback function for UART Receive
+// void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData) 
+// {
+//     // Unused 
+//     (void)EventData;
+
+//     // Note: In a real application, you would want to process the received data and potentially clear the buffer or manage a circular buffer.
+//     XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
+
+//     // Check for received data
+//     // Read data into the buffer - read until BytesReceived is zero - necessary to clear the IRQ
+//     uint16_t NotUsedBytesReceived;
+//     receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &NotUsedBytesReceived);
+//     ReceivedBytes++;
+
+//     // Avoid buffer overflow - just wrap
+//     if (ReceivedBytes > RX_BUFFER_SIZE)
+//         ReceivedBytes = 0;
+// }
+
+
+// // ISR Callback function for UART Transmit
+// void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData)
+// {
+//     // Unused 
+//     (void)EventData;
     
-    XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
+//     XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
 
-    // Check if transmit is complete
-    // All data was sent
-    // User does something useful (as necessary) indicating data was sent 
-    static uint32_t TxSendEvents = 0;
-    TxSendEvents++; 
-}
+//     // Check if transmit is complete
+//     // All data was sent
+//     // User does something useful (as necessary) indicating data was sent 
+//     static uint32_t TxSendEvents = 0;
+//     TxSendEvents++; 
+// }
 

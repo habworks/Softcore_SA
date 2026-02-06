@@ -13,8 +13,8 @@
                 compatible = "cpus,cluster";
                 #address-cells = <0x1>;
                 #size-cells = <0x0>;
-                address-map = <0x0 &microblaze_0_local_memory_dlmb_bram_if_cntlr_memory 0x0 0x8000>,
-                 <0x0 &microblaze_0_local_memory_dlmb_bram_if_cntlr 0x0 0x8000>,
+                address-map = <0x0 &microblaze_0_local_memory_dlmb_bram_if_cntlr_memory 0x0 0x10000>,
+                 <0x0 &microblaze_0_local_memory_dlmb_bram_if_cntlr 0x0 0x10000>,
                  <0x80000000 &mig_7series_0_memory 0x80000000 0x10000000>,
                  <0x40000000 &axi_gpio_0 0x40000000 0x10000>,
                  <0x40600000 &axi_uartlite_0 0x40600000 0x10000>,
@@ -31,7 +31,7 @@
                 microblaze_0: cpu@0 {
                         xlnx,reset-msr-dce = <0x0>;
                         model = "microblaze,11.0";
-                        xlnx,addr-tag-bits = <0xd>;
+                        xlnx,addr-tag-bits = <0xc>;
                         xlnx,d-axi = <0x1>;
                         xlnx,interrupt-mon = <0x0>;
                         xlnx,iaddr-size = <0x20>;
@@ -49,7 +49,7 @@
                         xlnx,interrupt-is-edge = <0x0>;
                         reg = <0x0>;
                         xlnx,async-interrupt = <0x1>;
-                        xlnx,use-mmu = <0x0>;
+                        xlnx,use-mmu = <0x3>;
                         xlnx,reset-msr-ee = <0x0>;
                         xlnx,icache-victims = <0x8>;
                         xlnx,use-reorder-instr = <0x1>;
@@ -99,7 +99,7 @@
                         xlnx,div-zero-exception = <0x1>;
                         xlnx,mmu-tlb-access = <0x3>;
                         bus-handle = <0xc>;
-                        xlnx,cache-byte-size = <0x8000>;
+                        xlnx,cache-byte-size = <0x10000>;
                         xlnx,pvr-user2 = <0x0>;
                         xlnx,opcode-0x0-illegal = <0x1>;
                         xlnx,icache-line-len = <0x8>;
@@ -130,7 +130,7 @@
                         xlnx,num-sync-ff-dbg-clk = <0x1>;
                         xlnx,interconnect = <0x2>;
                         xlnx,debug-latency-counters = <0x1>;
-                        i-cache-size = <0x8000>;
+                        i-cache-size = <0x10000>;
                         xlnx,exceptions-in-delay-slots = <0x1>;
                         xlnx,use-fpu = <0x1>;
                         xlnx,reset-msr-ie = <0x0>;
@@ -213,7 +213,7 @@
                         #interrupt-cells = <0x2>;
                         xlnx,sense-of-irq-edge-type = "Rising";
                         xlnx,edk-special = "INTR_CTRL";
-                        xlnx,kind-of-intr = <0x2>;
+                        xlnx,kind-of-intr = <0x3>;
                         xlnx,kind-of-edge = <0xffffffff>;
                         xlnx,irq-is-level = <0x1>;
                         xlnx,has-ivr = <0x1>;
@@ -231,7 +231,7 @@
                         xlnx,s-axi-aclk-freq-mhz = <0x64>;
                         xlnx,num-sw-intr = <0x0>;
                         xlnx,irq-connection = <0x0>;
-                        xlnx,num-intr-inputs = <0x3>;
+                        xlnx,num-intr-inputs = <0x2>;
                         xlnx,has-sie = <0x1>;
                         xlnx,enable-async = <0x0>;
                         xlnx,has-cie = <0x1>;
@@ -247,7 +247,7 @@
                         xlnx,has-fast = <0x1>;
                         xlnx,ivar-rst-val = <0x10>;
                         interrupt-controller;
-                        xlnx,async-intr = <0xfffffffe>;
+                        xlnx,async-intr = <0xfffffffc>;
                         xlnx,name = "axi_intc_0";
                         phandle = <0x6>;
                 };
@@ -424,10 +424,12 @@
                 };
 
                 axi_timer_2: timer@41c20000 {
+                        interrupts = <0x1 0x2>;
                         compatible = "xlnx,axi-timer-2.0", "xlnx,xps-timer-1.00.a";
                         xlnx,gen1-assert = <0x1>;
                         clock-frequency = <0x5f5e100>;
                         xlnx,trig0-assert = <0x1>;
+                        interrupt-parent = <&axi_intc_0>;
                         xlnx,rable = <0x0>;
                         xlnx,count-width = <0x20>;
                         xlnx,ip-name = "axi_timer";
@@ -440,6 +442,7 @@
                         status = "okay";
                         xlnx,trig1-assert = <0x1>;
                         xlnx,enable-timer2 = <0x1>;
+                        interrupt-names = "interrupt";
                         xlnx,name = "axi_timer_2";
                         phandle = <0x9>;
                 };
@@ -481,7 +484,7 @@
                         xlnx,arbitration = <0x0>;
                         xlnx,num-lmb = <0x1>;
                         xlnx,mask4 = <0x800000>;
-                        reg = <0x0 0x8000>;
+                        reg = <0x0 0x10000>;
                         xlnx,s-axi-ctrl-addr-width = <0x20>;
                         xlnx,mask5 = <0x800000>;
                         xlnx,ecc-status-registers = <0x0>;
@@ -544,7 +547,7 @@
                 xlnx,ip-name = "lmb_bram_if_cntlr";
                 device_type = "memory";
                 memory_type = "memory";
-                reg = <0x0 0x8000>;
+                reg = <0x0 0x10000>;
                 phandle = <0x1>;
         };
 

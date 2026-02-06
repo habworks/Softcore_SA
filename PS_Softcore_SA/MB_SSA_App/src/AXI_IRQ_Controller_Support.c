@@ -58,13 +58,15 @@ bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress)
     AXI_Status = XIntc_Initialize(IRQ_ControllerHandle, IPB_BaseAddress);
     if (AXI_Status != XST_SUCCESS)
         return(false);
-
-    // STEP 2: Starts the interrupt controller operation
-    AXI_Status = XIntc_Start(IRQ_ControllerHandle, XIN_REAL_MODE);
-    if (AXI_Status != XST_SUCCESS)
-        return(false);
     else
         return(true);
+
+    // STEP 2: Starts the interrupt controller operation
+    // AXI_Status = XIntc_Start(IRQ_ControllerHandle, XIN_REAL_MODE);
+    // if (AXI_Status != XST_SUCCESS)
+    //     return(false);
+    // else
+    //     return(true);
     
 } // END OF init_IRQ_Controller
 
@@ -142,7 +144,7 @@ void enableExceptionHandling(XIntc *IRQ_ControllerHandle, bool UseFastInterrupts
     Xil_ExceptionInit();
 
     // STEP 2: Register, or not the AXI INTC interrupt handler as a general exception handler - see notes
-    if (!UseFastInterrupts)
+    if (UseFastInterrupts)
         Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XIntc_InterruptHandler, IRQ_ControllerHandle);
 
     // STEP 3: Enables exceptions globally in the processor
@@ -165,4 +167,35 @@ bool connectPeripheralFast_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerF
     // STEP 2: Enables the specific interrupt source within the AXI INTC
     XIntc_Enable(IRQ_ControllerHandle, ISR_HandlerFabric_ID);
     return(true);
+}
+
+
+
+
+#include "xil_io.h"
+#include "xintc_l.h"   // for XIN_IER_OFFSET, etc
+
+uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle)
+{
+    uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
+
+    // STEP 1: Capture currently-enabled interrupts
+    uint32_t SavedMask = Xil_In32(BaseAddress + XIN_IER_OFFSET);
+
+    // STEP 2: Disable all interrupt sources at the INTC
+    Xil_Out32(BaseAddress + XIN_IER_OFFSET, 0x00000000u);
+
+    // STEP 3: Ack any pending (optional but recommended)
+    uint32_t Pending = Xil_In32(BaseAddress + XIN_IPR_OFFSET);
+    Xil_Out32(BaseAddress + XIN_IAR_OFFSET, Pending);
+
+    return(SavedMask);
+}
+
+void resumeFastIRQs(XIntc *IRQ_ControllerHandle, uint32_t SavedMask)
+{
+    uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
+
+    // STEP 1: Restore previously-enabled interrupts
+    Xil_Out32(BaseAddress + XIN_IER_OFFSET, SavedMask);
 }

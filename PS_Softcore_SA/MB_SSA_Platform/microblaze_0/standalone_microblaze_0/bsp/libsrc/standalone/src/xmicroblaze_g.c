@@ -18,12 +18,12 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x0,  /* xlnx,dcache-always-used */
 		0x8000,  /* d-cache-size */
 		0x20,  /* i-cache-line-size */
-		0x8000,  /* i-cache-size */
-		0xd,  /* xlnx,addr-tag-bits */
+		0x10000,  /* i-cache-size */
+		0xc,  /* xlnx,addr-tag-bits */
 		0x1,  /* xlnx,allow-dcache-wr */
 		0x1,  /* xlnx,allow-icache-wr */
 		0x0,  /* xlnx,area-optimized */
-		0x8000,  /* xlnx,cache-byte-size */
+		0x10000,  /* xlnx,cache-byte-size */
 		0x1,  /* xlnx,d-lmb */
 		 0,  /* xlnx,d-opb */
 		 0,  /* xlnx,d-plb */
@@ -70,7 +70,7 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x2,  /* xlnx,use-hw-mul */
 		0x1,  /* xlnx,use-icache */
 		0x2,  /* xlnx,use-interrupt */
-		0x0,  /* xlnx,use-mmu */
+		0x3,  /* xlnx,use-mmu */
 		0x1,  /* xlnx,use-pcmp-instr */
 		0x80000000,  /* d-cache-baseaddr */
 		0x8fffffff,  /* d-cache-highaddr */

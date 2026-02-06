@@ -580,3 +580,9 @@ DWORD get_fattime(void)
 {
     return ((DWORD)(2010U - 1980U) << 25) | ((DWORD)1 << 21) | ((DWORD)1 << 16);
 }
+
+
+void uSD_IntrGlobalDisable(void)
+{
+    XSpi_IntrGlobalDisable(&Spi);
+}

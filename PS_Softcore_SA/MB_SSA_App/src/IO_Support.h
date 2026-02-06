@@ -46,7 +46,8 @@ extern"C" {
 #define TIMER_1_OUTPUT      ((uint32_t)(0x01 << 1))
 #define DISPLAY_RESET_RUN   ((uint32_t)(0x01 << 2))
 #define DISPLAY_CMD_DATA    ((uint32_t)(0x01 << 3))
-#define DISPLAY_CS          ((uint32_t)(0x01 << 4))    
+#define DISPLAY_CS          ((uint32_t)(0x01 << 4)) 
+#define TEST_IO_0           ((uint32_t)(0x01 << 5))     
 
 
 #ifdef __cplusplus

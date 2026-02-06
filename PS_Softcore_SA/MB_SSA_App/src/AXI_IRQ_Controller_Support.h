@@ -39,9 +39,10 @@ extern"C" {
 bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress);
 bool connectPeripheral_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabric_ID, XInterruptHandler ISR_Handler, void *ISR_CallbackReference);
 void enableExceptionHandling(XIntc *IRQ_ControllerHandle, bool UseFastInterrupts);
-
-
 bool connectPeripheralFast_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabric_ID, XInterruptHandler ISR_Handler, void *ISR_CallbackReference);
+
+uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle);
+void resumeFastIRQs(XIntc *IRQ_ControllerHandle, uint32_t SavedMask);
 
 #ifdef __cplusplus
 }

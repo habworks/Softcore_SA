@@ -50,12 +50,18 @@ extern"C" {
 #define GPIO_INPUT_CHANNEL      1          
 #define GPIO_OUTPUT_CHANNEL     2    
 // UART USE
-#define RX_BUFFER_SIZE          10      
+#define RX_BUFFER_SIZE          10  
 
 
 // EXTERNS
 extern volatile uint32_t volatile ReceivedBytes;
 extern volatile uint8_t RxDataBuffer[RX_BUFFER_SIZE];
+
+
+// MACROS
+#define DO_NOTHING()              asm volatile ("nop")
+#define DO_NOTHING_REPEAT(X)      do { for (volatile uint32_t i = 0; i < (uint32_t)(X); i++) asm volatile ("nop"); } while (0)
+
 
 // FUNCTION PROTOTYPES
 void sleep_10us_Wrapper(uint32_t WaitTime);
