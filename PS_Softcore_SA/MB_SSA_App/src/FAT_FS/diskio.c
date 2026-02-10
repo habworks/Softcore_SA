@@ -130,7 +130,7 @@
 
 #define SD_SPI_DRIVE        0             /* pdrv index (always 0 unless multiple cards) */
 
-#define SD_CMD_TIMEOUT_MS   100u          /* Generic command timeout */
+#define SD_CMD_TIMEOUT_MS   500u          /* Generic command timeout */
 #define SD_ACMD41_TIMEOUT_MS 1200u        /* Init loop timeout */
 
 /* ==================================================================================== */
@@ -522,6 +522,7 @@ DRESULT disk_write (BYTE pdrv, const BYTE* buff, LBA_t sector, UINT count)
         sd_select();
 
         u8 r1 = sd_send_cmd(CMD24, addr, 0xE1);
+        // xil_printf("CMD24 r1 = %02x\r\n", r1);
         if (r1 != 0x00u)
         {
             sd_deselect();
@@ -529,6 +530,9 @@ DRESULT disk_write (BYTE pdrv, const BYTE* buff, LBA_t sector, UINT count)
         }
 
         if (sd_write_block(&buff[i * 512u]) != 0)
+        // int RC = sd_write_block(&buff[i * 512u]);
+        // xil_printf("sd_write_block RC = %d\r\n", RC);
+        // if (RC != 0)
         {
             sd_deselect();
             return RES_ERROR;

@@ -25,6 +25,8 @@
  ********************************************************************************************************/
 
 #include "AXI_IRQ_Controller_Support.h"
+#include "xil_io.h"
+#include "xintc_l.h"  
 #include "Hab_Types.h"
 
 
@@ -32,8 +34,8 @@
 /********************************************************************************************************
 * @brief Init of an AXI IRQ Controller IP Block for use.  On success of the init start the conroller.  When
 * using the IRQ Controller all peripherals should be init before calling this function.  This is STEP 1 of
-* a 3 STEP process in setting up the IRQ Controller and IRQ ISR Callbacks for perhiperal devices.  This 
-* function should be called only once.  
+* a 4 STEP process in setting up the IRQ Controller and IRQ ISR Callbacks for perhiperal devices.  This 
+* function should be called only once.  This function is used for both normal and fast interrupts
 *
 * @author original: Hab Collector \n
 *
@@ -74,7 +76,7 @@ bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress)
 
 /********************************************************************************************************
 * @brief Connects a peripheral IRQ to the IRQ Controller.  This is step 2 of a 3 step process.  This function
-* should be called for each peripheral based IRQ.
+* should be called for each peripheral based IRQ.  This is for NON-low latency (slow / normal) interrupts
 *
 * @author original: Hab Collector \n
 *
@@ -117,7 +119,8 @@ bool connectPeripheral_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabri
 * @brief Enable IRQ Exceptions for the MicroBlaze.  Initializes the exception handling system and enables 
 * interrupts at the processor level.  This is the last thing to be called in the IRQ Handler process.  It
 * should only be called once.  Note the last step (step 4), is not part of this api.  It is unique to the 
-* AXI peripheral itself - it is where you enable said AXI peripheral for use IRQ Mode
+* AXI peripheral itself - it is where you enable said AXI peripheral for use IRQ Mode.  This function supports
+* both normal and low latency (fast) interrupts
 *
 * @author original: Hab Collector \n
 *
@@ -153,7 +156,29 @@ void enableExceptionHandling(XIntc *IRQ_ControllerHandle, bool UseFastInterrupts
 } // END OF enableExceptionHandling
 
 
-
+/********************************************************************************************************
+* @brief Connects and enables a fast interrupt handler for a specific fabric interrupt source
+* using the AXI Interrupt Controller.  This function registers the handler as a fast interrupt
+* (low-latency path) and enables the corresponding interrupt ID within the INTC.
+*
+* @author original: Hab Collector \n
+*
+* @note: This function uses the AXI INTC fast interrupt mechanism
+*        (XIntc_ConnectFastHandler).  The ISR is expected to be written to fast-interrupt
+*        constraints (minimal latency, explicit acknowledge, no blocking operations).
+*        The callback reference parameter is intentionally unused for fast handlers.
+*
+* @param   IRQ_ControllerHandle     Pointer to initialized AXI Interrupt Controller handle
+* @param   ISR_HandlerFabric_ID     Fabric interrupt ID associated with the peripheral
+* @param   ISR_Handler              Pointer to fast interrupt service routine
+* @param   ISR_CallbackReference    Callback reference (unused for fast interrupt handlers)
+*
+* @return  true if the handler was successfully connected and enabled
+*          false if handler registration failed
+*
+* STEP 1: Register the fast interrupt handler for the specified fabric interrupt ID.
+* STEP 2: Enable the corresponding interrupt source in the AXI INTC.
+********************************************************************************************************/
 bool connectPeripheralFast_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabric_ID, XInterruptHandler ISR_Handler, void *ISR_CallbackReference)
 {
     NOT_USED(ISR_CallbackReference);
@@ -167,14 +192,31 @@ bool connectPeripheralFast_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerF
     // STEP 2: Enables the specific interrupt source within the AXI INTC
     XIntc_Enable(IRQ_ControllerHandle, ISR_HandlerFabric_ID);
     return(true);
-}
+
+} // END OF connectPeripheralFast_IRQ
 
 
 
-
-#include "xil_io.h"
-#include "xintc_l.h"   // for XIN_IER_OFFSET, etc
-
+/********************************************************************************************************
+* @brief Temporarily disables all currently-enabled fast interrupt sources at the AXI Interrupt
+* Controller and returns the previous interrupt enable mask.  This allows critical sections
+* (for example SPI or display transactions) to run without interruption, while preserving
+* which interrupts were active beforehand.
+*
+* @author original: Hab Collector \n
+*
+* @note: This function operates at the AXI INTC level (IER/IPR/IAR registers) and does not
+*        globally disable MicroBlaze exceptions.  Only interrupt sources enabled in the
+*        AXI INTC are affected.
+*
+* STEP 1: Read and save the current Interrupt Enable Register (IER) mask.
+* STEP 2: Disable all interrupt sources by clearing the IER.
+* STEP 3: Acknowledge any pending interrupts to prevent immediate retrigger on resume.
+*
+* @param   IRQ_ControllerHandle   Pointer to initialized AXI Interrupt Controller handle
+*
+* @return  Saved interrupt enable mask representing interrupts that were active prior to disable
+********************************************************************************************************/
 uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle)
 {
     uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
@@ -190,12 +232,31 @@ uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle)
     Xil_Out32(BaseAddress + XIN_IAR_OFFSET, Pending);
 
     return(SavedMask);
-}
 
+} // END OF pauseFastIRQs
+
+
+
+/********************************************************************************************************
+* @brief Restores previously-enabled fast interrupt sources at the AXI Interrupt Controller
+* using a saved interrupt enable mask.  Intended to be paired with pauseFastIRQs() to
+* safely re-enable only those interrupts that were active before a critical section.
+*
+* @author original: Hab Collector \n
+*
+* @note: If an interrupt source is level-sensitive and remains asserted while masked,
+*        it may fire immediately upon restore.  This behavior is expected and hardware-dependent.
+*
+* STEP 1: Write the saved interrupt enable mask back to the Interrupt Enable Register (IER).
+*
+* @param   IRQ_ControllerHandle   Pointer to initialized AXI Interrupt Controller handle
+* @param   SavedMask              Interrupt enable mask previously returned by pauseFastIRQs()
+********************************************************************************************************/
 void resumeFastIRQs(XIntc *IRQ_ControllerHandle, uint32_t SavedMask)
 {
     uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
 
     // STEP 1: Restore previously-enabled interrupts
     Xil_Out32(BaseAddress + XIN_IER_OFFSET, SavedMask);
-}
+
+} // END OF resumeFastIRQs

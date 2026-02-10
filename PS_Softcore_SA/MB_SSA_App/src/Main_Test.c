@@ -93,22 +93,15 @@
 
 extern void uSD_IntrGlobalDisable(void);
 
-#define XPAR_MICROBLAZE_USE_ICACHE 1
-#define XPAR_MICROBLAZE_USE_DCACHE 1
-#define XPAR_MICROBLAZE_USE_MSR_INSTR 1
-#define XPAR_MICROBLAZE_ICACHE_BYTE_SIZE 65536  
-#define XPAR_MICROBLAZE_DCACHE_BYTE_SIZE 32768
-
 
 // DISPLAY SUPPORT
 // #include "AXI_SPI_Display_SSD1309.h"
 #include "u8g2.h"
 #define DISPLAY_CSN     0x01
-XSpi AXI_SPI_DisplayHandle;
-u8g2_t U8G2;
-Type_Display_SSD1309  Display_SSD1309;
-uint32_t __attribute__ ((section (".Hab_Fast_Data"))) DisplayTxError = 0;
-uint32_t __attribute__ ((section (".Hab_Fast_Data"))) DisplayTxCount = 0;
+XSpi AXI_SPI_DisplayHandle;     // Did not seem to make a difference if placed in fast memory
+u8g2_t U8G2; // Did not seem to make a difference if placed in fast memory
+Type_Display_SSD1309  Display_SSD1309; // Did not seem to make a difference if placed in fast memory
+
 
 
 // DDR 3 SUPPORT
@@ -163,12 +156,9 @@ void TimerCallbackGeneric_ISR(void) __attribute__((fast_interrupt));
 __attribute__((section(".Hab_Fast_Text")))
 void TimerCallbackAudio_ISR(void)
 {
+    // Mark the start of the ISR with IO toggle for testing only
     uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
     uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_1_OUTPUT);
-    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
-
-    Output_GPIO = (Output_GPIO ^ TIMER_1_OUTPUT);
-    // XGpio_WriteReg(XPAR_AXI_GPIO_0_BASEADDR, XGPIO_DATA2_OFFSET, Output_GPIO);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 
     // STEP 1: Clear the interrupt 2 different methods - both are essentially the same
@@ -181,10 +171,6 @@ void TimerCallbackAudio_ISR(void)
 #endif
 
     // STEP 2: User Logic
-    // uint32_t CurrentOutput_GPIO = XGpio_ReadReg(XPAR_AXI_GPIO_0_BASEADDR, XGPIO_DATA2_OFFSET);
-    // uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_1_OUTPUT);
-    // XGpio_WriteReg(XPAR_AXI_GPIO_0_BASEADDR, XGPIO_DATA2_OFFSET, Output_GPIO);
-
     static volatile uint32_t Inc = 0;
     Inc++;
     if (Inc >= 1000)
@@ -195,8 +181,6 @@ void TimerCallbackAudio_ISR(void)
         Inc = 0;
     }
 
-
-
     // STEP 3: Ack at interrupt Controller
 #ifdef ISR_USE_DIRECT_REGISTER_ACCESS
     Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + IAR_OFFSET, (1 << XPAR_FABRIC_AXI_TIMER_1_INTR));
@@ -204,8 +188,9 @@ void TimerCallbackAudio_ISR(void)
     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_1_INTR);
 #endif
 
-
-    
+    // Mark the end of the ISR with IO toggle for testing sake only
+    Output_GPIO = (Output_GPIO ^ TIMER_1_OUTPUT);
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 }
 
 
@@ -229,7 +214,6 @@ void TimerCallbackGeneric_ISR(void)
 
     // STEP 3: Ack at interrupt Controller
     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_2_INTR);
-
 }
 
 
@@ -250,8 +234,9 @@ void mainTest(void)
     int AXI_Status;
     bool Status;
 
-Xil_ICacheEnable();
-Xil_DCacheEnable();
+    // Enable the instruction and data cache
+    Xil_ICacheEnable();
+    Xil_DCacheEnable();
 
     // Init AXI UART
     // Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TransmitCallback_ISR, UART_ReceiveCallback_ISR);
@@ -291,8 +276,6 @@ Xil_DCacheEnable();
 
     // Init AXI SPI: Display Interface
     // Init AXI QSPI for use - will be used with display
-    DisplayTxError = 0;
-    DisplayTxCount = 0;
     AXI_Status = XSpi_Initialize(&AXI_SPI_DisplayHandle,XPAR_AXI_QUAD_SPI_0_BASEADDR);
     if (AXI_Status != XST_SUCCESS)
         while(1);
@@ -330,7 +313,7 @@ Xil_DCacheEnable();
     enableExceptionHandling(&AXI_IRQ_ControllerHandle, true); // true = use fast interrupts
     
 // XSpi_IntrGlobalDisable(&AXI_SPI_DisplayHandle);
-uSD_IntrGlobalDisable();
+// uSD_IntrGlobalDisable();
 
     // Step 4 of 4 Start the IRQ funtions - not part of the AXI IRQ Controller - unique to the AXI peripheral
     startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
@@ -428,75 +411,37 @@ uSD_IntrGlobalDisable();
             // SWITCH 1
             if (SwitchState & SW_0)
             {
-                // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-                // xil_printf("Timer 0 started\r\n");
+                xil_printf("Switch 1 on\r\n");
             }
             else
             {
-                // stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-                // xil_printf("Timer 0 stopped\r\n");
+                xil_printf("Switch 1 off\r\n");
             }
             // SWITCH 2
             if (SwitchState & SW_1)
             {
-                // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_1);
-                // xil_printf("Timer 1 started\r\n");
+                xil_printf("Switch 2 on\r\n");
             }
             else
             {
-                // stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_1);
-                // xil_printf("Timer 1 stopped\r\n");
+                xil_printf("Switch 2 off\r\n");
             }
             // Push Button 1
             if (SwitchState & PB_1)
             {
-                // static uint8_t TestVar = 0x00;
-                // uint8_t TxBuffer[2] = {0x00, 0xF0};
-                // uint8_t RxBuffer[10]; 
-                // TxBuffer[0] = ++TestVar;
-                // displayTrasmitReceive(&AXI_SPI_DisplayHandle, 1, TxBuffer, RxBuffer, sizeof(TxBuffer));
-                // xil_printf("SPI Test\r\n");
-                // XIntc_Disable(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);
-                // stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-                // stopPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
-                // DisplayTxError = 0;
-                // DisplayTxCount = 0;
-                // displaySimpleTest(&Display_SSD1309);
                 displayDirectTest(&Display_SSD1309);
-                // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-                // startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
+                sleep_ms_Wrapper(250);
+                displaySimpleTest(&Display_SSD1309);
+                xil_printf("Display General Test\r\n");
+
             }
             // Push Button 2
             if (SwitchState & PB_2)
             {
-                // uint8_t TxByte = 0x00;
-                // uint8_t RxByte = 0x00;
-                // displayResetOrRun(DISPLAY_RUN);
-                // // Commands
-                // displayChipSelect(CS_ENABLE);
-                // displayCommandOrData(DISPLAY_COMMAND);
-                // TxByte = 0xE3; // NOP
-                // displayTrasmitReceive(&AXI_SPI_DisplayHandle, DISPLAY_CSN, &TxByte, NULL, 1);
-                // TxByte = 0xAE; // Display Off
-                // displayTrasmitReceive(&AXI_SPI_DisplayHandle, DISPLAY_CSN, &TxByte, NULL, 1);
-                // sleep_ms(1000);
-                // TxByte = 0xAF; // Display On
-                // displayTrasmitReceive(&AXI_SPI_DisplayHandle, DISPLAY_CSN, &TxByte, NULL, 1);
-                // // Data
-                // displayCommandOrData(DISPLAY_DATA);
-                // for(uint8_t Count = 0; Count < 20; Count++)
-                // {
-                //     TxByte = 0xFF; // 8 pixels on
-                //     displayTrasmitReceive(&AXI_SPI_DisplayHandle, DISPLAY_CSN, &TxByte, NULL, 1);
-                //     sleep_ms(100);
-                //     TxByte = 0x00; // 8 pixels on
-                //     displayTrasmitReceive(&AXI_SPI_DisplayHandle, DISPLAY_CSN, &TxByte, NULL, 1);
-                // }
-                // displayChipSelect(CS_DISABLE);
-                stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+                // stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 drawSpectrumMock(&Display_SSD1309);
-                xil_printf("End display test\r\n");
-                startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+                xil_printf("Display Specturm Test\r\n");
+                // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
             }
             // Push Button 3
             if (SwitchState & PB_3)
@@ -525,7 +470,10 @@ uSD_IntrGlobalDisable();
                 //     xil_printf("Interrupt DataB[%d]: %d\r\n", Count, AXI_IMR_7476A_Handle.ADC_Data_B[Count]);
                 // }
                 // xil_printf("\r\n");
-                // stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+
+                xil_printf("MicroSD FAT FS Testing...");
+                disable_PWM(&AXI_TimerHandle_0);                
+                stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 // stopPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
                 uint32_t Saved_IRQ_Mask = pauseFastIRQs(&AXI_IRQ_ControllerHandle);
                 writeFileTest(ReadWriteFileName);
@@ -534,9 +482,11 @@ uSD_IntrGlobalDisable();
                 // sleep_ms(&AXI_TimerHandle_2, XTC_TIMER_0, 1000);
                 readFileTest(ReadOnlyFileName); 
                 resumeFastIRQs(&AXI_IRQ_ControllerHandle, Saved_IRQ_Mask);
-                // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+                startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 // startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
+                enable_PWM(&AXI_TimerHandle_0);    
 
+                // xil_printf("Sleep Delay Testing\r\n");                 
                 // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
                 // sleep_ms_Wrapper(1);
                 // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);                
@@ -555,17 +505,12 @@ uSD_IntrGlobalDisable();
                 // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
                 // sleep_10us_Wrapper(10);
                 // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-
-
-
             }
             // Update switch state for chage
             PreviousSwitchState = SwitchState;
         }
     }
 
-    // Unreachable code
-    return(0);
 }
 
 

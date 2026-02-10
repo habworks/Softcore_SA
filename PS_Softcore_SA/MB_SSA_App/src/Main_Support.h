@@ -51,6 +51,12 @@ extern"C" {
 #define GPIO_OUTPUT_CHANNEL     2    
 // UART USE
 #define RX_BUFFER_SIZE          10  
+// MICROBLAZE CACHE SUPPORT *** THESE LINES SHOULD BE ADDED WITHIN XPARAMETERS.H BUT THERE IS A BUG IN 2024.2 Vivado / Viits
+#define XPAR_MICROBLAZE_USE_ICACHE      1
+#define XPAR_MICROBLAZE_USE_DCACHE      1
+#define XPAR_MICROBLAZE_USE_MSR_INSTR   1
+#define XPAR_MICROBLAZE_ICACHE_BYTE_SIZE 65536  // Value must match MicroBlaze Instruction cache
+#define XPAR_MICROBLAZE_DCACHE_BYTE_SIZE 32768  // Value must match MicroBlaze Data cache
 
 
 // EXTERNS
