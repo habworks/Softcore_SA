@@ -91,8 +91,6 @@
 #include "AXI_IMR_PL_Revision.h"
 #include "IO_Support.h"
 
-extern void uSD_IntrGlobalDisable(void);
-
 
 // DISPLAY SUPPORT
 // #include "AXI_SPI_Display_SSD1309.h"
@@ -101,7 +99,6 @@ extern void uSD_IntrGlobalDisable(void);
 XSpi AXI_SPI_DisplayHandle;     // Did not seem to make a difference if placed in fast memory
 u8g2_t U8G2; // Did not seem to make a difference if placed in fast memory
 Type_Display_SSD1309  Display_SSD1309; // Did not seem to make a difference if placed in fast memory
-
 
 
 // DDR 3 SUPPORT
@@ -259,18 +256,18 @@ void mainTest(void)
         GPIO_InputState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
     }while (!(GPIO_InputState & DDR_CALIB_COMPLETE));
 
-    // Init AXI Timer 1: Audio Playblack
+    // Init AXI Timer 0: Audio PWM
+    Status = init_PWM(&AXI_TimerHandle_0, XPAR_AXI_TIMER_0_BASEADDR);
+    if (Status == false)
+        while(1);
+
+    // Init AXI Timer 1: Audio Playblack Timer
     Status = init_PeriodicTimer(&AXI_TimerHandle_1, XPAR_AXI_TIMER_1_BASEADDR, XTC_TIMER_0, AUDIO_IRQ_COUNT, TimerCallbackAudio_ISR);
     if (Status == false)
         while(1);
 
     // Init AXI Timer 2: Generic Timer
     Status = init_PeriodicTimer(&AXI_TimerHandle_2, XPAR_AXI_TIMER_2_BASEADDR, XTC_TIMER_0, 400e6, TimerCallbackGeneric_ISR);
-    if (Status == false)
-        while(1);
-
-    // Init AXI Timer 0: Audio PWM
-    Status = init_PWM(&AXI_TimerHandle_0, XPAR_AXI_TIMER_0_BASEADDR);
     if (Status == false)
         while(1);
 
@@ -291,36 +288,33 @@ void mainTest(void)
     if (AXI_Status != XST_SUCCESS)
         while(1);
 
-    // Init AXI IRQ Controller (4x Steps)
-    // Step 1 of 4 IRQ Controller setup: Init or IRQ Controller
+    // Init AXI IRQ Controller (6x Steps)
+    // Step 1 of 6 IRQ Controller setup: Init or IRQ Controller
     Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_AXI_INTC_0_BASEADDR);
     if (Status == false)
         while(1);
-    // // Step 2A of 4 IRQ Controller setup: AXI Audio Timer 
+    // Step 2A of 4 IRQ Controller setup: AXI Audio Timer 
     Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR, TimerCallbackAudio_ISR, &AXI_TimerHandle_1);
     if (Status == false)
         while(1);
-    // // Step 2B of 4 IRQ Controller setup: AXI Generic Timer 
+    // Step 2B of 4 IRQ Controller setup: AXI Generic Timer 
     Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, TimerCallbackGeneric_ISR, &AXI_TimerHandle_2);
     if (Status == false)
         while(1);
-    Status = XIntc_Start(&AXI_IRQ_ControllerHandle, XIN_REAL_MODE);
-    if (Status != XST_SUCCESS)
+    // Step 3 IRQ Controller setup: Start
+    Status = start_IRQ_Controller(&AXI_IRQ_ControllerHandle, XIN_REAL_MODE);
+    if (Status == false)
         while(1);
-    XIntc_Enable(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
-    XIntc_Enable(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);
-    // // Step 3 of 4 IRQ Controller setup: Enable IRQs
-    enableExceptionHandling(&AXI_IRQ_ControllerHandle, true); // true = use fast interrupts
-    
-// XSpi_IntrGlobalDisable(&AXI_SPI_DisplayHandle);
-// uSD_IntrGlobalDisable();
+    // Step 4 IRQ Controller setup: Enable Peripheral Interrupts
+    enableDevice_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
+    enableDevice_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);
+    // Step 5 IRQ Controller setup: Enable Exceptions
+    enableExceptionHandling(&AXI_IRQ_ControllerHandle); 
 
-    // Step 4 of 4 Start the IRQ funtions - not part of the AXI IRQ Controller - unique to the AXI peripheral
+    // Start / enable peripherals after IRQ Controller setup 
     startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
     startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
     setup_PWM(&AXI_TimerHandle_0, 100000, 50.0);
-
-
 
 
     // Init FAT FS
@@ -472,19 +466,15 @@ void mainTest(void)
                 // xil_printf("\r\n");
 
                 xil_printf("MicroSD FAT FS Testing...");
-                disable_PWM(&AXI_TimerHandle_0);                
-                stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-                // stopPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
-                uint32_t Saved_IRQ_Mask = pauseFastIRQs(&AXI_IRQ_ControllerHandle);
+                // disable_PWM(&AXI_TimerHandle_0);                
+                // stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+                // uint32_t Saved_IRQ_Mask = pauseFastIRQs(&AXI_IRQ_ControllerHandle);
                 writeFileTest(ReadWriteFileName);
-                // sleep_ms(&AXI_TimerHandle_2, XTC_TIMER_0, 1000);
                 readFileTest(ReadWriteFileName);
-                // sleep_ms(&AXI_TimerHandle_2, XTC_TIMER_0, 1000);
                 readFileTest(ReadOnlyFileName); 
-                resumeFastIRQs(&AXI_IRQ_ControllerHandle, Saved_IRQ_Mask);
-                startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-                // startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
-                enable_PWM(&AXI_TimerHandle_0);    
+                // resumeFastIRQs(&AXI_IRQ_ControllerHandle, Saved_IRQ_Mask);
+                // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
+                // enable_PWM(&AXI_TimerHandle_0);    
 
                 // xil_printf("Sleep Delay Testing\r\n");                 
                 // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);

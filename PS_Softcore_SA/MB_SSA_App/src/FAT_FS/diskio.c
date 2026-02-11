@@ -586,7 +586,3 @@ DWORD get_fattime(void)
 }
 
 
-void uSD_IntrGlobalDisable(void)
-{
-    XSpi_IntrGlobalDisable(&Spi);
-}

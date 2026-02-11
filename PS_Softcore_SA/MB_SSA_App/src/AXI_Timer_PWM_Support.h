@@ -55,9 +55,6 @@ bool init_PeriodicTimer(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress, u8 TimerN
 bool startPeriodicTimer(XTmrCtr *TimerHandle, u8 TimerNumber);
 bool stopPeriodicTimer(XTmrCtr *TimerHandle, u8 TimerNumber);
 
-bool init_FastPeriodicTimer(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress, u8 TimerNumber, u32 TimerIntervalTicks, Type_TimerFunction_ISR TimerFunction_ISR);
-
-
 #ifdef __cplusplus
 }
 #endif

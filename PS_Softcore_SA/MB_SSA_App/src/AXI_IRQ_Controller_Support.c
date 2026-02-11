@@ -34,12 +34,12 @@
 /********************************************************************************************************
 * @brief Init of an AXI IRQ Controller IP Block for use.  On success of the init start the conroller.  When
 * using the IRQ Controller all peripherals should be init before calling this function.  This is STEP 1 of
-* a 4 STEP process in setting up the IRQ Controller and IRQ ISR Callbacks for perhiperal devices.  This 
+* a 6 STEP process in setting up the IRQ Controller and IRQ ISR Callbacks for perhiperal devices.  This 
 * function should be called only once.  This function is used for both normal and fast interrupts
 *
 * @author original: Hab Collector \n
 *
-* @note: This is Step 1 of 4
+* @note: This is Step 1 of 6
 * @note: See peripheral AXI IRQ Controller
 * @note: Generally speaking there is only 1 AXI IRQ Controller in the design ID is 0
 * @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
@@ -50,7 +50,6 @@
 * @return True if init OK
 *
 * STEP 1: Initializes a specific AXI INTC instance
-* STEP 2: Starts the interrupt controller operation
 ********************************************************************************************************/
 bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress)
 {
@@ -62,25 +61,19 @@ bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress)
         return(false);
     else
         return(true);
-
-    // STEP 2: Starts the interrupt controller operation
-    // AXI_Status = XIntc_Start(IRQ_ControllerHandle, XIN_REAL_MODE);
-    // if (AXI_Status != XST_SUCCESS)
-    //     return(false);
-    // else
-    //     return(true);
     
 } // END OF init_IRQ_Controller
 
 
 
 /********************************************************************************************************
-* @brief Connects a peripheral IRQ to the IRQ Controller.  This is step 2 of a 3 step process.  This function
-* should be called for each peripheral based IRQ.  This is for NON-low latency (slow / normal) interrupts
+* @brief Connects a peripheral IRQ to the IRQ Controller.  This is step 2 of a 6 step process.  This function
+* should be called for each peripheral based IRQ.  ***This is for NON-low latency (slow / normal) interrupts.
+* For fast interrupts use instead connectPeripheralFast_IRQ().
 *
 * @author original: Hab Collector \n
 *
-* @note: This is Step 2 of 4
+* @note: This is Step 2 of 6
 * @note: Some peripherals use a generic ISR handler (for example AXI Timer).  These peripherals will include a setHandler function in their API
 * (for ecample XTmrCtr_SetHandler).  As part of said peripheral init you must call the setHandler api that associates the actual ISR to be called.
 * The generic ISR will call the actual ISR - this is how it works. See function init_PeriodicTimer in AXI_Timer_PWM_Support.c for example
@@ -116,64 +109,26 @@ bool connectPeripheral_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabri
 
 
 /********************************************************************************************************
-* @brief Enable IRQ Exceptions for the MicroBlaze.  Initializes the exception handling system and enables 
-* interrupts at the processor level.  This is the last thing to be called in the IRQ Handler process.  It
-* should only be called once.  Note the last step (step 4), is not part of this api.  It is unique to the 
-* AXI peripheral itself - it is where you enable said AXI peripheral for use IRQ Mode.  This function supports
-* both normal and low latency (fast) interrupts
-*
-* @author original: Hab Collector \n
-*
-* @note: This is Step 3 of 4
-* @note: Read header notes on step 4 - step 4 not part of this api set
-* @note: See peripheral AXI IRQ Controller
-* @note: Generally speaking there is only 1 AXI IRQ Controller in the design ID is 0
-* @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
-* @note: REMOVE STEP 2 IF USING FAST INTERRUPT.  Do NOT register XIntc_InterruptHandler here 
-*        if you are using Fast Interrupts for the Timer. 
-*        The MicroBlaze hardware handles the jump directly to your 
-*        FastHandler and your normal handlers via the INTC's own vector table.
-* 
-* @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
-* @param UseFastInterrupts: If true use fast interrupts - if false use normal interrupts
-*
-* STEP 1: Initializes the exception handling system
-* STEP 2: Register, or not the AXI INTC interrupt handler as a general exception handler - see notes
-* STEP 3: Enables exceptions globally in the processor
-********************************************************************************************************/
-void enableExceptionHandling(XIntc *IRQ_ControllerHandle, bool UseFastInterrupts)
-{
-    // STEP 1: Initializes the exception handling system
-    Xil_ExceptionInit();
-
-    // STEP 2: Register, or not the AXI INTC interrupt handler as a general exception handler - see notes
-    if (UseFastInterrupts)
-        Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XIntc_InterruptHandler, IRQ_ControllerHandle);
-
-    // STEP 3: Enables exceptions globally in the processor
-    Xil_ExceptionEnable();
-
-} // END OF enableExceptionHandling
-
-
-/********************************************************************************************************
 * @brief Connects and enables a fast interrupt handler for a specific fabric interrupt source
 * using the AXI Interrupt Controller.  This function registers the handler as a fast interrupt
-* (low-latency path) and enables the corresponding interrupt ID within the INTC.
+* (low-latency path) and enables the corresponding interrupt ID within the INTC. Only use this function for 
+* fast interrupts.  For normal interrupts use instead connectPeripheral_IRQ().
 *
 * @author original: Hab Collector \n
 *
+* @note: This is Step 2 of 6
 * @note: This function uses the AXI INTC fast interrupt mechanism
 *        (XIntc_ConnectFastHandler).  The ISR is expected to be written to fast-interrupt
 *        constraints (minimal latency, explicit acknowledge, no blocking operations).
 *        The callback reference parameter is intentionally unused for fast handlers.
+* @note Callback reference for fast interrupts excepts only void
 *
 * @param   IRQ_ControllerHandle     Pointer to initialized AXI Interrupt Controller handle
 * @param   ISR_HandlerFabric_ID     Fabric interrupt ID associated with the peripheral
 * @param   ISR_Handler              Pointer to fast interrupt service routine
 * @param   ISR_CallbackReference    Callback reference (unused for fast interrupt handlers)
 *
-* @return  true if the handler was successfully connected and enabled
+* @return  True if the handler was successfully connected and enabled
 *          false if handler registration failed
 *
 * STEP 1: Register the fast interrupt handler for the specified fabric interrupt ID.
@@ -194,6 +149,92 @@ bool connectPeripheralFast_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerF
     return(true);
 
 } // END OF connectPeripheralFast_IRQ
+
+
+
+/********************************************************************************************************
+* @brief Start the interrupt controller.  This is step 3 of 6.  It is noted here that step 5, you will not
+* not find here. Used with both normal and fast interrupts.
+* 
+* @author original: Hab Collector \n
+*
+* @note: This is Step 3 of 6
+* @note: See peripheral AXI IRQ Controller
+* @note: Generally speaking there is only 1 AXI IRQ Controller in the design ID is 0
+* @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
+* 
+* @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
+* @param InterruptMode: Mode of operation for the interrupt controller can only be XIN_REAL_MODE or XIN_SIMULATION_MODE - use normally XIN_REAL_MODE
+*
+* STEP 1: Start the interrupt controller
+********************************************************************************************************/
+bool start_IRQ_Controller(XIntc *IRQ_ControllerHandle, uint8_t InterruptMode)
+{
+    // STEP 1: Start the interrupt controller
+    int AXI_Status = XIntc_Start(IRQ_ControllerHandle, InterruptMode);
+    return(AXI_Status == XST_SUCCESS);
+
+} // END OF start_IRQ_Controller
+
+
+
+/********************************************************************************************************
+* @brief Enable a specific interrupt assoicated with the interrupt controller.  Used with both normal and
+* fast interrupts.  
+* 
+* @author original: Hab Collector \n
+*
+* @note: This is Step 4 of 6
+* @note: See peripheral AXI IRQ Controller
+* @note: Generally speaking there is only 1 AXI IRQ Controller in the design ID is 0
+* @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
+* 
+* @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
+* @param enableDevice_IRQ_Controller: Peripheral device ID interrupt value
+*
+* STEP 1: Enable specific interrupt
+********************************************************************************************************/
+void enableDevice_IRQ_Controller(XIntc *IRQ_ControllerHandle, uint8_t DeviceInterrupt_ID)
+{
+    // STEP 1: Enable specific interrupt
+    XIntc_Enable(IRQ_ControllerHandle, DeviceInterrupt_ID);
+
+} // END OF enableDevice_IRQ_Controller
+
+
+
+/********************************************************************************************************
+* @brief Enable IRQ Exceptions for the MicroBlaze.  Initializes the exception handling system and enables 
+* interrupts at the processor level. It should only be called once. This function supports both normal and 
+* low latency (fast) interrupts.  Note step 6 is not found here.  In step 6 you start / enable the connected 
+* interrupt peripherals.  
+* 
+* @author original: Hab Collector \n
+*
+* @note: This is Step 5 of 6
+* @note: Step 6 of 6 is actually starting the interrupt periperials - unique to the specific interrupt
+* @note: See peripheral AXI IRQ Controller
+* @note: Generally speaking there is only 1 AXI IRQ Controller in the design ID is 0
+* @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
+* 
+* @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
+*
+* STEP 1: Initializes the exception handling system
+* STEP 2: Register the AXI INTC interrupt handler as a general exception handler 
+* STEP 3: Enables exceptions globally in the processor
+********************************************************************************************************/
+void enableExceptionHandling(XIntc *IRQ_ControllerHandle)
+{
+    // STEP 1: Initializes the exception handling system
+    Xil_ExceptionInit();
+
+    // STEP 2: Register the AXI INTC interrupt handler as a general exception handler 
+    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler)XIntc_InterruptHandler, IRQ_ControllerHandle);
+
+    // STEP 3: Enables exceptions globally in the processor
+    Xil_ExceptionEnable();
+
+} // END OF enableExceptionHandling
 
 
 

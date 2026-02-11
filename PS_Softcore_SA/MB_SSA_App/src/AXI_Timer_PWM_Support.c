@@ -25,8 +25,7 @@
  ********************************************************************************************************/
 
 #include "AXI_Timer_PWM_Support.h"
-#include "xinterrupt_wrap.h" 
-// extern void TmrCtr_FastHandler(void);
+
 
 
 /********************************************************************************************************
@@ -198,7 +197,6 @@ bool init_PeriodicTimer(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress, u8 TimerN
     XTmrCtr_SetResetValue(TimerHandle, TimerNumber, TimerIntervalTicks);
     XTmrCtr_SetOptions(TimerHandle, TimerNumber, XTC_INT_MODE_OPTION | XTC_AUTO_RELOAD_OPTION | XTC_DOWN_COUNT_OPTION); 
     XTmrCtr_ClearStats(TimerHandle);  
-    // XTmrCtr_Reset(TimerHandle, TimerNumber);  
 
     // STEP 4: Set the interrupt handler for Timer
     #ifdef USE_AXI_TIMER_IRQ_CALLBACK_API 
@@ -291,43 +289,3 @@ bool stopPeriodicTimer(XTmrCtr *TimerHandle, u8 TimerNumber)
 
 } // END OF stopPeriodicTimer
 
-
-
-bool init_FastPeriodicTimer(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress, u8 TimerNumber, u32 TimerIntervalTicks, Type_TimerFunction_ISR TimerFunction_ISR)
-{
-    int Status; 
-
-    // STEP 1: Simple parameter check
-    if ((TimerNumber != XTC_TIMER_0) && (TimerNumber != XTC_TIMER_1))
-        return(false);
-    if (TimerIntervalTicks == 0)
-        return(false);
-
-    // STEP 2: Init timer for use
-    Status = XTmrCtr_Initialize(TimerHandle, IPB_BaseAddress);
-    if (Status != XST_SUCCESS) 
-        return(false);
-
-    // STEP 3: Perform self test
-    Status = XTmrCtr_SelfTest(TimerHandle, TimerNumber);
-	if (Status != XST_SUCCESS) 
-        return(false);
-
-    // STEP 4: Connect the timer counter to the interrupt subsystem such that interrupts can occur.  This function is application specific
-    // Status = XSetupInterruptSystem(TimerHandle, TmrCtr_FastHandler, \
-	// 			       TimerHandle->Config.IntrId, TimerHandle->Config.IntrParent, \
-	// 			       XINTERRUPT_DEFAULT_PRIORITY);
-    // if (Status != XST_SUCCESS) 
-    //     return(false);
-
-    // STEP 5: Set the interrupt handler for Timer counter that will be called from the interrupt context when the timer expires, specify a pointer to the timer counter driver instance as the callback reference so the handler is able to access the instance data
-    XTmrCtr_SetHandler(TimerHandle, TimerFunction_ISR, TimerHandle);
-
-    // STEP 6: Options to allow interrupt, reload and count down
-    XTmrCtr_SetOptions(TimerHandle, TimerNumber, XTC_INT_MODE_OPTION | XTC_AUTO_RELOAD_OPTION | XTC_DOWN_COUNT_OPTION); 
-
-    // STEP 7: Reset and make ready
-    XTmrCtr_SetResetValue(TimerHandle, TimerNumber, TimerIntervalTicks);
-    return(true);
-
-} // END OF init_FastPeriodicTimer
