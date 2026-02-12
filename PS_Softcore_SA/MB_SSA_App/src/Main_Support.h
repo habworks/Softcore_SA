@@ -39,14 +39,12 @@ extern"C" {
 
 // DEFINES
 // PRE-PROCESSOR
-// #define                         RUN_MAIN_APPLICATION    // ****Comment out this line if running testing****
+// #define                         RUN_MAIN_APPLICATION    // ****Comment out this line if running testing app****
 // PS FW REVSION
 #define FW_MAJOR_REV            1
 #define FW_MINOR_REV            0
 #define FW_TEST_REV             1
 // USED IN SLEEP FUNCTIONS
-#define TICKS_PER_MILLISECOND   (XPAR_CPU_CORE_CLOCK_FREQ_HZ / 1000)
-#define TICKS_PER_10_US         (XPAR_CPU_CORE_CLOCK_FREQ_HZ / 100000)
 #define GPIO_INPUT_CHANNEL      1          
 #define GPIO_OUTPUT_CHANNEL     2    
 // UART USE
@@ -72,15 +70,13 @@ extern volatile uint8_t RxDataBuffer[RX_BUFFER_SIZE];
 // FUNCTION PROTOTYPES
 void sleep_10us_Wrapper(uint32_t WaitTime);
 void sleep_ms_Wrapper(uint32_t WaitTime);
-void sleep_10us(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime);
-void sleep_ms(XTmrCtr *AXI_TimerHandle, uint8_t Timer, uint32_t WaitTime);
 void displayResetOrRun(Type_DisplayResetRun ResetRunAction);
 void displayCommandOrData(Type_DisplayCommandData CommandDataAction);
-void displayChipSelect(Type_Display_CS Status);
+void displayChipSelect(Type_Display_CS DisplaySelect);
 bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer);
 // ISR CALLBACK FUNCTIONS
-void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData);
-void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData);
+// void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData);
+
 
 #ifdef __cplusplus
 }

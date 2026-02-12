@@ -1,6 +1,6 @@
 /******************************************************************************************************
  * @file            Main_Test.c
- * @brief           Program to demonstrate the use of the various components of the Softcore SS Project
+ * @brief           This is test app used for both function development and testing this is not the SoftCore Application
  *
  * Description: 
  * GPIO ACTION:
@@ -8,17 +8,15 @@
  * serve as input interupts in this case
  *
  * PERIODIC TIMER ACTION:
- * There are 1 AXI Timer IP Block within this design.  axi_timer_0 is configured for Timer.
- * axi_timer_0 is configured for periodic timer and both timers are used. 
- * Timer number 0 is set for an ISR IRQ every 300ms.  Timer number 1 is set for an ISR IRQ every 120ms.
- * With a periodic timer, both timer numbers share the same ISR.  There are two switches in use SW0 and SW1.
- *
+ * There are 3 AXI Timer IP Block within this design.  
+ * axi_timer_0 is configured for use with the Board Support Package (BSP) >> xiltimer and sleep based functions
+ * axi_timer 1 is configured as a periodic fast (low latency interrupt) - intended for sampling and audio playback use
+ * axi_timer_2 is configured as a periodic fast (low latency interrupt) - for TBD 
+ * axi_timer_3 is configured as PWM intended for PWM audio playback 
+ * 
  * UART LITE ACTION: 
  * The UART is configure in IRQ mode, but even in IRQ mode it can be used in polling via
- * the function xil_printf - xil_printf is tied to this UART via the Platform settings >> Board Support Package >> standalone >> standalone stdin and stdout
- * The two callback functions for the UART in IRQ mode are UART_ReceiveCallback_ISR and UART_TransmitCallback_ISR. 
- * When UART receives input the RX ISR will echo the input to the UART Tx - So if using console what you
- * type you will see. 
+ * the function xil_printf - xil_printf is tied to this UART via the Platform settings >> BSP >> standalone >> standalone stdin and stdout
  *
  * QUAD SPI 0 ACTION:
  * This Quad SPI is in the interface of the graphics display.  It is a monochrome display 128x64 piexels.
@@ -30,15 +28,15 @@
  * The uSD main purpuse to is for file retrival but both file reads and writes are tested here
  *
  * INTERRUPT CONTROLLER ACTION:
- * Several PL actions generate interruts.  The Timer, UART, etc. The interrupt controller feeds the various IRQs to the MicroBlaze
+ * Several PL actions generate interruts.  Timer 1, and Timer 2 
  *
  * UI INPUTS
- * SW0 on: Periodic Timer Number 0 is enabled \ disable
- * SW0 off: Periodic Timer Number 0 is enable \ disable
+ * SW0 on / off: TBD By testing needs
+ * SW1 on / off: TBD By testing needs
  * PB_0: Board level reset
- * PB_1:
- * PB_2:
- * PB_3:
+ * PB_1: TBD By testing needs
+ * PB_2: TBD By testing needs
+ * PB_3: TBD By testing needs
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -88,6 +86,7 @@
 #include "AXI_IRQ_Controller_Support.h"
 #include "AXI_IMR_ADC_7476A_DUAL.h"
 #include "AXI_SPI_Display_SSD1309.h"
+#include "AXI_QSPI_Support.h"
 #include "AXI_IMR_PL_Revision.h"
 #include "IO_Support.h"
 
@@ -118,15 +117,15 @@ XGpio AXI_GPIO_Handle;
 // UART SUPPORT
 XUartLite __attribute__ ((section (".Hab_Fast_Data"))) AXI_UART_Handle;
 
-// TIMER PWM SUPPORT
-XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_TimerHandle_0;
-
 // TIMER SUPPORT - AUDIO PLAYBACK
 #define AUDIO_IRQ_COUNT 1000
 XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_TimerHandle_1;
 
 // TIMER SUPPORT - GENERIC
 XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_TimerHandle_2;
+
+// TIMER PWM SUPPORT
+XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_TimerHandle_3;
 
 // IRQ CONTROLLER SUPPORT
 XIntc __attribute__ ((section (".Hab_Fast_Data"))) AXI_IRQ_ControllerHandle;
@@ -237,11 +236,11 @@ void mainTest(void)
 
     // Init AXI UART
     // Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TransmitCallback_ISR, UART_ReceiveCallback_ISR);
-    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, POLLING, NULL, NULL);
+    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, POLLING, NULL, NULL, false);
     if (Status == false)
         while(1);
 
-    // Init AXI GPIO
+    // Init AXI GPIO and set default GPIO states
     AXI_Status = XGpio_Initialize(&AXI_GPIO_Handle, XPAR_AXI_GPIO_0_BASEADDR);
     if (AXI_Status != XST_SUCCESS)
         while(1);
@@ -256,11 +255,6 @@ void mainTest(void)
         GPIO_InputState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
     }while (!(GPIO_InputState & DDR_CALIB_COMPLETE));
 
-    // Init AXI Timer 0: Audio PWM
-    Status = init_PWM(&AXI_TimerHandle_0, XPAR_AXI_TIMER_0_BASEADDR);
-    if (Status == false)
-        while(1);
-
     // Init AXI Timer 1: Audio Playblack Timer
     Status = init_PeriodicTimer(&AXI_TimerHandle_1, XPAR_AXI_TIMER_1_BASEADDR, XTC_TIMER_0, AUDIO_IRQ_COUNT, TimerCallbackAudio_ISR);
     if (Status == false)
@@ -271,21 +265,14 @@ void mainTest(void)
     if (Status == false)
         while(1);
 
-    // Init AXI SPI: Display Interface
-    // Init AXI QSPI for use - will be used with display
-    AXI_Status = XSpi_Initialize(&AXI_SPI_DisplayHandle,XPAR_AXI_QUAD_SPI_0_BASEADDR);
-    if (AXI_Status != XST_SUCCESS)
+    // Init AXI Timer 3: Audio PWM
+    Status = init_PWM(&AXI_TimerHandle_3, XPAR_AXI_TIMER_3_BASEADDR);
+    if (Status == false)
         while(1);
-    XSpi_Reset(&AXI_SPI_DisplayHandle);
-    // Master mode + manual CS
-    AXI_Status |= XSpi_SetOptions(&AXI_SPI_DisplayHandle,XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION);
-    // Disable interrupts
-    XSpi_IntrGlobalDisable(&AXI_SPI_DisplayHandle);
-    // Start the SPI engine
-    AXI_Status |= XSpi_Start(&AXI_SPI_DisplayHandle);
-    // Is it all good
-    XSpi_SetSlaveSelect(&AXI_SPI_DisplayHandle, 0); 
-    if (AXI_Status != XST_SUCCESS)
+
+    // Init AXI SPI: Display UI Interface
+    Status = init_QSPI_PollingMode(&AXI_SPI_DisplayHandle, XPAR_AXI_QUAD_SPI_0_BASEADDR);
+    if (Status == false)
         while(1);
 
     // Init AXI IRQ Controller (6x Steps)
@@ -314,8 +301,7 @@ void mainTest(void)
     // Start / enable peripherals after IRQ Controller setup 
     startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
     startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
-    setup_PWM(&AXI_TimerHandle_0, 100000, 50.0);
-
+    setup_PWM(&AXI_TimerHandle_3, 100000, 50.0);
 
     // Init FAT FS
     xil_printf("Mounting file system...\r\n");
@@ -389,7 +375,7 @@ void mainTest(void)
 
         if (DutyCyclePercent != PreviousDutyCyclePercent)
         {
-            setup_PWM(&AXI_TimerHandle_0, 100000, DutyCyclePercent);
+            setup_PWM(&AXI_TimerHandle_3, 100000, DutyCyclePercent);
             PreviousDutyCyclePercent = DutyCyclePercent;
         }
         
@@ -476,32 +462,32 @@ void mainTest(void)
                 // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
                 // enable_PWM(&AXI_TimerHandle_0);    
 
-                // xil_printf("Sleep Delay Testing\r\n");                 
-                // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-                // sleep_ms_Wrapper(1);
-                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);                
-                // sleep_ms_Wrapper(5);
+                xil_printf("Sleep Delay Testing\r\n");                 
+                XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+                sleep_ms_Wrapper(1);
+                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);                
+                sleep_ms_Wrapper(5);
 
-                // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-                // sleep_ms_Wrapper(10);
-                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-                // sleep_ms_Wrapper(5);
+                XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+                sleep_ms_Wrapper(10);
+                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+                sleep_ms_Wrapper(5);
 
-                // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-                // sleep_10us_Wrapper(1);
-                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-                // sleep_ms_Wrapper(5);
+                XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+                sleep_10us_Wrapper(1);
+                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+                sleep_ms_Wrapper(5);
                 
-                // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-                // sleep_10us_Wrapper(10);
-                // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+                XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+                sleep_10us_Wrapper(10);
+                XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
             }
             // Update switch state for chage
             PreviousSwitchState = SwitchState;
         }
     }
 
-}
+} // END OF mainTest
 
 
 

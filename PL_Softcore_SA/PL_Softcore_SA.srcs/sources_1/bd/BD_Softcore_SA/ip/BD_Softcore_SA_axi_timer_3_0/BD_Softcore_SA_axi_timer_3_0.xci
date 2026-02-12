@@ -1,26 +1,26 @@
 {
   "schema": "xilinx.com:schema:json_instance:1.0",
   "ip_inst": {
-    "xci_name": "BD_Softcore_SA_axi_timer_0_1",
-    "cell_name": "axi_timer_0",
+    "xci_name": "BD_Softcore_SA_axi_timer_3_0",
+    "cell_name": "axi_timer_3",
     "component_reference": "xilinx.com:ip:axi_timer:2.0",
     "ip_revision": "35",
-    "gen_directory": "../../../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA/ip/BD_Softcore_SA_axi_timer_0_1",
+    "gen_directory": "../../../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA/ip/BD_Softcore_SA_axi_timer_3_0",
     "parameters": {
       "component_parameters": {
-        "Component_Name": [ { "value": "BD_Softcore_SA_axi_timer_0_1", "resolve_type": "user", "usage": "all" } ],
+        "Component_Name": [ { "value": "BD_Softcore_SA_axi_timer_3_0", "resolve_type": "user", "usage": "all" } ],
         "TRIG0_ASSERT": [ { "value": "Active_High", "resolve_type": "user", "usage": "all" } ],
-        "TRIG1_ASSERT": [ { "value": "Active_High", "resolve_type": "user", "enabled": false, "usage": "all" } ],
+        "TRIG1_ASSERT": [ { "value": "Active_High", "resolve_type": "user", "usage": "all" } ],
         "GEN0_ASSERT": [ { "value": "Active_High", "resolve_type": "user", "usage": "all" } ],
-        "GEN1_ASSERT": [ { "value": "Active_High", "resolve_type": "user", "enabled": false, "usage": "all" } ],
+        "GEN1_ASSERT": [ { "value": "Active_High", "resolve_type": "user", "usage": "all" } ],
         "COUNT_WIDTH": [ { "value": "32", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "mode_64bit": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
-        "enable_timer2": [ { "value": "0", "value_src": "user", "resolve_type": "user", "format": "long", "usage": "all" } ]
+        "enable_timer2": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ]
       },
       "model_parameters": {
         "C_FAMILY": [ { "value": "artix7", "resolve_type": "generated", "usage": "all" } ],
         "C_COUNT_WIDTH": [ { "value": "32", "resolve_type": "generated", "format": "long", "usage": "all" } ],
-        "C_ONE_TIMER_ONLY": [ { "value": "1", "resolve_type": "generated", "format": "long", "usage": "all" } ],
+        "C_ONE_TIMER_ONLY": [ { "value": "0", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_TRIG0_ASSERT": [ { "value": "1", "resolve_type": "generated", "format": "bitString", "usage": "all" } ],
         "C_TRIG1_ASSERT": [ { "value": "1", "resolve_type": "generated", "format": "bitString", "usage": "all" } ],
         "C_GEN0_ASSERT": [ { "value": "1", "resolve_type": "generated", "format": "bitString", "usage": "all" } ],
@@ -45,7 +45,7 @@
         "IPCONTEXT": [ { "value": "IP_Integrator" } ],
         "IPREVISION": [ { "value": "35" } ],
         "MANAGED": [ { "value": "TRUE" } ],
-        "OUTPUTDIR": [ { "value": "../../../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA/ip/BD_Softcore_SA_axi_timer_0_1" } ],
+        "OUTPUTDIR": [ { "value": "../../../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA/ip/BD_Softcore_SA_axi_timer_3_0" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "../../ipshared" } ],
         "SWVERSION": [ { "value": "2024.2" } ],
@@ -176,7 +176,7 @@
           "mode": "master",
           "parameters": {
             "SENSITIVITY": [ { "value": "LEVEL_HIGH", "value_src": "constant", "value_permission": "bd", "usage": "all" } ],
-            "PortWidth": [ { "value": "1", "value_src": "default_prop", "value_permission": "bd", "resolve_type": "generated", "format": "long", "is_ips_inferred": true, "is_static_object": false } ]
+            "PortWidth": [ { "value": "1", "value_permission": "bd", "resolve_type": "generated", "format": "long", "is_ips_inferred": true, "is_static_object": false } ]
           },
           "port_maps": {
             "INTERRUPT": [ { "physical_name": "interrupt" } ]

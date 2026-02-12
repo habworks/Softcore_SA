@@ -45,6 +45,7 @@
 * @param OperatingMode: must be POLLING or INTERRUPT
 * @param TxCallBack: Valid in INTERRUPT mode only - the ISR transmit callback function (see example) - if in polling mode pass NULL
 * @param RxCallBack: Valid in INTERRUPT mode only - the ISR receive callback function (see example) - if in polling mode pass NULL
+* @param UseTxInterrupt: Use the transmit interrupt - interrup fires after transmission - generally speaking you don't want this default to false
 *
 * @return True if init OK
 *
@@ -52,8 +53,9 @@
 * STEP 2: UART self test
 * STEP 3: Clear Tx and Rx FIFOs
 * STEP 4: If in IRQ mode assign the Tx and Rx ISR callbacks
+* STEP 5: Set interrupt handlers
 ********************************************************************************************************/
-bool init_UART_Lite(XUartLite *UART_Handle, UINTPTR IPB_BaseAddress, Type_OperatingMode OperatingMode, XUartLite_Handler TxCallBack, XUartLite_Handler RxCallBack)
+bool init_UART_Lite(XUartLite *UART_Handle, UINTPTR IPB_BaseAddress, Type_OperatingMode OperatingMode, XUartLite_Handler TxCallBack, XUartLite_Handler RxCallBack, bool UseTxInterrupt)
 {
     int AXI_Status;
 
@@ -73,9 +75,17 @@ bool init_UART_Lite(XUartLite *UART_Handle, UINTPTR IPB_BaseAddress, Type_Operat
     // STEP 4: If in IRQ mode assign the Tx and Rx ISR callbacks
     if (OperatingMode == POLLING)
         return(true);
-    // XUartLite_SetSendHandler(UART_Handle, TxCallBack, UART_Handle);
+    
+    // STEP 5: Set interrupt handlers
+    if (RxCallBack == NULL)
+        return(false);
     XUartLite_SetRecvHandler(UART_Handle, RxCallBack, UART_Handle);
-
+    if (UseTxInterrupt)
+    {
+        if (TxCallBack == NULL)
+            return(false);
+        XUartLite_SetSendHandler(UART_Handle, TxCallBack, UART_Handle);
+    }
     return(true);
 
 } // END OF init_UART_Lite

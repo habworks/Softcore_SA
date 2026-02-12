@@ -29,110 +29,136 @@
 #include "xgpio.h"
 #include "xuartlite.h"
 #include "xtmrctr.h"
-#include "xiltimer.h"
+// #include "xiltimer.h"
+#include "sleep.h"
 
 #ifdef RUN_MAIN_APPLICATION
-    extern XTmrCtr AXI_TimerGenericHandle;
-    #define AXI_Timer AXI_TimerGenericHandle
+    extern XGpio AXI_GPIO_Handle;
 #else    
-    extern XTmrCtr AXI_TimerHandle_2;
-    #define AXI_Timer AXI_TimerHandle_2
+    extern XGpio AXI_GPIO_Handle;
+    #define GPIO_Handle AXI_GPIO_Handle
 #endif
-extern XGpio AXI_GPIO_Handle;
-extern uint32_t DisplayTxError;
-extern uint32_t DisplayTxCount;
+
 
 volatile uint32_t __attribute__ ((section (".Hab_Mixed_Data"))) ReceivedBytes = 0;
 volatile uint8_t __attribute__ ((section (".Hab_Mixed_Data"))) RxDataBuffer[RX_BUFFER_SIZE] = {0};
 
 
+/********************************************************************************************************
+* @brief Blocking delay by tens of us
+*
+* @author original: Hab Collector \n
+*
+* @note: Requires BSP xiltimer to be active with dedicated timer for use
+* 
+* @param WaitTime: Number of 10s of us to wait: A value of 10 would wait 100us
+*
+* STEP 1: Wait 10s of us
+********************************************************************************************************/
 void sleep_10us_Wrapper(uint32_t WaitTime)
 {
-    sleep_10us(&AXI_Timer, XTC_TIMER_0, WaitTime);
-}
+    // STEP 1: Wait 10s of us
+    for (uint32_t Time = 0; Time < WaitTime; Time++)
+    {
+        usleep(10);
+    }
 
-void sleep_10us(XTmrCtr *TimerHandle, uint8_t Timer, uint32_t WaitTime)
-{
-    uint32_t StartCount = XTmrCtr_GetValue(TimerHandle, Timer);
-    uint32_t DelayCount = (TICKS_PER_10_US * WaitTime);    
-    while(StartCount - XTmrCtr_GetValue(TimerHandle, Timer) < DelayCount);
-}
+} // END OF sleep_10us_Wrapper
 
 
 
+/********************************************************************************************************
+* @brief Blocking delay by milliseconds
+*
+* @author original: Hab Collector \n
+*
+* @note: Requires BSP xiltimer to be active with dedicated timer for use
+* 
+* @param WaitTime: Number of in milliseconds
+********************************************************************************************************/
 void sleep_ms_Wrapper(uint32_t WaitTime)
 {
-    sleep_ms(&AXI_Timer, XTC_TIMER_0, WaitTime);    
-}
+    msleep(WaitTime);
 
-void sleep_ms(XTmrCtr *TimerHandle, uint8_t Timer, uint32_t WaitTime)
-{
-    uint32_t StartCount = (uint32_t)XTmrCtr_GetValue(TimerHandle, Timer);
-    uint32_t DelayCount = (TICKS_PER_MILLISECOND * WaitTime);
-    do 
-    {
-        // asm volatile("nop");
-    } while(StartCount - XTmrCtr_GetValue(TimerHandle, Timer) < DelayCount);
-}
+} // END OF sleep_ms_Wrapper
 
 
 
+/********************************************************************************************************
+* @brief Set or clear the output pin to Run or reset the display for SSD1309 Display
+*
+* @author original: Hab Collector \n
+* 
+* @param ResetRunAction: Reset or run action to take
+********************************************************************************************************/
 void displayResetOrRun(Type_DisplayResetRun ResetRunAction)
 {
     if (ResetRunAction == DISPLAY_RUN)
-        XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_RESET_RUN);
+        XGpio_DiscreteSet(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_RESET_RUN);
     else
-        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_RESET_RUN);
-}
+        XGpio_DiscreteClear(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_RESET_RUN);
 
+} // END OF displayResetOrRun
+
+
+
+/********************************************************************************************************
+* @brief Set or clear the output pin to Data or Command mode for SSD1309 Display
+*
+* @author original: Hab Collector \n
+* 
+* @param CommandDataAction: Data or command action to take
+********************************************************************************************************/
 void displayCommandOrData(Type_DisplayCommandData CommandDataAction)
 {
     if (CommandDataAction == DISPLAY_DATA)
-        XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CMD_DATA);
+        XGpio_DiscreteSet(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CMD_DATA);
     else
-        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CMD_DATA);
-}
+        XGpio_DiscreteClear(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CMD_DATA);
 
-void displayChipSelect(Type_Display_CS Status)
+} // END OF displayCommandOrData
+
+
+
+/********************************************************************************************************
+* @brief Set or clear the output pin to disable or enable the SSD1309 Display for SPI communication
+*
+* @author original: Hab Collector \n
+* 
+* @param DisplaySelect: Display select action to take
+********************************************************************************************************/
+void displayChipSelect(Type_Display_CS DisplaySelect)
 {
-    if (Status == CS_ENABLE)
-        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CS);
+    if (DisplaySelect == CS_ENABLE)
+        XGpio_DiscreteClear(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CS);
     else
-        XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CS);
-}
+        XGpio_DiscreteSet(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, DISPLAY_CS);
 
-// bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer)
-// {
-//     // STEP 1: Simple test
-//     DisplayTxCount++;
-//     if ((SPI_DisplayHandle == NULL) || (ChipSelect_N == 0))
-//         return(false);
-
-//     // STEP 2: Reset the SPI
-//     XSpi_Reset(SPI_DisplayHandle);
-
-//     // STEP 3: Pre-transfer data: Set the SPI options, select the correct slave device, and start the SPI
-//     XSpi_SetOptions(SPI_DisplayHandle,XSP_MASTER_OPTION);
-//     XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
-//     XSpi_Start(SPI_DisplayHandle);
-
-//     // STEP 4: Transfer the data
-//     int AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, RxBuffer, BytesToTransfer);    
-//     if (AXI_Status != XST_SUCCESS)
-//     {
-//         return(false);
-//         DisplayTxError++;
-//     }
-//     else
-//     {
-//         return(true);
-//     }
-
-// }
+} // END OF displayChipSelect
 
 
 
-
+/********************************************************************************************************
+* @brief This is the communication function for use with the QSPI interface.  As this is SPI it is full 
+* duplex transmit and receive.  
+*
+* @author original: Hab Collector \n
+*
+* @note: SPI must be configured in polling mode
+*
+* @param SPI_DisplayHandle: Pointer to QSPI handle
+* @param ChipSelect_N: Chip Select associate with device first device is 1
+* @param TxBuffer: The transmit buffer - information to send
+* @param RxBuffer: The receive buffer - information to receive
+* @param BytesToTransfer: Bytes to both transmit and receive (always equal for SPI)
+*
+* @return: True if transmission was successful
+*
+* STEP 1: Simple test
+* STEP 2: Select the correct slave device
+* STEP 3: Transfer the data
+* STEP 4: Deselect all slave devices
+********************************************************************************************************/
 bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer)
 {
     // STEP 1: Simple test
@@ -160,9 +186,8 @@ bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_
     XSpi_SetSlaveSelect(SPI_DisplayHandle, 0x00);
 
     return(AXI_Status == XST_SUCCESS);
-}
 
-
+} // END OF displayTrasmitReceive
 
 
 
@@ -188,20 +213,3 @@ bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_
 //     if (ReceivedBytes > RX_BUFFER_SIZE)
 //         ReceivedBytes = 0;
 // }
-
-
-// // ISR Callback function for UART Transmit
-// void UART_TxCallback_ISR(void *CallBackRef, unsigned int EventData)
-// {
-//     // Unused 
-//     (void)EventData;
-    
-//     XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
-
-//     // Check if transmit is complete
-//     // All data was sent
-//     // User does something useful (as necessary) indicating data was sent 
-//     static uint32_t TxSendEvents = 0;
-//     TxSendEvents++; 
-// }
-

@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            AXI_UART_Lite_Support.h
- * @brief           Header file to support AXI_UART_Lite_Support.c
+ * @file            AXI_SPI_Display_SSD1309.h
+ * @brief           Header file to support AXI_SPI_Display_SSD1309.c
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -24,30 +24,24 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#ifndef UART_LITE_SUPPORT_H_
-#define UART_LITE_SUPPORT_H_
+#ifndef AXI_QSPI_SUPPORT_H_
+#define AXI_QSPI_SUPPORT_H_
 #ifdef __cplusplus
 extern"C" {
 #endif
 
-#include "xuartlite.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "xspi.h"
 
-// TYPEDEFS AND ENUMS
-typedef enum 
-{
-    POLLING = 0,
-    INTERRUPT
-}Type_OperatingMode;
+
+// DEFINES AND ENUMS
 
 
 // FUNCTION PROTOTYPES
-bool init_UART_Lite(XUartLite *UART_Handle, UINTPTR IPB_BaseAddress, Type_OperatingMode OperatingMode, XUartLite_Handler TxCallBack, XUartLite_Handler RxCallBack, bool UseTxInterrupt);
-bool transmit_UART(XUartLite *UART_Handle, uint8_t *TxDataBuffer, uint16_t DataBufferSize, uint16_t *BytesSent);
-bool receive_UART(XUartLite *UART_Handle, uint8_t *RxDataBuffer, uint16_t BytesToReceive, uint16_t *BytesReceived);
+bool init_QSPI_PollingMode(XSpi *QSPI_Handle, UINTPTR IPB_BaseAddress);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* UART_LITE_SUPPORT_H_ */
+#endif /* AXI_QSPI_SUPPORT_H_ */

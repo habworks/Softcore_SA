@@ -19,6 +19,9 @@ axi_timer_1:
 axi_timer_2:
 - axi_timer
 - tmrctr
+axi_timer_3:
+- axi_timer
+- tmrctr
 axi_uartlite_0:
 - axi_uartlite
 - uartlite

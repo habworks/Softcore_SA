@@ -42,7 +42,8 @@
       "axi_quad_spi_1": "",
       "axi_timer_1": "",
       "axi_timer_0": "",
-      "axi_timer_2": ""
+      "axi_timer_2": "",
+      "axi_timer_3": ""
     },
     "interface_ports": {
       "DDR3_0": {
@@ -1112,7 +1113,7 @@
                 "value": "1"
               },
               "NUM_READ_OUTSTANDING": {
-                "value": "2"
+                "value": "8"
               },
               "NUM_READ_THREADS": {
                 "value": "1"
@@ -1244,7 +1245,7 @@
         "inst_hier_path": "xlconstant_3",
         "parameters": {
           "CONST_VAL": {
-            "value": "8"
+            "value": "9"
           },
           "CONST_WIDTH": {
             "value": "4"
@@ -1467,7 +1468,12 @@
         "ip_revision": "35",
         "xci_name": "BD_Softcore_SA_axi_timer_0_1",
         "xci_path": "ip\\BD_Softcore_SA_axi_timer_0_1\\BD_Softcore_SA_axi_timer_0_1.xci",
-        "inst_hier_path": "axi_timer_0"
+        "inst_hier_path": "axi_timer_0",
+        "parameters": {
+          "enable_timer2": {
+            "value": "0"
+          }
+        }
       },
       "axi_timer_2": {
         "vlnv": "xilinx.com:ip:axi_timer:2.0",
@@ -1475,6 +1481,13 @@
         "xci_name": "BD_Softcore_SA_axi_timer_2_0",
         "xci_path": "ip\\BD_Softcore_SA_axi_timer_2_0\\BD_Softcore_SA_axi_timer_2_0.xci",
         "inst_hier_path": "axi_timer_2"
+      },
+      "axi_timer_3": {
+        "vlnv": "xilinx.com:ip:axi_timer:2.0",
+        "ip_revision": "35",
+        "xci_name": "BD_Softcore_SA_axi_timer_3_0",
+        "xci_path": "ip\\BD_Softcore_SA_axi_timer_3_0\\BD_Softcore_SA_axi_timer_3_0.xci",
+        "inst_hier_path": "axi_timer_3"
       }
     },
     "interface_nets": {
@@ -1584,6 +1597,12 @@
         "interface_ports": [
           "smartconnect_CPU/M08_AXI",
           "axi_timer_2/S_AXI"
+        ]
+      },
+      "smartconnect_CPU_M09_AXI": {
+        "interface_ports": [
+          "smartconnect_CPU/M09_AXI",
+          "axi_timer_3/S_AXI"
         ]
       }
     },
@@ -1698,12 +1717,6 @@
           "USD_CSn"
         ]
       },
-      "axi_timer_0_pwm0": {
-        "ports": [
-          "axi_timer_0/pwm0",
-          "AUDIO_PWM"
-        ]
-      },
       "axi_timer_1_interrupt": {
         "ports": [
           "axi_timer_1/interrupt",
@@ -1715,6 +1728,12 @@
         "ports": [
           "axi_timer_2/interrupt",
           "xlconcat_1/In1"
+        ]
+      },
+      "axi_timer_3_pwm0": {
+        "ports": [
+          "axi_timer_3/pwm0",
+          "AUDIO_PWM"
         ]
       },
       "axi_uartlite_0_tx": {
@@ -1782,7 +1801,8 @@
           "axi_timer_0/s_axi_aclk",
           "axi_intc_0/s_axi_aclk",
           "axi_timer_2/s_axi_aclk",
-          "axi_intc_0/processor_clk"
+          "axi_intc_0/processor_clk",
+          "axi_timer_3/s_axi_aclk"
         ]
       },
       "microblaze_0_Interrupt_Ack": {
@@ -1839,7 +1859,8 @@
           "axi_timer_1/s_axi_aresetn",
           "axi_timer_0/s_axi_aresetn",
           "axi_intc_0/s_axi_aresetn",
-          "axi_timer_2/s_axi_aresetn"
+          "axi_timer_2/s_axi_aresetn",
+          "axi_timer_3/s_axi_aresetn"
         ]
       },
       "rst_clk_wiz_1_100M_bus_struct_reset": {
@@ -1955,6 +1976,11 @@
                 "offset": "0x41C20000",
                 "range": "64K"
               },
+              "SEG_axi_timer_3_Reg": {
+                "address_block": "/axi_timer_3/S_AXI/Reg",
+                "offset": "0x41C30000",
+                "range": "64K"
+              },
               "SEG_axi_uartlite_0_Reg": {
                 "address_block": "/axi_uartlite_0/S_AXI/Reg",
                 "offset": "0x40600000",
@@ -2010,6 +2036,11 @@
               "SEG_axi_timer_2_Reg": {
                 "address_block": "/axi_timer_2/S_AXI/Reg",
                 "offset": "0x41C20000",
+                "range": "64K"
+              },
+              "SEG_axi_timer_3_Reg": {
+                "address_block": "/axi_timer_3/S_AXI/Reg",
+                "offset": "0x41C30000",
                 "range": "64K"
               },
               "SEG_axi_uartlite_0_Reg": {

@@ -121,7 +121,9 @@ bool connectPeripheral_IRQ(XIntc *IRQ_ControllerHandle, uint8_t ISR_HandlerFabri
 *        (XIntc_ConnectFastHandler).  The ISR is expected to be written to fast-interrupt
 *        constraints (minimal latency, explicit acknowledge, no blocking operations).
 *        The callback reference parameter is intentionally unused for fast handlers.
-* @note Callback reference for fast interrupts excepts only void
+* @note Callback reference for fast interrupts excepts only void and must be prototyed as such:
+* void my_ISR_Function(void) __attribute__((fast_interrupt));
+* void my_ISR_Funtion(void)
 *
 * @param   IRQ_ControllerHandle     Pointer to initialized AXI Interrupt Controller handle
 * @param   ISR_HandlerFabric_ID     Fabric interrupt ID associated with the peripheral
