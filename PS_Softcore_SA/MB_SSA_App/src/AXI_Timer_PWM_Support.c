@@ -26,8 +26,6 @@
 
 #include "AXI_Timer_PWM_Support.h"
 
-
-
 /********************************************************************************************************
 * @brief Init of an AXI Timer IP Block for use as PWM.  When using an AXI IP Block as PWM, both Timer 0 and 
 * Timer 1 must be enabled and the output is taken from pwm0 not generateout0.  Additionally the "Active state 

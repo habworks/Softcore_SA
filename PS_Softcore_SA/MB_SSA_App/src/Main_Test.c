@@ -154,7 +154,7 @@ void TimerCallbackAudio_ISR(void)
 {
     // Mark the start of the ISR with IO toggle for testing only
     uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
-    uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_1_OUTPUT);
+    uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_2_OUTPUT);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 
     // STEP 1: Clear the interrupt 2 different methods - both are essentially the same
@@ -185,7 +185,7 @@ void TimerCallbackAudio_ISR(void)
 #endif
 
     // Mark the end of the ISR with IO toggle for testing sake only
-    Output_GPIO = (Output_GPIO ^ TIMER_1_OUTPUT);
+    Output_GPIO = (Output_GPIO ^ TIMER_2_OUTPUT);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 }
 
@@ -202,9 +202,9 @@ void TimerCallbackGeneric_ISR(void)
     // if (TmrCtrNumber == XTC_TIMER_0)
     {
         if (ToggleTimer_0)
-            XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_0_OUTPUT);
+            XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
         else
-            XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_0_OUTPUT);
+            XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
         ToggleTimer_0 = !ToggleTimer_0;
     }
 
@@ -304,6 +304,12 @@ void mainTest(void)
     setup_PWM(&AXI_TimerHandle_3, 100000, 50.0);
 
     // Init FAT FS
+    if (!is_MicroSD_Inserted())
+    {
+        xil_printf("Micro SD not inserted\r\n");
+        while(1);        
+    }
+
     xil_printf("Mounting file system...\r\n");
     if (f_mount(&FatFs, "0:/", 1) != FR_OK)
     {
@@ -391,20 +397,24 @@ void mainTest(void)
             // SWITCH 1
             if (SwitchState & SW_0)
             {
-                xil_printf("Switch 1 on\r\n");
+                audioEnable(true);
+                xil_printf("Audio Enable\r\n");
             }
             else
             {
-                xil_printf("Switch 1 off\r\n");
+                audioEnable(false);
+                xil_printf("Audio Disable\r\n");
             }
             // SWITCH 2
             if (SwitchState & SW_1)
             {
-                xil_printf("Switch 2 on\r\n");
+                selectSignal_BNC(false);
+                xil_printf("Signal Input = On Board\r\n");
             }
             else
             {
-                xil_printf("Switch 2 off\r\n");
+                selectSignal_BNC(true);
+                xil_printf("Signal Input = Off Board\r\n");
             }
             // Push Button 1
             if (SwitchState & PB_1)
@@ -576,6 +586,23 @@ void writeFileTest(const char *FileName)
     /* Step 5: Unmount the file system */
     // f_mount(NULL, "0:/", 0);
     // xil_printf("File system unmounted.\r\n");
+}
+
+
+void audioEnable(bool Enable)
+{
+    if (Enable)
+        XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, AUDIO_EN);
+    else
+        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, AUDIO_EN);
+}
+
+void selectSignal_BNC(bool BNC_Signal)
+{
+    if (BNC_Signal)
+        XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, SIG_SEL);
+    else
+        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, SIG_SEL);
 }
 
 

@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            Main_Test.h
- * @brief           Header file to support Main_Test.c 
+ * @file            Signal_Mode_API.c
+ * @brief           A collection of functions relevant to supporting incoming Signals (WAV only) files
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -24,21 +24,6 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#ifndef MAIN_TEST_H_
-#define MAIN_TEST_H_
-#ifdef __cplusplus
-extern"C" {
-#endif
-
-// DEFINES
+#include "Signal_Mode_API.h"
 
 
-// FUNCTION PROTOTYPES
-void mainTest(void);
-void audioEnable(bool Enable);
-void selectSignal_BNC(bool BNC_Signal);
-
-#ifdef __cplusplus
-}
-#endif
-#endif /* MAIN_TEST_H_ */

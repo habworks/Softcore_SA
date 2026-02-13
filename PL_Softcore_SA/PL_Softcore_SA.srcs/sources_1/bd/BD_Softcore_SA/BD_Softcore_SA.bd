@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x9F264E94E6113756",
+      "boundary_crc": "0x352F861F4C18FFDD",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA",
       "name": "BD_Softcore_SA",
@@ -237,7 +237,7 @@
       },
       "gpio2_io_o_0": {
         "direction": "O",
-        "left": "5",
+        "left": "7",
         "right": "0"
       },
       "DISPLAY_MISO": {
@@ -1167,7 +1167,7 @@
             "value": "1"
           },
           "C_GPIO2_WIDTH": {
-            "value": "6"
+            "value": "8"
           },
           "C_GPIO_WIDTH": {
             "value": "11"
@@ -1245,7 +1245,7 @@
         "inst_hier_path": "xlconstant_3",
         "parameters": {
           "CONST_VAL": {
-            "value": "9"
+            "value": "2"
           },
           "CONST_WIDTH": {
             "value": "4"
@@ -1266,7 +1266,7 @@
             "value": "5"
           },
           "DIN_WIDTH": {
-            "value": "6"
+            "value": "8"
           }
         }
       },

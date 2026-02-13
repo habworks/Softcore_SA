@@ -42,12 +42,14 @@ extern"C" {
 #define HW_CONST_PL_VER_OFFSET  7
 
 // DEFINES GPIO BIT MASK: OUTPUTS
-#define TIMER_0_OUTPUT      ((uint32_t)(0x01 << 0))
-#define TIMER_1_OUTPUT      ((uint32_t)(0x01 << 1))
+#define TIMER_1_OUTPUT      ((uint32_t)(0x01 << 0))
+#define TIMER_2_OUTPUT      ((uint32_t)(0x01 << 1))
 #define DISPLAY_RESET_RUN   ((uint32_t)(0x01 << 2))
 #define DISPLAY_CMD_DATA    ((uint32_t)(0x01 << 3))
 #define DISPLAY_CS          ((uint32_t)(0x01 << 4)) 
-#define TEST_IO_0           ((uint32_t)(0x01 << 5))     
+#define TEST_IO_0           ((uint32_t)(0x01 << 5))   
+#define AUDIO_EN            ((uint32_t)(0x01 << 6))  
+#define SIG_SEL             ((uint32_t)(0x01 << 7))  
 
 
 #ifdef __cplusplus

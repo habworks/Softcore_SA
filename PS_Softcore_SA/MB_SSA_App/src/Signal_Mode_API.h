@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            Main_Test.h
- * @brief           Header file to support Main_Test.c 
+ * @file            Signal_Mode_API.h
+ * @brief           Header file to support Signal_Mode_API.c
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -24,21 +24,32 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#ifndef MAIN_TEST_H_
-#define MAIN_TEST_H_
+#ifndef SIGNAL_MODE_API_H_
+#define SIGNAL_MODE_API_H_
 #ifdef __cplusplus
 extern"C" {
 #endif
 
+#include <stdint.h>
+#include <stdbool.h>
+
+
 // DEFINES
 
 
+// TYPEDEFS AND ENUMS
+typedef enum
+{
+    SIGNAL_ON_BOARD_OSCILLATOR = 0,
+    SIGNAL_OFF_BOARD_BNC
+}Type_SignalSelect;
+
+
 // FUNCTION PROTOTYPES
-void mainTest(void);
-void audioEnable(bool Enable);
-void selectSignal_BNC(bool BNC_Signal);
+void signalSelect(Type_SignalSelect Signal);
+
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* MAIN_TEST_H_ */
+#endif /* SIGNAL_MODE_API_H_ */

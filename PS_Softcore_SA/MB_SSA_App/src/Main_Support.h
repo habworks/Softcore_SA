@@ -43,7 +43,7 @@ extern"C" {
 // PS FW REVSION
 #define FW_MAJOR_REV            1
 #define FW_MINOR_REV            0
-#define FW_TEST_REV             1
+#define FW_TEST_REV             2
 // USED IN SLEEP FUNCTIONS
 #define GPIO_INPUT_CHANNEL      1          
 #define GPIO_OUTPUT_CHANNEL     2    
@@ -74,6 +74,7 @@ void displayResetOrRun(Type_DisplayResetRun ResetRunAction);
 void displayCommandOrData(Type_DisplayCommandData CommandDataAction);
 void displayChipSelect(Type_Display_CS DisplaySelect);
 bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer);
+bool is_MicroSD_Inserted(void);
 // ISR CALLBACK FUNCTIONS
 // void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData);
 

@@ -191,6 +191,14 @@ bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_
 
 
 
+bool is_MicroSD_Inserted(void)
+{
+    uint32_t SwitchState = XGpio_DiscreteRead(&GPIO_Handle, GPIO_INPUT_CHANNEL);
+    return (SwitchState & USD_CD);
+}
+
+
+
 
 
 // // ISR FUNCTIONS:
