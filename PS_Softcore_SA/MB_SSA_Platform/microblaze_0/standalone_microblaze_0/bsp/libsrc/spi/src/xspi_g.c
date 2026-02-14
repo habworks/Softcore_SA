@@ -7,7 +7,7 @@ XSpi_Config XSpi_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 		0x44a10000, /* reg */
 		0x1, /* xlnx,hasfifos */
 		0x0, /* xlnx,slaveonly */
-		0x1, /* xlnx,num-ss-bits */
+		0x3, /* xlnx,num-ss-bits */
 		0x8, /* bits-per-word */
 		0x0, /* xlnx,spi-mode */
 		0x0, /* xlnx,axi-interface */

@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x352F861F4C18FFDD",
+      "boundary_crc": "0xB3E294AF583E5677",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA",
       "name": "BD_Softcore_SA",
@@ -227,9 +227,9 @@
       "DISPLAY_MOSI": {
         "direction": "O"
       },
-      "DISPLAY_CSn": {
+      "UI_CSn": {
         "direction": "O",
-        "left": "0",
+        "left": "2",
         "right": "0"
       },
       "DISPLAY_SCLK": {
@@ -237,7 +237,7 @@
       },
       "gpio2_io_o_0": {
         "direction": "O",
-        "left": "7",
+        "left": "8",
         "right": "0"
       },
       "DISPLAY_MISO": {
@@ -323,6 +323,15 @@
             "value_src": "const_prop"
           }
         }
+      },
+      "IOX_MOSI": {
+        "direction": "O"
+      },
+      "IOX_SCLK": {
+        "direction": "O"
+      },
+      "IOX_2_IRQ": {
+        "direction": "I"
       }
     },
     "components": {
@@ -1167,10 +1176,10 @@
             "value": "1"
           },
           "C_GPIO2_WIDTH": {
-            "value": "8"
+            "value": "9"
           },
           "C_GPIO_WIDTH": {
-            "value": "11"
+            "value": "12"
           },
           "C_IS_DUAL": {
             "value": "1"
@@ -1184,11 +1193,11 @@
         "xci_path": "ip\\BD_Softcore_SA_xlconcat_0_0\\BD_Softcore_SA_xlconcat_0_0.xci",
         "inst_hier_path": "xlconcat_0",
         "parameters": {
-          "IN7_WIDTH": {
+          "IN8_WIDTH": {
             "value": "4"
           },
           "NUM_PORTS": {
-            "value": "8"
+            "value": "9"
           }
         }
       },
@@ -1245,7 +1254,7 @@
         "inst_hier_path": "xlconstant_3",
         "parameters": {
           "CONST_VAL": {
-            "value": "2"
+            "value": "12"
           },
           "CONST_WIDTH": {
             "value": "4"
@@ -1266,7 +1275,7 @@
             "value": "5"
           },
           "DIN_WIDTH": {
-            "value": "8"
+            "value": "9"
           }
         }
       },
@@ -1277,6 +1286,9 @@
         "xci_path": "ip\\BD_Softcore_SA_axi_quad_spi_0_1\\BD_Softcore_SA_axi_quad_spi_0_1.xci",
         "inst_hier_path": "axi_quad_spi_0",
         "parameters": {
+          "C_NUM_SS_BITS": {
+            "value": "3"
+          },
           "C_SCK_RATIO": {
             "value": "2"
           },
@@ -1619,6 +1631,12 @@
           "axi_quad_spi_0/io1_i"
         ]
       },
+      "IOX_2_IRQ_1": {
+        "ports": [
+          "IOX_2_IRQ",
+          "xlconcat_0/In7"
+        ]
+      },
       "PB_1_1": {
         "ports": [
           "PB_1",
@@ -1684,19 +1702,21 @@
       "axi_quad_spi_0_io0_o": {
         "ports": [
           "axi_quad_spi_0/io0_o",
-          "DISPLAY_MOSI"
+          "DISPLAY_MOSI",
+          "IOX_MOSI"
         ]
       },
       "axi_quad_spi_0_sck_o": {
         "ports": [
           "axi_quad_spi_0/sck_o",
-          "DISPLAY_SCLK"
+          "DISPLAY_SCLK",
+          "IOX_SCLK"
         ]
       },
       "axi_quad_spi_0_ss_o": {
         "ports": [
           "axi_quad_spi_0/ss_o",
-          "DISPLAY_CSn"
+          "UI_CSn"
         ]
       },
       "axi_quad_spi_1_io0_o": {
@@ -1924,7 +1944,7 @@
       "xlconstant_3_dout": {
         "ports": [
           "xlconstant_3/dout",
-          "xlconcat_0/In7"
+          "xlconcat_0/In8"
         ]
       },
       "xlslice_0_Dout": {

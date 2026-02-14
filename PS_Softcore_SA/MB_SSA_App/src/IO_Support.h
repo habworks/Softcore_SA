@@ -38,18 +38,20 @@ extern"C" {
 #define PB_3                ((uint32_t)(0x01 << 4))
 #define USD_CD              ((uint32_t)(0x01 << 5))
 #define DDR_CALIB_COMPLETE  ((uint32_t)(0x01 << 6))
-#define HW_CONST_PL_VER     ((uint32_t)(0x0F << 7))
-#define HW_CONST_PL_VER_OFFSET  7
+#define IOX_2_IRQ           ((uint32_t)(0x01 << 7))
+#define HW_PL_VER_MASK      ((uint32_t)(0x0F << 8))
+#define HW_PL_VER_OFFSET    8
 
 // DEFINES GPIO BIT MASK: OUTPUTS
-#define TIMER_1_OUTPUT      ((uint32_t)(0x01 << 0))
-#define TIMER_2_OUTPUT      ((uint32_t)(0x01 << 1))
-#define DISPLAY_RESET_RUN   ((uint32_t)(0x01 << 2))
-#define DISPLAY_CMD_DATA    ((uint32_t)(0x01 << 3))
-#define DISPLAY_CS          ((uint32_t)(0x01 << 4)) 
-#define TEST_IO_0           ((uint32_t)(0x01 << 5))   
-#define AUDIO_EN            ((uint32_t)(0x01 << 6))  
-#define SIG_SEL             ((uint32_t)(0x01 << 7))  
+#define TIMER_1_OUTPUT      ((uint32_t)(0x01 << 0))     // JA.10 - J6.10
+#define TIMER_2_OUTPUT      ((uint32_t)(0x01 << 1))     // JA.9 - J6.9
+#define DISPLAY_RESET_RUN   ((uint32_t)(0x01 << 2))     // JD.3 - J4.3
+#define DISPLAY_CMD_DATA    ((uint32_t)(0x01 << 3))     // JD.2 - J4.2
+#define DISPLAY_CS          ((uint32_t)(0x01 << 4))     // JD.1 - J4.1
+#define TEST_IO_0           ((uint32_t)(0x01 << 5))     // JD.9 - J4.9
+#define AUDIO_EN            ((uint32_t)(0x01 << 6))     // JA.7 - J6.7
+#define SIG_SEL             ((uint32_t)(0x01 << 7))     // JA.8 - J6.8  
+#define IOX_RESET           ((uint32_t)(0x01 << 8))     // JC.4 - J1.4
 
 
 #ifdef __cplusplus

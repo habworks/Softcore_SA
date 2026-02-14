@@ -55,7 +55,16 @@ extern"C" {
 #define XPAR_MICROBLAZE_USE_MSR_INSTR   1
 #define XPAR_MICROBLAZE_ICACHE_BYTE_SIZE 65536  // Value must match MicroBlaze Instruction cache
 #define XPAR_MICROBLAZE_DCACHE_BYTE_SIZE 32768  // Value must match MicroBlaze Data cache
-
+// IO EXPANDER 1
+#define IOX_1_CS_NUMBER         ((uint8_t)(0x02))
+#define IOX_1_DEVICE_ADDR       ((uint8_t)(0x00))
+#define IOX_1_IO_DIRECTION      ((uint8_t)(0x00))
+#define IOX_1_INPUT_POLARITY    ((uint8_t)(0x00))
+#define IOX_1_IRQ_ON_CHANGE     ((uint8_t)(0x00))
+#define IOX_1_IRQ_DEFAULT_VALUE ((uint8_t)(0x00))
+#define IOX_1_IRQ_CONTROL       ((uint8_t)(0x00))
+#define IOX_1_CONFIGURATION     ((uint8_t)(0x20))
+#define IOX_1_PULLUP            ((uint8_t)(0x00))
 
 // EXTERNS
 extern volatile uint32_t volatile ReceivedBytes;
@@ -63,8 +72,9 @@ extern volatile uint8_t RxDataBuffer[RX_BUFFER_SIZE];
 
 
 // MACROS
-#define DO_NOTHING()              asm volatile ("nop")
-#define DO_NOTHING_REPEAT(X)      do { for (volatile uint32_t i = 0; i < (uint32_t)(X); i++) asm volatile ("nop"); } while (0)
+#define NOT_USED(X)             ((void)(X))
+#define DO_NOTHING()            asm volatile ("nop")
+#define DO_NOTHING_REPEAT(X)    do { for (volatile uint32_t i = 0; i < (uint32_t)(X); i++) asm volatile ("nop"); } while (0)
 
 
 // FUNCTION PROTOTYPES
@@ -75,6 +85,8 @@ void displayCommandOrData(Type_DisplayCommandData CommandDataAction);
 void displayChipSelect(Type_Display_CS DisplaySelect);
 bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer);
 bool is_MicroSD_Inserted(void);
+void IOX_Reset(bool Status);
+void IOX_ChipSelect(bool ChipSelect);
 // ISR CALLBACK FUNCTIONS
 // void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData);
 

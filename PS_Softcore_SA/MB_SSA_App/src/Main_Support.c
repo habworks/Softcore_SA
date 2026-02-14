@@ -169,9 +169,14 @@ bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_
     XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
 
     // STEP 3: Transfer the data
-    uint8_t DummyRxBuffer[BytesToTransfer + 10];
     int AXI_Status;
-    AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, DummyRxBuffer, BytesToTransfer);    
+    uint8_t DummyRxBuffer[BytesToTransfer];
+    uint8_t *RxBufferPtr;
+    if (RxBuffer == NULL)
+        RxBufferPtr = DummyRxBuffer;
+    else
+        RxBufferPtr = RxBuffer;
+    AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, RxBufferPtr, BytesToTransfer);    
     if (AXI_Status != XST_SUCCESS)
     {
         XSpi_Reset(SPI_DisplayHandle);
@@ -195,6 +200,20 @@ bool is_MicroSD_Inserted(void)
 {
     uint32_t SwitchState = XGpio_DiscreteRead(&GPIO_Handle, GPIO_INPUT_CHANNEL);
     return (SwitchState & USD_CD);
+}
+
+void IOX_Reset(bool Reset)
+{
+    if (Reset)
+        XGpio_DiscreteClear(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, IOX_RESET);
+    else
+        XGpio_DiscreteSet(&GPIO_Handle, GPIO_OUTPUT_CHANNEL, IOX_RESET);
+}
+
+void IOX_ChipSelect(bool ChipSelect)
+{
+    NOT_USED(ChipSelect);
+    DO_NOTHING();
 }
 
 

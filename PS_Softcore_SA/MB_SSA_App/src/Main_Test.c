@@ -89,6 +89,8 @@
 #include "AXI_QSPI_Support.h"
 #include "AXI_IMR_PL_Revision.h"
 #include "IO_Support.h"
+#include "MCP23S08_Driver.h"
+
 
 
 // DISPLAY SUPPORT
@@ -136,6 +138,9 @@ static void writeFileTest(const char *FileName);
 FATFS FatFs;    
 const char *ReadOnlyFileName = "HelloHab.txt";
 const char *ReadWriteFileName = "Test_RW.txt";
+
+// IO EXPANDER SUPPORT
+Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_1;
 
 
 
@@ -303,6 +308,13 @@ void mainTest(void)
     startPeriodicTimer(&AXI_TimerHandle_2, XTC_TIMER_0);
     setup_PWM(&AXI_TimerHandle_3, 100000, 50.0);
 
+    // Init Drivers
+    // uint32_t IRQ_Mask = pauseFastIRQs(&AXI_IRQ_ControllerHandle);
+    Status = init_MCP23S08(&IOX_1, IOX_Reset, IOX_ChipSelect, displayTrasmitReceive, sleep_ms_Wrapper, 
+    &AXI_SPI_DisplayHandle, IOX_1_CS_NUMBER, IOX_1_DEVICE_ADDR, IOX_1_IO_DIRECTION, IOX_1_INPUT_POLARITY, IOX_1_IRQ_ON_CHANGE, 
+    IOX_1_IRQ_DEFAULT_VALUE, IOX_1_IRQ_CONTROL, IOX_1_CONFIGURATION, IOX_1_PULLUP, false);
+    // resumeFastIRQs(&AXI_IRQ_ControllerHandle, IRQ_Mask);
+    
     // Init FAT FS
     if (!is_MicroSD_Inserted())
     {
@@ -358,7 +370,7 @@ void mainTest(void)
     // Setup complete - Read to start processing
     // Type_PL_Revision PL_Revision = IMR_PL_RevisionGet(XPAR_IMR_PL_REVISION_0_BASEADDR);
     uint32_t PL_Ver = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
-    PL_Ver = (PL_Ver & HW_CONST_PL_VER) >> 7;
+    PL_Ver = (PL_Ver & HW_PL_VER_MASK) >> HW_PL_VER_OFFSET;
     xil_printf("\r\n\n\nHello Hab I am ready\r\n");
     xil_printf("PS REV: %02d.%02d.%02d\r\n", FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV);
     // xil_printf("PL REV: %02d.%02d.%02d\r\n", PL_Revision.Major, PL_Revision.Minor, PL_Revision.Test);
@@ -491,6 +503,14 @@ void mainTest(void)
                 XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
                 sleep_10us_Wrapper(10);
                 XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+
+                // Test IOX
+                xil_printf("Testing IO Expanders...\r\n"); 
+                static uint8_t Index = 0; 
+                uint8_t OutputValue[7] = {0xFF,0x80,0x40,0xC0,0x0F,0xF0,0x00};
+                MCP23S08_WriteOutput(&IOX_1, OutputValue[Index]);
+                if (++Index > 7)
+                    Index = 0;                
             }
             // Update switch state for chage
             PreviousSwitchState = SwitchState;

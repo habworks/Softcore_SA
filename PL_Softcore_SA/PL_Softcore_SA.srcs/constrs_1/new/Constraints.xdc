@@ -65,12 +65,33 @@ set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_MOSI}]
 #SCLK OUTPUT PIN (JD10 G2) = J4.10
 set_property PACKAGE_PIN G2 [get_ports {DISPLAY_SCLK}]
 set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_SCLK}]
-#MISO INPUT PIN (CK_1O6 ON J4.13) ***NOT USED***
-set_property PACKAGE_PIN T15 [get_ports {DISPLAY_MISO}]
-set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_MISO}]
+#MISO INPUT PIN ***NOT USED***
 # DISPLAY_CSn PIN (CK_IO5 ON J4.11) ***NOT USED***
-set_property PACKAGE_PIN T14 [get_ports {DISPLAY_CSn[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_CSn[0]}]
+set_property PACKAGE_PIN T14 [get_ports {UI_CSn[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {UI_CSn[0]}]
+
+#IO EXPANDER X2
+#SCLK OUTPUT PIN (JC1 U12) = J1.1
+set_property PACKAGE_PIN U12 [get_ports {IOX_SCLK}]
+set_property IOSTANDARD LVCMOS33 [get_ports {IOX_SCLK}]
+#MOSI OUTPUT PIN (JC2 V12) = J1.2
+set_property PACKAGE_PIN V12 [get_ports {IOX_MOSI}]
+set_property IOSTANDARD LVCMOS33 [get_ports {IOX_MOSI}]
+#MISO INPUT PIN (JC3 V10 ON J1.3) 
+set_property PACKAGE_PIN V10 [get_ports {DISPLAY_MISO}]
+set_property IOSTANDARD LVCMOS33 [get_ports {DISPLAY_MISO}]
+# RESET OUTPUT PIN (JC4 V11) = J1.4
+set_property PACKAGE_PIN V11 [get_ports {gpio2_io_o_0[8]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[8]}]
+# IO EXPANDER 1 CS PIN (JC10 U13) = J1.10
+set_property PACKAGE_PIN U13 [get_ports {UI_CSn[1]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {UI_CSn[1]}]
+# IO EXPANDER 2 CS PIN (JC9 T13) = J1.9
+set_property PACKAGE_PIN T13 [get_ports {UI_CSn[2]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {UI_CSn[2]}]
+# IO EXPANDER 2 IRQ PIN (JC8 V14) = J1.8
+set_property PACKAGE_PIN V14 [get_ports {IOX_2_IRQ}]
+set_property IOSTANDARD LVCMOS33 [get_ports {IOX_2_IRQ}]
 
 #MICRO-SD
 #CS OUPTUT PIN (JB1 E15) = J3.1
@@ -88,6 +109,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {USD_SCLK}]
 # CARD DETECT (JB9 on K15) = J3.9
 set_property PACKAGE_PIN K15 [get_ports {USD_CD}]
 set_property IOSTANDARD LVCMOS33 [get_ports {USD_CD}]
+
 
 # ADC DUAL 7476A
 # ADC_CS_n PIN (JA1 on G13) = J6.1

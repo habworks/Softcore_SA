@@ -257,7 +257,7 @@
                         compatible = "xlnx,axi-gpio-2.0", "xlnx,xps-gpio-1.00.a";
                         xlnx,all-outputs = <0x0>;
                         #gpio-cells = <0x2>;
-                        xlnx,gpio-width = <0xb>;
+                        xlnx,gpio-width = <0xc>;
                         clock-frequency = <0x5f5e100>;
                         xlnx,rable = <0x0>;
                         xlnx,dout-default = <0x0>;
@@ -274,7 +274,7 @@
                         xlnx,edk-iptype = "PERIPHERAL";
                         xlnx,dout-default-2 = <0x0>;
                         status = "okay";
-                        xlnx,gpio2-width = <0x8>;
+                        xlnx,gpio2-width = <0x9>;
                         clock-names = "s_axi_aclk";
                         xlnx,tri-default = <0xffffffff>;
                         xlnx,name = "axi_gpio_0";
@@ -286,13 +286,13 @@
                         xlnx,select-xpm = <0x0>;
                         compatible = "xlnx,axi-quad-spi-3.2", "xlnx,xps-spi-2.00.a";
                         xlnx,lsb-stup = <0x0>;
-                        xlnx,num-ss-bits = <0x1>;
+                        xlnx,num-ss-bits = <0x3>;
                         xlnx,hasfifos = <0x1>;
                         xlnx,xip-mode = <0x0>;
                         xlnx,use-startup-ext = <0x0>;
                         xlnx,s-axi4-addr-width = <0x18>;
                         xlnx,byte-level-interrupt-en = <0x0>;
-                        num-cs = <0x1>;
+                        num-cs = <0x3>;
                         xlnx,xip-perf-mode = <0x1>;
                         xlnx,sck-ratio = <0x2>;
                         xlnx,s-axi4-id-width = <0x4>;
