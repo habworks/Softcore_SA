@@ -40,7 +40,8 @@ extern"C" {
 #define DDR_CALIB_COMPLETE  ((uint32_t)(0x01 << 6))
 #define IOX_2_IRQ           ((uint32_t)(0x01 << 7))
 #define HW_PL_VER_MASK      ((uint32_t)(0x0F << 8))
-#define HW_PL_VER_OFFSET    8
+#define HW_PL_VER_OFFSET    8U
+#define ARTY_A7_UI          (SW_0 | SW_1 | PB_1 | PB_2 | PB_3)
 
 // DEFINES GPIO BIT MASK: OUTPUTS
 #define TIMER_1_OUTPUT      ((uint32_t)(0x01 << 0))     // JA.10 - J6.10

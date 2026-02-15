@@ -37,9 +37,9 @@ extern"C" {
 // DEFINES
 // ADDRESS
 #define MCP23S08_DEFAULT_ADDR       ((uint8_t)0x40) 
-// BIT MASKS
+// BIT MASKS FOR CONTROL REGISTER
 #define MCP23S08_INTPOL_BIT_MASK    ((uint8_t)(0x01 << 1))  // Set polarity of interrupt output pin 1 = high 0 = low
-#define MCP23S08_ODR_BIT_MASK       ((uint8_t)(0x01 << 1))  // Set polarity of interrupt output pin 1 = high 0 = low
+#define MCP23S08_ODR_BIT_MASK       ((uint8_t)(0x01 << 2))  // Set polarity of interrupt output pin 1 = high 0 = low
 #define MCP23S08_HAEN_BIT_MASK      ((uint8_t)(0x01 << 3))  // Set interrupt pin as OD 1 = Open Drain, 0 = Active Driver
 #define MCP23S08_DISSLW_BIT_MASK    ((uint8_t)(0x01 << 4))  // Set slew rate control for SDA 1 = Slew rate enable, 0 = Slew rate disable
 #define MCP23S08_SEQOP_BIT_MASK     ((uint8_t)(0x01 << 5))  // Sequential address pointer 1 = Address pointer does not advance, 0 = Address pointer does advance
@@ -82,15 +82,22 @@ typedef struct
     bool                        Ready;
 } Type_MCP23S08_Driver;
 
+typedef enum
+{
+    RISING_EDGE = 0,
+    FALLING_EDGE
+} Type_InterruptCapture;
+
 
 // FUNCTION PROTOTYPES
 bool init_MCP23S08(Type_MCP23S08_Driver *MCP23S08_Handle, chipResetFunctionPointer chipResetFunction, chipSelectFunctionPointer chipSelectFunction, TxRxFunctionPointer TxRxFunction, delayFunctionPointer delayFunction,
                    XSpi *SPI_Handle, uint8_t CS_Number, uint8_t DeviceAddress, uint8_t IO_Direction, uint8_t InputPolarity, uint8_t IRQ_OnChange, uint8_t IRQ_Default, 
-                   uint8_t IRQ_Control, uint8_t Configuration, uint8_t PullUp, bool Set_HAEN);
+                   uint8_t IRQ_Control, uint8_t Configuration, uint8_t PullUp, bool Set_HAEN, bool InitReset);
 bool MCP23S08_WriteRegister(Type_MCP23S08_Driver *MCP23S08_Handle, uint8_t Register, uint8_t Data);
 bool MCP23S08_ReadRegister(Type_MCP23S08_Driver *MCP23S08_Handle, uint8_t Register, uint8_t *RegisterValue);
 bool MCP23S08_HAEN(Type_MCP23S08_Driver *MCP23S08_Handle);
 bool MCP23S08_WriteOutput(Type_MCP23S08_Driver *MCP23S08_Handle, uint8_t OutputValue);
+uint8_t MCP23S08_ReadClear_IRQ(Type_MCP23S08_Driver *MCP23S08_Handle, Type_InterruptCapture EdgeCapture);
 
 #ifdef __cplusplus
 }

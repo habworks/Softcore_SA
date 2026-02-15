@@ -96,7 +96,6 @@
 // DISPLAY SUPPORT
 // #include "AXI_SPI_Display_SSD1309.h"
 #include "u8g2.h"
-#define DISPLAY_CSN     0x01
 XSpi AXI_SPI_DisplayHandle;     // Did not seem to make a difference if placed in fast memory
 u8g2_t U8G2; // Did not seem to make a difference if placed in fast memory
 Type_Display_SSD1309  Display_SSD1309; // Did not seem to make a difference if placed in fast memory
@@ -119,14 +118,14 @@ XGpio AXI_GPIO_Handle;
 // UART SUPPORT
 XUartLite __attribute__ ((section (".Hab_Fast_Data"))) AXI_UART_Handle;
 
-// TIMER SUPPORT - AUDIO PLAYBACK
+// TIMER 1 SUPPORT - AUDIO PLAYBACK
 #define AUDIO_IRQ_COUNT 1000
 XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_TimerHandle_1;
 
-// TIMER SUPPORT - GENERIC
+// TIMER 2 SUPPORT - GENERIC
 XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_TimerHandle_2;
 
-// TIMER PWM SUPPORT
+// TIMER 3 PWM SUPPORT
 XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_TimerHandle_3;
 
 // IRQ CONTROLLER SUPPORT
@@ -141,6 +140,7 @@ const char *ReadWriteFileName = "Test_RW.txt";
 
 // IO EXPANDER SUPPORT
 Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_1;
+Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_2;
 
 
 
@@ -159,7 +159,7 @@ void TimerCallbackAudio_ISR(void)
 {
     // Mark the start of the ISR with IO toggle for testing only
     uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
-    uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_2_OUTPUT);
+    uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_1_OUTPUT);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 
     // STEP 1: Clear the interrupt 2 different methods - both are essentially the same
@@ -190,7 +190,7 @@ void TimerCallbackAudio_ISR(void)
 #endif
 
     // Mark the end of the ISR with IO toggle for testing sake only
-    Output_GPIO = (Output_GPIO ^ TIMER_2_OUTPUT);
+    Output_GPIO = (Output_GPIO ^ TIMER_1_OUTPUT);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 }
 
@@ -310,9 +310,14 @@ void mainTest(void)
 
     // Init Drivers
     // uint32_t IRQ_Mask = pauseFastIRQs(&AXI_IRQ_ControllerHandle);
+    // IO Expander 1:
     Status = init_MCP23S08(&IOX_1, IOX_Reset, IOX_ChipSelect, displayTrasmitReceive, sleep_ms_Wrapper, 
     &AXI_SPI_DisplayHandle, IOX_1_CS_NUMBER, IOX_1_DEVICE_ADDR, IOX_1_IO_DIRECTION, IOX_1_INPUT_POLARITY, IOX_1_IRQ_ON_CHANGE, 
-    IOX_1_IRQ_DEFAULT_VALUE, IOX_1_IRQ_CONTROL, IOX_1_CONFIGURATION, IOX_1_PULLUP, false);
+    IOX_1_IRQ_DEFAULT_VALUE, IOX_1_IRQ_CONTROL, IOX_1_CONFIGURATION, IOX_1_PULLUP, false, true);
+    // IO Expander 2:
+    Status = init_MCP23S08(&IOX_2, IOX_Reset, IOX_ChipSelect, displayTrasmitReceive, sleep_ms_Wrapper, 
+    &AXI_SPI_DisplayHandle, IOX_2_CS_NUMBER, IOX_2_DEVICE_ADDR, IOX_2_IO_DIRECTION, IOX_2_INPUT_POLARITY, IOX_2_IRQ_ON_CHANGE, 
+    IOX_2_IRQ_DEFAULT_VALUE, IOX_2_IRQ_CONTROL, IOX_2_CONFIGURATION, IOX_2_PULLUP, false, false);
     // resumeFastIRQs(&AXI_IRQ_ControllerHandle, IRQ_Mask);
     
     // Init FAT FS
@@ -362,7 +367,7 @@ void mainTest(void)
         xil_printf("Memory Test 2 ERROR\r\n"); 
 
     // Init the display
-    Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_DisplayHandle, DISPLAY_CSN, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2); 
+    Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_DisplayHandle, DISPLAY_CS_NUMBER, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2); 
     if (Status == false)
         while(1);
     displaySimpleTest(&Display_SSD1309);
@@ -399,34 +404,36 @@ void mainTest(void)
         
         // Read and check the input stats for change
         SwitchState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
-        if (SwitchState ^ PreviousSwitchState)
-            SwitchStateChange = true;
-        else
-            SwitchStateChange = false;
-
-        if (SwitchStateChange)
+        uint32_t BitsChanged = SwitchState ^ PreviousSwitchState;
+        if (BitsChanged)
         {
             // SWITCH 1
-            if (SwitchState & SW_0)
+            if (BitsChanged & SW_0)
             {
-                audioEnable(true);
-                xil_printf("Audio Enable\r\n");
-            }
-            else
-            {
-                audioEnable(false);
-                xil_printf("Audio Disable\r\n");
+                if (SwitchState & SW_0)
+                {
+                    audioEnable(true);
+                    xil_printf("Audio Enable\r\n");
+                }
+                else
+                {
+                    audioEnable(false);
+                    xil_printf("Audio Disable\r\n");
+                }
             }
             // SWITCH 2
-            if (SwitchState & SW_1)
+            if (BitsChanged & SW_1)
             {
-                selectSignal_BNC(false);
-                xil_printf("Signal Input = On Board\r\n");
-            }
-            else
-            {
-                selectSignal_BNC(true);
-                xil_printf("Signal Input = Off Board\r\n");
+                if (SwitchState & SW_1)
+                {
+                    selectSignal_BNC(false);
+                    xil_printf("Signal Input = On Board\r\n");
+                }
+                else
+                {
+                    selectSignal_BNC(true);
+                    xil_printf("Signal Input = Off Board\r\n");
+                }
             }
             // Push Button 1
             if (SwitchState & PB_1)
@@ -512,6 +519,21 @@ void mainTest(void)
                 if (++Index > 7)
                     Index = 0;                
             }
+            if (SwitchState & IOX_2_IRQ)
+            {
+                uint8_t UI_SW_IRQ_Asserted = MCP23S08_ReadClear_IRQ(&IOX_2, RISING_EDGE);
+                if (UI_SW_IRQ_Asserted & UI_SW1)
+                    xil_printf("SW1 Pressed\r\n"); 
+                if (UI_SW_IRQ_Asserted & UI_SW2)
+                    xil_printf("SW2 Pressed\r\n"); 
+                if (UI_SW_IRQ_Asserted & UI_SW3)
+                    xil_printf("SW3 Pressed\r\n"); 
+                if (UI_SW_IRQ_Asserted & UI_SW4)
+                    xil_printf("SW4 Pressed\r\n"); 
+                if (UI_SW_IRQ_Asserted & UI_SW5)
+                    xil_printf("SW5 Pressed\r\n"); 
+            }
+
             // Update switch state for chage
             PreviousSwitchState = SwitchState;
         }

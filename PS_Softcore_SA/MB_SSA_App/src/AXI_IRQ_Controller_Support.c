@@ -44,7 +44,7 @@
 * @note: Generally speaking there is only 1 AXI IRQ Controller in the design ID is 0
 * @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
 * 
-* @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
+* @param IRQ_ControllerHandle: Pointer to the IRQ Controller handle that will be used 
 * @param IPB_BaseAddress: The base address of the IRQ Controller IP block
 *
 * @return True if init OK
@@ -81,7 +81,7 @@ bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress)
 * @note: See peripheral AXI IRQ Controller
 * @note: See BSP xintc.h for peripheral specifics based version of timer in use (supports v3.19)
 * 
-* @param IRQ_ControllerHandle: Pointer to the IRQ Controller  handle that will be used 
+* @param IRQ_ControllerHandle: Pointer to the IRQ Controller handle that will be used 
 * @param ISR_HandlerFabric_ID: The interrupt ID for the peripheral. This ID is defined in xparameters.h. If using concat block and the ID is not called out in parameters.h it is the Inx[0:0] value
 * @param ISR_Handler: A function pointer to the custom interrupt handler function for that peripheral - ***SEE NOTES***
 * @param ISR_CallbackReference: A reference to data that will be passed to the interrupt handler function - usually the peripheral's handle

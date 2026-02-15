@@ -55,16 +55,40 @@ extern"C" {
 #define XPAR_MICROBLAZE_USE_MSR_INSTR   1
 #define XPAR_MICROBLAZE_ICACHE_BYTE_SIZE 65536  // Value must match MicroBlaze Instruction cache
 #define XPAR_MICROBLAZE_DCACHE_BYTE_SIZE 32768  // Value must match MicroBlaze Data cache
+// DISPLAY
+#define DISPLAY_CS_NUMBER       ((uint8_t)(0x01 << 0))
 // IO EXPANDER 1
-#define IOX_1_CS_NUMBER         ((uint8_t)(0x02))
+#define IOX_1_CS_NUMBER         ((uint8_t)(0x01 << 1))
 #define IOX_1_DEVICE_ADDR       ((uint8_t)(0x00))
 #define IOX_1_IO_DIRECTION      ((uint8_t)(0x00))
 #define IOX_1_INPUT_POLARITY    ((uint8_t)(0x00))
 #define IOX_1_IRQ_ON_CHANGE     ((uint8_t)(0x00))
 #define IOX_1_IRQ_DEFAULT_VALUE ((uint8_t)(0x00))
 #define IOX_1_IRQ_CONTROL       ((uint8_t)(0x00))
-#define IOX_1_CONFIGURATION     ((uint8_t)(0x20))
+#define IOX_1_CONFIGURATION     MCP23S08_SEQOP_BIT_MASK
 #define IOX_1_PULLUP            ((uint8_t)(0x00))
+// IO EXPANDER 2
+#define IOX_2_CS_NUMBER         ((uint8_t)(0x01 << 2))
+#define IOX_2_DEVICE_ADDR       ((uint8_t)(0x01))
+#define IOX_2_IO_DIRECTION      ((uint8_t)(0xFF))
+#define IOX_2_INPUT_POLARITY    ((uint8_t)(0x00))
+#define IOX_2_IRQ_ON_CHANGE     ((uint8_t)(0x1F))
+#define IOX_2_IRQ_DEFAULT_VALUE ((uint8_t)(0x00))
+#define IOX_2_IRQ_CONTROL       ((uint8_t)(0x00))
+#define IOX_2_CONFIGURATION     (MCP23S08_SEQOP_BIT_MASK | MCP23S08_INTPOL_BIT_MASK)
+#define IOX_2_PULLUP            ((uint8_t)(0x00))
+// IO EXPANDER 2 INPUTS AND ALIAS
+#define IOX_2_INPUT_0_MASK      ((uint8_t)(0x01 << 0))
+#define IOX_2_INPUT_1_MASK      ((uint8_t)(0x01 << 1))
+#define IOX_2_INPUT_2_MASK      ((uint8_t)(0x01 << 2))
+#define IOX_2_INPUT_3_MASK      ((uint8_t)(0x01 << 3))
+#define IOX_2_INPUT_4_MASK      ((uint8_t)(0x01 << 4))
+#define UI_SW5                  IOX_2_INPUT_0_MASK
+#define UI_SW4                  IOX_2_INPUT_1_MASK
+#define UI_SW3                  IOX_2_INPUT_2_MASK
+#define UI_SW2                  IOX_2_INPUT_3_MASK
+#define UI_SW1                  IOX_2_INPUT_4_MASK
+
 
 // EXTERNS
 extern volatile uint32_t volatile ReceivedBytes;
