@@ -60,11 +60,10 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#include "Main_Support.h"
+#include "Main_Test.h"
 #include <xintc_l.h>
 #ifndef RUN_MAIN_APPLICATION
 // START OF the Main Test (used only for testing peripherals for operation)
-
 #include "xparameters.h"
 #include "xtmrctr.h"
 #include "xtmrctr_l.h"

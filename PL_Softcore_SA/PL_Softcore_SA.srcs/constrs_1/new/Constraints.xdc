@@ -32,7 +32,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {PB_3}]
 set_false_path -from [get_ports PB_*]
 
 
-# CONNECTIONS THAT FEED THROUGH TO THE SSA: JA = J6, JB = J3, JC = J1, JD = J4 {A7_Connector = SSA_Connector)
+# BOTH A7 DEDICATED AND CONNECTIONS THAT FEED THROUGH TO THE SSA: JA = J6, JB = J3, JC = J1, JD = J4 {A7_Connector = SSA_Connector)
 # TIMER TEST SIGNALS OUTPUTS x2
 # TIMER 1 output PIN (TIM1 on JA10 K16) = J6.10 FW TIMER_1_OUTPUT
 set_property PACKAGE_PIN K16 [get_ports {gpio2_io_o_0[0]}]
@@ -110,7 +110,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports {USD_SCLK}]
 set_property PACKAGE_PIN K15 [get_ports {USD_CD}]
 set_property IOSTANDARD LVCMOS33 [get_ports {USD_CD}]
 
-
 # ADC DUAL 7476A
 # ADC_CS_n PIN (JA1 on G13) = J6.1
 set_property PACKAGE_PIN G13 [get_ports {ADC_CS_n}]
@@ -164,10 +163,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {LED_4}]
 # GENERIC LED USE (LED_5 on J5)
 #set_property PACKAGE_PIN J5 [get_ports {LED_5}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {LED_5}]
-
-
-
-## GENERIC LED USE (LED_6 on T9)
+# GENERIC LED USE (LED_6 on T9)
 #set_property PACKAGE_PIN T9 [get_ports {gpio_io_o_0[1]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[1]}]
 ## GENERIC LED USE (LED_7 on T10)

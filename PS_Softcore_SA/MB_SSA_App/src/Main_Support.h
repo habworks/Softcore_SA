@@ -39,12 +39,12 @@ extern"C" {
 
 // DEFINES
 // PRE-PROCESSOR
-// #define                         RUN_MAIN_APPLICATION    // ****Comment out this line if running testing app****
+#define                         RUN_MAIN_APPLICATION    // ****Comment out this line if running testing app****
 // PS FW REVSION
 #define FW_MAJOR_REV            1
 #define FW_MINOR_REV            0
 #define FW_TEST_REV             2
-// USED IN SLEEP FUNCTIONS
+// USED IN IO ACCESS
 #define GPIO_INPUT_CHANNEL      1          
 #define GPIO_OUTPUT_CHANNEL     2    
 // UART USE
@@ -88,6 +88,13 @@ extern"C" {
 #define UI_SW3                  IOX_2_INPUT_2_MASK
 #define UI_SW2                  IOX_2_INPUT_3_MASK
 #define UI_SW1                  IOX_2_INPUT_4_MASK
+// MISC
+#define MODE_PERIODIC_IRQ_TIME  4                                                       // Value in sec
+#define MODE_TIMER_COUNT        (MODE_PERIODIC_IRQ_TIME * XPAR_CPU_CORE_CLOCK_FREQ_HZ)  // Count that lead to Value in sec delay
+#define FFT_BINS                1024U
+#define FFT_SIZE                FFT_BINS
+
+// TYPEDEFS AND ENUMS
 
 
 // EXTERNS

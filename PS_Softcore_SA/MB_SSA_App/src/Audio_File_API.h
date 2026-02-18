@@ -145,13 +145,18 @@ typedef enum
 
 typedef struct
 {
+    #if (FF_USE_LFN == 1)
+    char                        Name[FF_MAX_LFN];             // FAT FS supporting long file name
+    char                        PathFileName[FF_MAX_LFN];
+    #else
+    char                        Name[8+1+3];                   // FAT FS 8.3 file name support
+    char                        PathFileName[50];
+    #endif
     bool                        IsOpen;
-    char                        Name[MAX_FILE_NAME_LENGTH];             // FAT FS supporting long file name
-    char                        PathFileName[MAX_PATH_FILE_LENGTH];
     uint16_t                    DirectoryFileCount;
     uint32_t                    Size;
     Type_WavHeader              Header;
-} Type_AudioFile;
+}Type_AudioFile;
 
 
 // EXTERNS
@@ -170,7 +175,7 @@ bool isFull_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 bool isEmpty_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 bool write_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element);
 bool read_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, bool *CB_Half_Empty, bool *CB_Half_Full);
-uint32_t unusedElements(Type_int16_t_CircularBuffer *CircularBuffer);
+uint32_t unused_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 
 #ifdef __cplusplus
 }

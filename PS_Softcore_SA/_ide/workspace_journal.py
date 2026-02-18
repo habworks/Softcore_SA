@@ -1,4 +1,4 @@
-# 2026-02-15T08:04:57.449764200
+# 2026-02-18T06:17:55.911586900
 import vitis
 
 client = vitis.create_client()
@@ -8,6 +8,10 @@ platform = client.get_component(name="MB_SSA_Platform")
 status = platform.build()
 
 comp = client.get_component(name="MB_SSA_App")
+comp.build()
+
+status = platform.build()
+
 comp.build()
 
 status = platform.build()

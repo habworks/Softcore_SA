@@ -86,6 +86,8 @@ void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309);
 void displayTest_2(void);
 void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309);
 void displayDirectTest(Type_Display_SSD1309 *SSD1309);
+void drawStaticAudioHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds);
+void drawStaticSignalHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading);
 
 #ifdef __cplusplus
 }

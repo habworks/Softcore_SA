@@ -26,52 +26,57 @@
 
 #ifndef MAIN_APP_H_
 #define MAIN_APP_H_
-#include <limits.h>
 #ifdef __cplusplus
 extern"C" {
 #endif
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "SoftCore_Audio_SA.h"
+#include "Audio_SoftCore_SA.h"
+#include "Main_Support.h"
 
 
 // DEFINES
 // INIT_FAIL_MODES
-#define INIT_FAIL_GPIO                  ((uint16_t)(0x01 << 0))
-#define INIT_FAIL_UART                  ((uint16_t)(0x01 << 1))
-#define INIT_FAIL_FAT_FS                ((uint16_t)(0x01 << 2))
-#define INIT_FAIL_PWM                   ((uint16_t)(0x01 << 3))
-#define INIT_FAIL_SOFTCORE_HANDLE       ((uint16_t)(0x01 << 4))
+#define INIT_FAIL_UART                  ((uint16_t)(0x01 << 0))
+#define INIT_FAIL_GPIO                  ((uint16_t)(0x01 << 1))
+#define INIT_FAIL_TIMER_1               ((uint16_t)(0x01 << 2))
+#define INIT_FAIL_TIMER_2               ((uint16_t)(0x01 << 3))
+#define INIT_FAIL_TIMER_3               ((uint16_t)(0x01 << 4))
+#define INIT_FAIL_SPI_0                 ((uint16_t)(0x01 << 5))
+#define INIT_FAIL_SPI_1                 ((uint16_t)(0x01 << 6))
+#define INIT_FAIL_IRQ_CONTROLLER        ((uint16_t)(0x01 << 7))
+#define INIT_FAIL_UI_IO                 ((uint16_t)(0x01 << 8))
+#define INIT_FAIL_FAT_FS                ((uint16_t)(0x01 << 9))
+#define INIT_FAIL_UI_DISPLAY            ((uint16_t)(0x01 << 10))
+#define INIT_FAIL_SOFTCORE_SA           ((uint16_t)(0x01 << 11))
 // MISC
 #define MAX_PRINT_BUFFER                255U
+
 
 // TYPEDEFS AND ENUMS
 typedef enum
 {
-    MODE_AUDIO = 0,
-    MODE_SIGNAL
+    MODE_AUDIO_SA = 0,
+    MODE_SIGNAL_SA
 }Type_Mode;
 
-// typedef struct
-// {
-//     #if (FF_USE_LFN == 1)
-//     char                        Name[FF_MAX_LFN];             // FAT FS supporting long file name
-//     char                        PathFileName[FF_MAX_LFN];
-//     #else
-//     char                        Name[8+1+3];                   // FAT FS 8.3 file name support
-//     char                        PathFileName[50];
-//     #endif
-//     uint16_t                    DirectoryFileCount;
-//     uint32_t                    Size;
-//     Type_WavHeader              Header;
-// }Type_AudioFile;
+typedef struct
+{
+    bool                        FrameReady;                 // An FFT size data is ready for processing in the PWM and HannWindow Buffers
+    uint16_t                    Size;
+    float                       HannWindow[FFT_SIZE];
+    float                       Samples[FFT_SIZE];
+    float                       RBW;
+} Type_FFT;
 
 typedef struct
 {
     Type_Mode                   Mode;
+    Type_FFT                    FFT;
     Type_Audio_SA               Audio_SA;
 }Type_SoftCore_SA;
+
 
 // FUNTION PROTOTYPES
 void mainApplication(void);

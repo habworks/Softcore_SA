@@ -34,6 +34,7 @@
 
 #ifdef RUN_MAIN_APPLICATION
     extern XGpio AXI_GPIO_Handle;
+    #define GPIO_Handle AXI_GPIO_Handle
 #else    
     extern XGpio AXI_GPIO_Handle;
     #define GPIO_Handle AXI_GPIO_Handle

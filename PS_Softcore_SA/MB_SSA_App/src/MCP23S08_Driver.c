@@ -317,7 +317,7 @@ bool MCP23S08_WriteOutput(Type_MCP23S08_Driver *MCP23S08_Handle, uint8_t OutputV
 
 /********************************************************************************************************
 * @brief MCP23S08 on interrupt read and clear the interrupt.  This function to be called to service the 
-* device interrupt pin going active.  this function will capture both rising and falling edges.  The input
+* device interrupt pin going active.  This function will capture both rising and falling edges.  The input
 * paramter EdgeCapture determines which type the calling function is concerned with.
 *
 * @author original: Hab Collector \n

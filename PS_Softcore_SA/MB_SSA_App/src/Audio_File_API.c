@@ -527,7 +527,7 @@ bool read_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, bool
 * STEP 2: Determine number of elements currently stored
 * STEP 3: Calculate number of free elements available
 ********************************************************************************************************/
-uint32_t unusedElements(Type_int16_t_CircularBuffer *CircularBuffer)
+uint32_t unused_CB(Type_int16_t_CircularBuffer *CircularBuffer)
 {
     uint16_t Used;
     uint16_t Capacity;

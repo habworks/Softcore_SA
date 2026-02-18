@@ -29,10 +29,9 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#include "Main_Support.h"
+#include "Main_App.h"
 #ifdef RUN_MAIN_APPLICATION
 // START OF the Main Applicaiton
-#include "Main_App.h"
 #include "xparameters.h"
 #include "xtmrctr.h"
 #include "xgpio.h"
@@ -42,43 +41,54 @@
 #include "xspi.h"
 #include "xil_printf.h"
 #include "xstatus.h"
+#include "xil_cache.h"
 #include "ff.h"
+#include "u8g2.h"
 #include <stdio.h>
 #include <math.h>
 #include "AXI_Timer_PWM_Support.h"
 #include "AXI_UART_Lite_Support.h"
 #include "AXI_IRQ_Controller_Support.h"
 #include "Terminal_Emulator_Support.h"
-#include "Audio_File_API.h"
-#include "Softcore_Audio_SA.h"
+#include "AXI_QSPI_Support.h"
 #include "IO_Support.h"
+#include "Audio_File_API.h"
+#include "Audio_SoftCore_SA.h"
+#include "MCP23S08_Driver.h"
+
 
 // STATIC FUNCTIONS
 static void main_InitApplication(void);
 static void main_WhileLoop(void);
-static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle);
+static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleFrequency);
+static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle);
+static void TimerCallbackSample_ISR(void) __attribute__((fast_interrupt));
+static void TimerCallbackMode_ISR(void) __attribute__((fast_interrupt));
+static void processUserInput(Type_SoftCore_SA *SoftCore_SA);
+static void modeSwitch(Type_SoftCore_SA *SoftCore_SA);
 
 
-// GLOBAL DEFINES
-Type_SoftCore_SA SoftCore_SA;
 
-// AXI GPIO SUPPORT
-XGpio AXI_GPIO_Handle;
+// AXI SUPPORT:
+XGpio __attribute__ ((section (".Hab_Fast_Data"))) AXI_GPIO_Handle;
+XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_SampleTimerHandle;
+XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_ModeTimerHandle;
+XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_PWM_Handle;
+XUartLite __attribute__ ((section (".Hab_Fast_Data"))) AXI_UART_Handle;
+XSpi __attribute__ ((section (".Hab_Fast_Data"))) AXI_SPI_UI_Handle;
+XSpi __attribute__ ((section (".Hab_Fast_Data"))) AXI_SPI_USD_Handle;
+XIntc __attribute__ ((section (".Hab_Fast_Data"))) AXI_IRQ_ControllerHandle;
 
-// AXI TIMER SUPPORT
-XTmrCtr AXI_TimerHandle;
+// NON AXI PERIPHERAL:
+Type_SoftCore_SA __attribute__ ((section (".Hab_Fast_Data"))) SoftCore_SA;
+Type_Display_SSD1309 __attribute__ ((section (".Hab_Fast_Data"))) Display_SSD1309; 
+Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_1;
+Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_2;
+u8g2_t __attribute__ ((section (".Hab_Fast_Data"))) U8G2; 
+FATFS __attribute__ ((section (".Hab_Fast_Data"))) FatFs;
 
-// AXI PWM SUPPORT
-XTmrCtr AXI_PWM_Handle;
+volatile uint8_t __attribute__ ((section (".Hab_Fast_Data"))) DutyCyclePercent = 1;
 
-// AXI UART SUPPORT
-XUartLite AXI_UART_Handle;
-
-// AXI IRQ CONTROLLER SUPPORT
-XIntc AXI_IRQ_ControllerHandle;
-
-// FAT FS SUPPORT
-FATFS FatFs; 
 
 
 /********************************************************************************************************
@@ -112,10 +122,21 @@ static void main_InitApplication(void)
 {
     int AXI_Status;
     bool Status;
+    FRESULT FileResult;
     uint16_t InitFailMode = 0;
     char PrintBuffer[MAX_PRINT_BUFFER] = {0};
+
+    // STEP 1: Enable the instruction and data cache
+    Xil_ICacheEnable();
+    Xil_DCacheEnable();
     
-    // STEP 1: Init AXI peripherals for use
+
+    // STEP 2: Init AXI peripherals for use
+    // Init AXI UART
+    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, POLLING, NULL, NULL, false);    
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_UART;
+
     // Init AXI GPIO
     AXI_Status = XGpio_Initialize(&AXI_GPIO_Handle, XPAR_AXI_GPIO_0_BASEADDR);
     if (AXI_Status != XST_SUCCESS)
@@ -123,33 +144,97 @@ static void main_InitApplication(void)
     XGpio_SetDataDirection(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL, 0xFFFF);     // Switches and push buttons as input
     XGpio_SetDataDirection(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x0000);  
 
-    // Init AXI UART
-    Status = init_UART_Lite(&AXI_UART_Handle, XPAR_AXI_UARTLITE_0_BASEADDR, INTERRUPT, UART_TxCallback_ISR, UART_RxCallback_ISR);
-    if (Status == false)
-        InitFailMode |= INIT_FAIL_GPIO;
+    // Init AXI Timer 1 as periodic
+    Status = init_PeriodicTimer(&AXI_SampleTimerHandle, XPAR_AXI_TIMER_1_BASEADDR, XTC_TIMER_0, (u32)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / DEFAULT_AUDIO_FREQUENCY), TimerCallbackSample_ISR);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_TIMER_1;
 
-    // Init AXI Timer as PWM
-    Status = init_PWM(&AXI_PWM_Handle, XPAR_AXI_TIMER_1_BASEADDR);
-    if (Status == false)
-        InitFailMode |= INIT_FAIL_PWM;
+    // Init AXI Timer 2 as periodic
+    Status = init_PeriodicTimer(&AXI_ModeTimerHandle, XPAR_AXI_TIMER_2_BASEADDR, XTC_TIMER_0, MODE_TIMER_COUNT, TimerCallbackMode_ISR);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_TIMER_2;
+
+    // Init AXI Timer 3 as PWM
+    Status = init_PWM(&AXI_PWM_Handle, XPAR_AXI_TIMER_3_BASEADDR);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_TIMER_3;
+
+    // Init AXI SPI UI
+    Status = init_QSPI_PollingMode(&AXI_SPI_UI_Handle, XPAR_AXI_QUAD_SPI_0_BASEADDR);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_SPI_0;
+
+    // Init AXI IRQ Controller (6x Steps)
+    // Step 1 of 6 IRQ Controller setup: Init or IRQ Controller
+    Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_AXI_INTC_0_BASEADDR);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
+    // Step 2A of 4 IRQ Controller setup: AXI Audio Timer 
+    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR, TimerCallbackSample_ISR, &AXI_SampleTimerHandle);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
+    // Step 2B of 4 IRQ Controller setup: AXI Generic Timer 
+    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, TimerCallbackMode_ISR, &AXI_ModeTimerHandle);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
+    // Step 3 IRQ Controller setup: Start
+    Status = start_IRQ_Controller(&AXI_IRQ_ControllerHandle, XIN_REAL_MODE);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
+    // Step 4 IRQ Controller setup: Enable Peripheral Interrupts
+    enableDevice_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
+    enableDevice_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);
+    // Step 5 IRQ Controller setup: Enable Exceptions
+    enableExceptionHandling(&AXI_IRQ_ControllerHandle); 
+    // Start / enable peripherals after IRQ Controller setup 
+    startPeriodicTimer(&AXI_SampleTimerHandle, XTC_TIMER_0);
+    startPeriodicTimer(&AXI_ModeTimerHandle, XTC_TIMER_0);
+    setup_PWM(&AXI_PWM_Handle, 100000, 50.0);
 
 
-    // STEP 2: Init of libraries
+    // STEP 3: Init Drivers
+    // IO Expander 1:
+    Status = init_MCP23S08(&IOX_1, IOX_Reset, IOX_ChipSelect, displayTrasmitReceive, sleep_ms_Wrapper, 
+                           &AXI_SPI_UI_Handle, IOX_1_CS_NUMBER, IOX_1_DEVICE_ADDR, IOX_1_IO_DIRECTION, IOX_1_INPUT_POLARITY, IOX_1_IRQ_ON_CHANGE, 
+                           IOX_1_IRQ_DEFAULT_VALUE, IOX_1_IRQ_CONTROL, IOX_1_CONFIGURATION, IOX_1_PULLUP, false, true);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_UI_IO;
+    // IO Expander 2:
+    Status = init_MCP23S08(&IOX_2, IOX_Reset, IOX_ChipSelect, displayTrasmitReceive, sleep_ms_Wrapper, 
+                           &AXI_SPI_UI_Handle, IOX_2_CS_NUMBER, IOX_2_DEVICE_ADDR, IOX_2_IO_DIRECTION, IOX_2_INPUT_POLARITY, IOX_2_IRQ_ON_CHANGE, 
+                           IOX_2_IRQ_DEFAULT_VALUE, IOX_2_IRQ_CONTROL, IOX_2_CONFIGURATION, IOX_2_PULLUP, false, false);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_UI_IO;
+
+
+    // STEP 4: Init Middleware
     // Init FAT FS
-    if (f_mount(&FatFs, ROOT_PATH, 1) != FR_OK)
+    FileResult = f_mount(&FatFs, ROOT_PATH, 1);
+    if (FileResult != FR_OK)
         InitFailMode |= INIT_FAIL_FAT_FS;
 
+    // Init Display
+    Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_UI_Handle, DISPLAY_CS_NUMBER, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2); 
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_UI_DISPLAY;
 
-    // STEP 3: Init SoftCore SA Handle
-    Status = init_SoftCoreHandle(&SoftCore_SA);
-    if (Status == false)
-        InitFailMode |= INIT_FAIL_SOFTCORE_HANDLE;
+
+    // STEP 5: Init Application
+    // Init Application Common
+    Status = init_SoftCoreHandleCommon(&SoftCore_SA, DEFAULT_AUDIO_FREQUENCY);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_SOFTCORE_SA;
+    
+    // Init Applicaiton Audio
+    Status = init_SoftCoreHandleAudio(&SoftCore_SA);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_SOFTCORE_SA;
 
 
-    // STEP 4: Welcome
+    // STEP 6: Welcome
     terminal_ClearScreen();
     uint32_t PL_Ver = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
-    PL_Ver = (PL_Ver & HW_CONST_PL_VER) >> HW_CONST_PL_VER_OFFSET;
+    PL_Ver = (PL_Ver & HW_PL_VER_MASK) >> HW_PL_VER_OFFSET;
     printGreen("IMR Engineering, LLC\r\n");
     printGreen("  Hab Collector, Principal Engineer\r\n");
     printGreen("  http://www.imrengineering.com\r\n\n");
@@ -158,6 +243,7 @@ static void main_InitApplication(void)
     xil_printf("PL VER: %d\r\n\n", PL_Ver);
     if (InitFailMode)
     {
+        printBrightRed("Error on Init:\r\n");
         snprintf(PrintBuffer, sizeof(PrintBuffer), "Init Fail Code(s): 0x%04X\r\n\n",InitFailMode);
         printBrightRed(PrintBuffer);
         fflush(stdout);
@@ -211,36 +297,77 @@ static void main_WhileLoop(void)
     //     }
     // }
 
-    for (uint8_t Test = 0; Test < 10; Test++)
-    {
-        xil_printf("HannWindow[%d]: %1.6f\r\n", Test, SoftCore_SA.Audio_SA.FFT.HannWindow[Test]);
-    }
+    // for (uint8_t Test = 0; Test < 10; Test++)
+    // {
+    //     xil_printf("HannWindow[%d]: %1.6f\r\n", Test, SoftCore_SA.FFT.HannWindow[Test]);
+    // }
 
 
-    FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
-    if (FileResult != FR_OK)
-        printBrightRed("Error: getting next file\r\n");
+    // FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
+    // if (FileResult != FR_OK)
+    //     printBrightRed("Error: getting next file\r\n");
 
-    Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
-    if (Status == true)
-    {
-        xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
-    }
+    // Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
+    // if (Status == true)
+    // {
+    //     xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
+    // }
 
     
 
-    f_closedir(&Directory);
-    f_mount(0, ROOT_PATH, 0);
+    // f_closedir(&Directory);
+    // f_mount(0, ROOT_PATH, 0);
 
-    setup_PWM(&AXI_PWM_Handle, 200000, 50.0);
+    // setup_PWM(&AXI_PWM_Handle, 200000, 50.0);
 
-    while(1);
+
+    printGreen("Hab you made it here\r\n");
+
+    while(1)
+    {
+        processUserInput(&SoftCore_SA);
+    }
 }
 
 
 
 /********************************************************************************************************
-* @brief Init of Soft Core Spectrum Analyzer Handle
+* @brief Init of Soft Core Spectrum Analyzer Handle members specific to the common use
+*
+* @author original: Hab Collector \n
+*
+* @note: Must be init before main application can be called
+* 
+* @param Handle: Pointer to Soft Core SA structure
+*
+* @return True if init OK
+*
+* STEP 1: Set common handle members
+********************************************************************************************************/
+static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleFrequency)
+{
+    // STEP 1: Set common handle members
+    // Set Mode
+    Handle->Mode = MODE_AUDIO_SA;
+
+    // FFT
+    Handle->FFT.FrameReady = false;
+    Handle->FFT.Size = FFT_SIZE;
+    Handle->FFT.RBW = (float)SampleFrequency / FFT_SIZE;
+    // Calculate the FFT Hann Window
+    for (uint16_t N = 0; N < FFT_SIZE; N++)
+    {
+        Handle->FFT.HannWindow[N] = 0.5 * (1 - cos((2* M_PI* N)/(FFT_SIZE - 1)));
+    }
+
+    return(true);
+
+} // END OF init_SoftCoreHandle
+
+
+
+/********************************************************************************************************
+* @brief Init of Soft Core Spectrum Analyzer Handle members specific to the Audio function
 *
 * @author original: Hab Collector \n
 *
@@ -248,18 +375,15 @@ static void main_WhileLoop(void)
 * @note: Requires prior init of FAT FS
 * 
 * @param Handle: Pointer to Soft Core SA structure
+* @param SampleFrequency: Sample frequency of the FFT - must be (Nyquist) 2x the signal frequency 
 *
 * @return True if init OK
 *
-* STEP 1: Set default operating mode
-* STEP 2: Set defaults for audio File 
+* STEP 1: Set audio handle defaults
 ********************************************************************************************************/
-static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle)
+static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle)
 {
-    // STEP 1: Set default operating mode
-    Handle->Mode = MODE_AUDIO;
-
-    // STEP 2: Set defaults for audio File 
+    // STEP 1: Set audio handle defaults
     Handle->Audio_SA.Enable = false;
     Handle->Audio_SA.File.IsOpen = false;
     memset(Handle->Audio_SA.File.Name, 0x00, sizeof(Handle->Audio_SA.File.Name));
@@ -270,11 +394,6 @@ static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle)
         return(false);
     else
         return(true);
-    // Calculate the FFT Hann Window
-    for (uint16_t N = 0; N < FFT_SIZE; N++)
-    {
-        Handle->Audio_SA.FFT.HannWindow[N] = 0.5 * (1 - cos((2* M_PI* N)/(FFT_SIZE - 1)));
-    }
 
 } // END OF init_SoftCoreHandle
 
@@ -282,3 +401,133 @@ static bool init_SoftCoreHandle(Type_SoftCore_SA *Handle)
 
 // END OF PROCESSOR DEFINE FOR RUN_MAIN_APPLICATION
 #endif
+
+
+#define ISR_USE_DIRECT_REGISTER_ACCESS
+__attribute__((section(".Hab_Fast_Text")))
+static void TimerCallbackSample_ISR(void)
+{
+    // Mark the start of the ISR with IO toggle for testing only
+    uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
+    uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_1_OUTPUT);
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
+
+    // STEP 1: Clear the interrupt 2 different methods - both are essentially the same
+#ifdef ISR_USE_DIRECT_REGISTER_ACCESS
+    uint32_t RegisterValue = Xil_In32(XPAR_AXI_TIMER_1_BASEADDR + XTC_TCSR_OFFSET);
+    Xil_Out32(XPAR_AXI_TIMER_1_BASEADDR + XTC_TCSR_OFFSET, RegisterValue);
+#else
+    uint32_t ControlStatusReg = XTmrCtr_ReadReg(XPAR_AXI_TIMER_1_BASEADDR, 0, XTC_TCSR_OFFSET);
+    XTmrCtr_WriteReg(XPAR_AXI_TIMER_1_BASEADDR, 0, XTC_TCSR_OFFSET, ControlStatusReg);
+#endif
+
+    // STEP 2: User Logic
+    static volatile uint32_t Inc = 0;
+    Inc++;
+    if (Inc >= 1000)
+    {
+        DutyCyclePercent += 1;
+        if (DutyCyclePercent >= 100)
+            DutyCyclePercent = 1;
+        Inc = 0;
+    }
+
+    // STEP 3: Ack at interrupt Controller
+#ifdef ISR_USE_DIRECT_REGISTER_ACCESS
+    Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + IAR_OFFSET, (1 << XPAR_FABRIC_AXI_TIMER_1_INTR));
+#else
+    XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_1_INTR);
+#endif
+
+    // Mark the end of the ISR with IO toggle for testing sake only
+    Output_GPIO = (Output_GPIO ^ TIMER_1_OUTPUT);
+    Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
+}
+
+__attribute__((section(".Hab_Fast_Text")))
+static void TimerCallbackMode_ISR(void)
+{
+    // STEP 1: Clear the interrupt
+    uint32_t ControlStatusReg = XTmrCtr_ReadReg(XPAR_AXI_TIMER_2_BASEADDR, 0, XTC_TCSR_OFFSET);
+    XTmrCtr_WriteReg(XPAR_AXI_TIMER_2_BASEADDR, 0, XTC_TCSR_OFFSET, ControlStatusReg);
+
+    // STEP 2: User does something
+    static volatile bool ToggleTimer_0 = false;
+    // if (TmrCtrNumber == XTC_TIMER_0)
+    {
+        if (ToggleTimer_0)
+            XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
+        else
+            XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
+        ToggleTimer_0 = !ToggleTimer_0;
+    }
+
+    // STEP 3: Ack at interrupt Controller
+    XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_2_INTR);
+}
+
+
+
+static void processUserInput(Type_SoftCore_SA *SoftCore_SA)
+{
+    static uint32_t PreviousUserInput = 0;
+
+    uint32_t PresentSwitchState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
+    if (!(PresentSwitchState & IOX_2_IRQ))
+        return;
+    
+    uint8_t UI_Input = MCP23S08_ReadClear_IRQ(&IOX_2, RISING_EDGE);
+    switch (UI_Input)
+    {
+        case UI_SW1:
+        {
+            xil_printf("SW1 Pressed\r\n"); 
+            modeSwitch(SoftCore_SA);
+        }
+        break;
+
+        case UI_SW2:
+        {
+            xil_printf("SW2 Pressed\r\n"); 
+        }
+        break;
+
+        case UI_SW3:
+        {
+            xil_printf("SW3 Pressed\r\n"); 
+        }
+        break;
+
+        case UI_SW4:
+        {
+            xil_printf("SW4 Pressed\r\n"); 
+        }
+        break;
+
+        case UI_SW5:
+        {
+            xil_printf("SW5 Pressed\r\n"); 
+        }
+        break;
+
+        default:
+        break;
+    } // END OF CASE
+}
+
+
+static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
+{
+    // STEP 1: Swith the present present mode and take action to be at default state of the new mode
+    if (SoftCore_SA->Mode == MODE_AUDIO_SA)
+    {
+        SoftCore_SA->Mode = MODE_SIGNAL_SA;
+        drawStaticAudioHeader(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+    }
+    else
+    {
+        SoftCore_SA->Mode = MODE_AUDIO_SA;
+         drawStaticSignalHeader(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
+    }
+
+}

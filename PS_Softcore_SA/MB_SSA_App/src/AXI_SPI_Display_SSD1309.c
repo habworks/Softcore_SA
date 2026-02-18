@@ -572,3 +572,57 @@ void displayDirectTest(Type_Display_SSD1309 *SSD1309)
     SSD1309->display_CS(CS_DISABLE);
 
 } // END OF displayDirectTest
+
+
+
+void drawStaticAudioHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds)
+{
+    u8g2_t *U = Display_SSD1309->U8G2_Handle;
+
+    char TimeString[6] = {0};  // "mm:ss"
+    uint32_t Minutes = TimeInSeconds / 60;
+    uint32_t Seconds = TimeInSeconds % 60;
+
+    // STEP 1: Format time string
+    snprintf(TimeString, sizeof(TimeString), "%02lu:%02lu",
+             (unsigned long)Minutes,
+             (unsigned long)Seconds);
+
+    // STEP 2: Clear buffer
+    u8g2_ClearBuffer(U);
+
+    // STEP 3: Draw centered title (6x10)
+    u8g2_SetFont(U, u8g2_font_6x10_tr);
+
+    const char *Title = Heading;
+    uint16_t TitleWidth = u8g2_GetStrWidth(U, Title);
+    uint8_t X_Title = (uint8_t)((128 - TitleWidth) / 2);
+
+    u8g2_DrawStr(U, X_Title, 10, Title);   // Baseline at Y=10
+
+    // STEP 4: Draw left-justified file info (5x8)
+    u8g2_SetFont(U, u8g2_font_5x8_tr);
+
+    u8g2_DrawStr(U, 0, 19, FileName);      // Line 1
+    u8g2_DrawStr(U, 0, 28, AudioAction);    // Line 2
+    u8g2_DrawStr(U, 0, 37, TimeString);    // Line 3
+
+    // STEP 5: Push to display
+    u8g2_SendBuffer(U);
+}
+
+void drawStaticSignalHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading)
+{
+        // STEP 2: Clear buffer
+    u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
+
+    // STEP 3: Draw centered title (6x10)
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x10_tr);
+
+    const char *Title = Heading;
+    uint16_t TitleWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, Title);
+    uint8_t X_Title = (uint8_t)((128 - TitleWidth) / 2);
+
+    // STEP 5: Push to display
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
+}

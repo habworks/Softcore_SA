@@ -34,6 +34,16 @@ extern"C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+// DEFINES
+#define ISR_OFFSET   ((uint32_t)(0x00))  // Interrupt Status Register
+#define IPR_OFFSET   ((uint32_t)(0x04))  // Interrupt Pending Register
+#define IER_OFFSET   ((uint32_t)(0x08))  // Interrupt Enable Register
+#define IAR_OFFSET   ((uint32_t)(0x0C))  // Interrupt Acknowledge Register (write-1-to-clear)
+#define SIE_OFFSET   ((uint32_t)(0x10))  // Set Interrupt Enable Register
+#define CIE_OFFSET   ((uint32_t)(0x14))  // Clear Interrupt Enable Register
+#define IVR_OFFSET   ((uint32_t)(0x18))  // Interrupt Vector Register
+#define MER_OFFSET   ((uint32_t)(0x1C))  // Master Enable Register
+
 
 // FUNCTION PROTOTYPES
 bool init_IRQ_Controller(XIntc *IRQ_ControllerHandle, UINTPTR IPB_BaseAddress);
