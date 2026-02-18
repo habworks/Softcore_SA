@@ -66,6 +66,7 @@ static void TimerCallbackSample_ISR(void) __attribute__((fast_interrupt));
 static void TimerCallbackMode_ISR(void) __attribute__((fast_interrupt));
 static void processUserInput(Type_SoftCore_SA *SoftCore_SA);
 static void modeSwitch(Type_SoftCore_SA *SoftCore_SA);
+static void selectSwitch(Type_SoftCore_SA *SoftCore_SA);
 
 
 
@@ -209,9 +210,13 @@ static void main_InitApplication(void)
 
     // STEP 4: Init Middleware
     // Init FAT FS
-    FileResult = f_mount(&FatFs, ROOT_PATH, 1);
-    if (FileResult != FR_OK)
-        InitFailMode |= INIT_FAIL_FAT_FS;
+    if (is_MicroSD_Inserted())
+    {
+        FileResult = f_mount(&FatFs, ROOT_PATH, 1);
+        if (FileResult != FR_OK)
+            InitFailMode |= INIT_FAIL_FAT_FS;
+    }
+    
 
     // Init Display
     Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_UI_Handle, DISPLAY_CS_NUMBER, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2); 
@@ -252,6 +257,7 @@ static void main_InitApplication(void)
     else
     {
         xil_printf("Hello Hab, I am ready...\r\n\n");
+        displayWelcomeScreen(&Display_SSD1309, FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV, HW_REV);
     }
 
 } // END OF main_InitApplication
@@ -276,53 +282,13 @@ static void main_WhileLoop(void)
     bool Status;
     char PrintBuffer[MAX_PRINT_BUFFER] = {0};
 
-
-    // for (uint8_t FileIndex = 0; FileIndex < SoftCore_SA.Audio_SA.File.DirectoryFileCount; FileIndex++)
-    // {
-    //     FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
-    //     if (FileResult != FR_OK)
-    //         printBrightRed("Error: getting next file\r\n");
-
-    //     Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
-    //     if (Status == true)
-    //     {
-    //         xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
-    //         fflush(stdout);
-    //     }
-    //     else
-    //     {
-    //         snprintf(PrintBuffer, sizeof(PrintBuffer), "%s Not a valid audio file\r\n", SoftCore_SA.Audio_SA.File.Name);
-    //         printBrightRed(PrintBuffer);
-    //         fflush(stdout);
-    //     }
-    // }
-
-    // for (uint8_t Test = 0; Test < 10; Test++)
-    // {
-    //     xil_printf("HannWindow[%d]: %1.6f\r\n", Test, SoftCore_SA.FFT.HannWindow[Test]);
-    // }
-
-
-    // FRESULT FileResult = getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
-    // if (FileResult != FR_OK)
-    //     printBrightRed("Error: getting next file\r\n");
-
-    // Status = getWavFileHeader(SoftCore_SA.Audio_SA.File.PathFileName, SoftCore_SA.Audio_SA.File.Size, &SoftCore_SA.Audio_SA.File.Header);
-    // if (Status == true)
-    // {
-    //     xil_printf("%s: %d: OK\r\n",SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.Size);
-    // }
-
+    if (SoftCore_SA.Audio_SA.File.uSD_Present)
+    {
+        countFilesInDirectory(AUDIO_DIRECTORY, &SoftCore_SA.Audio_SA.File.DirectoryFileCount);
+        getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
+        drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA.Audio_SA.File.Name, DISPLAY_AUDIO_PLAY, 235);
+    }
     
-
-    // f_closedir(&Directory);
-    // f_mount(0, ROOT_PATH, 0);
-
-    // setup_PWM(&AXI_PWM_Handle, 200000, 50.0);
-
-
-    printGreen("Hab you made it here\r\n");
-
     while(1)
     {
         processUserInput(&SoftCore_SA);
@@ -347,9 +313,10 @@ static void main_WhileLoop(void)
 static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleFrequency)
 {
     // STEP 1: Set common handle members
+    // Set LEDs
+    Handle->UI_LED_Status = 0x00;   // All LEDs off
     // Set Mode
     Handle->Mode = MODE_AUDIO_SA;
-
     // FFT
     Handle->FFT.FrameReady = false;
     Handle->FFT.Size = FFT_SIZE;
@@ -385,6 +352,7 @@ static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle)
 {
     // STEP 1: Set audio handle defaults
     Handle->Audio_SA.Enable = false;
+    Handle->Audio_SA.File.uSD_Present = is_MicroSD_Inserted();
     Handle->Audio_SA.File.IsOpen = false;
     memset(Handle->Audio_SA.File.Name, 0x00, sizeof(Handle->Audio_SA.File.Name));
     memset(Handle->Audio_SA.File.PathFileName, 0x00, sizeof(Handle->Audio_SA.File.PathFileName));
@@ -451,18 +419,28 @@ static void TimerCallbackMode_ISR(void)
     uint32_t ControlStatusReg = XTmrCtr_ReadReg(XPAR_AXI_TIMER_2_BASEADDR, 0, XTC_TCSR_OFFSET);
     XTmrCtr_WriteReg(XPAR_AXI_TIMER_2_BASEADDR, 0, XTC_TCSR_OFFSET, ControlStatusReg);
 
-    // STEP 2: User does something
-    static volatile bool ToggleTimer_0 = false;
-    // if (TmrCtrNumber == XTC_TIMER_0)
+    // STEP 2: Toggle the test point
+    static volatile bool ToggleTimer_2 = false;
+    if (ToggleTimer_2)
+        XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
+    else
+        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
+    ToggleTimer_2 = !ToggleTimer_2;
+    
+    // STEP 3: Update the Mode LED with toggle action
+    if (SoftCore_SA.Mode)
     {
-        if (ToggleTimer_0)
-            XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
-        else
-            XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TIMER_2_OUTPUT);
-        ToggleTimer_0 = !ToggleTimer_0;
+        SoftCore_SA.UI_LED_Status &= ~LED_MODE_SIGNAL;
+        SoftCore_SA.UI_LED_Status ^= LED_MODE_AUDIO;
     }
+    else
+    {
+        SoftCore_SA.UI_LED_Status &= ~LED_MODE_AUDIO;
+        SoftCore_SA.UI_LED_Status ^= LED_MODE_SIGNAL;
+    }
+    MCP23S08_WriteOutput(&IOX_1, SoftCore_SA.UI_LED_Status);
 
-    // STEP 3: Ack at interrupt Controller
+    // STEP 4: Ack at interrupt Controller
     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_2_INTR);
 }
 
@@ -479,22 +457,24 @@ static void processUserInput(Type_SoftCore_SA *SoftCore_SA)
     uint8_t UI_Input = MCP23S08_ReadClear_IRQ(&IOX_2, RISING_EDGE);
     switch (UI_Input)
     {
-        case UI_SW1:
+        case MODE_SW:
         {
             xil_printf("SW1 Pressed\r\n"); 
             modeSwitch(SoftCore_SA);
         }
         break;
 
-        case UI_SW2:
+        case SELECT_SW:
         {
             xil_printf("SW2 Pressed\r\n"); 
+            selectSwitch(SoftCore_SA);
         }
         break;
 
         case UI_SW3:
         {
             xil_printf("SW3 Pressed\r\n"); 
+            drawSpectrumMock(&Display_SSD1309);
         }
         break;
 
@@ -522,12 +502,31 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
         SoftCore_SA->Mode = MODE_SIGNAL_SA;
-        drawStaticAudioHeader(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+        drawStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
+        
     }
     else
     {
         SoftCore_SA->Mode = MODE_AUDIO_SA;
-         drawStaticSignalHeader(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
+        drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
     }
 
+}
+
+static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
+{
+    // STEP 1: Based on Mode make a section
+    if (SoftCore_SA->Mode == MODE_AUDIO_SA)
+    {
+        bool Status = false;
+        uint16_t FilesChecked = 0;
+        do 
+        {
+            getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA->Audio_SA.File.Name, SoftCore_SA->Audio_SA.File.PathFileName, &SoftCore_SA->Audio_SA.File.Size, SoftCore_SA->Audio_SA.File.DirectoryFileCount);
+            Status = getWavFileHeader(SoftCore_SA->Audio_SA.File.PathFileName, SoftCore_SA->Audio_SA.File.Size, &SoftCore_SA->Audio_SA.File.Header);
+            FilesChecked++;
+        } while((Status == false) && (FilesChecked < SoftCore_SA->Audio_SA.File.DirectoryFileCount));
+        stopAudioProcessing();
+        drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+    }
 }

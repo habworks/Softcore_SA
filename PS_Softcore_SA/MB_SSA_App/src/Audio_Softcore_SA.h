@@ -52,6 +52,7 @@ extern"C" {
 #define DISPLAY_AUDIO_PLAY      "PLAY"
 #define DISPLAY_AUDIO_STOP      "STOP"
 #define DISPLAY_AUDIO_PAUSE     "PAUSE"
+#define DISPLAY_AUDIO_ERROR     "ERROR"
 #define DISPLAY_SIGNAL_HEADING  "SIGNAL_SA"     // ***Hab move to more approipate file
 
 // TYPEDEFS AND ENUMS
@@ -73,7 +74,8 @@ typedef struct
 
 
 // FUNCTION PROTOTYPES
-void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA);
+void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
+void stopAudioProcessing(void);
 
 
 #ifdef __cplusplus

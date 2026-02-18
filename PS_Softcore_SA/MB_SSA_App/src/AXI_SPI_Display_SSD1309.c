@@ -389,7 +389,7 @@ void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
     uint8_t SegmentVSpace     = 1;      // Space between vertical blocks
     uint8_t BarWidth          = 4;      // Width of each bar (pixels)
     uint8_t BarHSpace         = 2;      // Horizontal spacing between bars
-    uint8_t BaselineY         = 60;     // Vertical baseline position (SSD1309 is 64px tall)
+    uint8_t BaselineY         = 63;     // Vertical baseline position (SSD1309 is 64px tall)
 
     // Pull U8G2 handle
     u8g2_t *U = Display_SSD1309->U8G2_Handle;
@@ -558,7 +558,7 @@ void displayDirectTest(Type_Display_SSD1309 *SSD1309)
 
         // STEP 2.4: Fill the page with alternating pattern (even pages white, odd pages black)
         uint8_t FillByte = (uint8_t)((Page & 0x01u) ? 0x00 : 0xFF);
-        for (uint16_t Index = 0; Index < 128; Index++)
+        for (uint16_t Index = 0; Index < DISPLAY_WIDTH_PIXEL; Index++)
         {
             PageFill[Index] = FillByte;
         }
@@ -575,9 +575,8 @@ void displayDirectTest(Type_Display_SSD1309 *SSD1309)
 
 
 
-void drawStaticAudioHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds)
+void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds)
 {
-    u8g2_t *U = Display_SSD1309->U8G2_Handle;
 
     char TimeString[6] = {0};  // "mm:ss"
     uint32_t Minutes = TimeInSeconds / 60;
@@ -589,39 +588,68 @@ void drawStaticAudioHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading,
              (unsigned long)Seconds);
 
     // STEP 2: Clear buffer
-    u8g2_ClearBuffer(U);
-
-    // STEP 3: Draw centered title (6x10)
-    u8g2_SetFont(U, u8g2_font_6x10_tr);
-
-    const char *Title = Heading;
-    uint16_t TitleWidth = u8g2_GetStrWidth(U, Title);
-    uint8_t X_Title = (uint8_t)((128 - TitleWidth) / 2);
-
-    u8g2_DrawStr(U, X_Title, 10, Title);   // Baseline at Y=10
-
-    // STEP 4: Draw left-justified file info (5x8)
-    u8g2_SetFont(U, u8g2_font_5x8_tr);
-
-    u8g2_DrawStr(U, 0, 19, FileName);      // Line 1
-    u8g2_DrawStr(U, 0, 28, AudioAction);    // Line 2
-    u8g2_DrawStr(U, 0, 37, TimeString);    // Line 3
-
-    // STEP 5: Push to display
-    u8g2_SendBuffer(U);
-}
-
-void drawStaticSignalHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading)
-{
-        // STEP 2: Clear buffer
     u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
 
     // STEP 3: Draw centered title (6x10)
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x10_tr);
-
     const char *Title = Heading;
     uint16_t TitleWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, Title);
-    uint8_t X_Title = (uint8_t)((128 - TitleWidth) / 2);
+    uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Title, 10, Title);   // Baseline at Y=10
+
+    // STEP 4: Draw left-justified file info (5x8)
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 19, FileName);      // Line 1
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 28, AudioAction);    // Line 2
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 37, TimeString);    // Line 3
+
+    // STEP 5: Push to display
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
+}
+
+void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading)
+{
+    // STEP 1: Clear buffer
+    u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
+
+    // STEP 2: Draw centered title (6x10)
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x10_tr);
+    const char *Title = Heading;
+    uint16_t TitleWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, Title);
+    uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Title, 10, Title); 
+
+    // STEP 3: Push to display
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
+}
+
+void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev)
+{
+    char FW_String[20] = {0};
+    char HW_String[16] = {0};
+
+    // STEP 1: Clear display buffer
+    u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
+
+    // STEP 2: Draw centered large title
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x12_tr);
+    // const char *Title = "IMR Engineering";
+    // uint16_t TitleWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, Title);
+    // uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 13, "IMR Engineering");
+
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x10_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0,24, "Ideas Made Real");
+
+    // STEP 3: Format revision strings
+    snprintf(FW_String, sizeof(FW_String),"FW REV: %02u.%02u.%02u", FW_Major, FW_Minor, FW_Test);
+    snprintf(HW_String, sizeof(HW_String), "HW REV: %02u", HW_Rev);
+
+    // STEP 4: Draw lower informational text (5x8)
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0,44, "SoftCore Spectrum Analyzer");
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 52, FW_String);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 60, HW_String);
 
     // STEP 5: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);

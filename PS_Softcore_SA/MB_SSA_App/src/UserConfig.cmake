@@ -180,6 +180,7 @@ set(USER_COMPILE_SOURCES
 "U8G2/csrc/u8x8_u8toa.c"
 "AXI_QSPI_Support.c"
 "MCP23S08_Driver.c"
+"Audio_SoftCore_SA.c"
 )
 
 # -----------------------------------------

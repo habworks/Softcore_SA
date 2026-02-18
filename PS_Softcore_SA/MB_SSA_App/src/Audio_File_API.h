@@ -152,6 +152,7 @@ typedef struct
     char                        Name[8+1+3];                   // FAT FS 8.3 file name support
     char                        PathFileName[50];
     #endif
+    bool                        uSD_Present;
     bool                        IsOpen;
     uint16_t                    DirectoryFileCount;
     uint32_t                    Size;

@@ -25,7 +25,7 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#include "Softcore_Audio_SA.h"
+#include "Audio_SoftCore_SA.h"
 #include "Main_Support.h"
 #include "Hab_Types.h"
 #include "ff.h"
@@ -46,9 +46,9 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     if (!Audio_SA->Enable)
         return;
     feedStream_PCM16_WAV(Audio_SA, FFT);
-    if (FFT.FrameReady)
+    if (FFT->FrameReady)
     {
-        load_FFT_PWM_ToBuffers(Audio_SA);        
+        load_FFT_PWM_ToBuffers(Audio_SA, FFT);        
         apply_FFT_Window(Audio_SA, FFT);
         FFT->FrameReady = false;
     }
@@ -158,7 +158,7 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     }
 
     // STEP 4: Load CB Buffer only if there is room to do so
-    if (unused_CB(&Audio_SA->CircularBuffer) < Audio_SA->FFT.Size)
+    if (unused_CB(&Audio_SA->CircularBuffer) < FFT->Size)
         return(true);
 
     // STEP 5: Load CB Buffer with FFT Size number of samples as there is room - if stero convert to mono        
@@ -347,3 +347,10 @@ static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     }
 
 } // END OF apply_FFT_Window
+
+
+
+void stopAudioProcessing(void)
+{
+    DO_NOTHING();
+}

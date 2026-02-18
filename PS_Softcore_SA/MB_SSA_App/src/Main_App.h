@@ -55,23 +55,9 @@ extern"C" {
 
 
 // TYPEDEFS AND ENUMS
-typedef enum
-{
-    MODE_AUDIO_SA = 0,
-    MODE_SIGNAL_SA
-}Type_Mode;
-
 typedef struct
 {
-    bool                        FrameReady;                 // An FFT size data is ready for processing in the PWM and HannWindow Buffers
-    uint16_t                    Size;
-    float                       HannWindow[FFT_SIZE];
-    float                       Samples[FFT_SIZE];
-    float                       RBW;
-} Type_FFT;
-
-typedef struct
-{
+    uint8_t                     UI_LED_Status;
     Type_Mode                   Mode;
     Type_FFT                    FFT;
     Type_Audio_SA               Audio_SA;

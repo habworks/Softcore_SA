@@ -43,7 +43,8 @@ extern"C" {
 // PS FW REVSION
 #define FW_MAJOR_REV            1
 #define FW_MINOR_REV            0
-#define FW_TEST_REV             2
+#define FW_TEST_REV             3
+#define HW_REV                  1
 // USED IN IO ACCESS
 #define GPIO_INPUT_CHANNEL      1          
 #define GPIO_OUTPUT_CHANNEL     2    
@@ -57,7 +58,7 @@ extern"C" {
 #define XPAR_MICROBLAZE_DCACHE_BYTE_SIZE 32768  // Value must match MicroBlaze Data cache
 // DISPLAY
 #define DISPLAY_CS_NUMBER       ((uint8_t)(0x01 << 0))
-// IO EXPANDER 1
+// IO EXPANDER 1 CONFIGURATION
 #define IOX_1_CS_NUMBER         ((uint8_t)(0x01 << 1))
 #define IOX_1_DEVICE_ADDR       ((uint8_t)(0x00))
 #define IOX_1_IO_DIRECTION      ((uint8_t)(0x00))
@@ -67,7 +68,7 @@ extern"C" {
 #define IOX_1_IRQ_CONTROL       ((uint8_t)(0x00))
 #define IOX_1_CONFIGURATION     MCP23S08_SEQOP_BIT_MASK
 #define IOX_1_PULLUP            ((uint8_t)(0x00))
-// IO EXPANDER 2
+// IO EXPANDER 2 CONFIGURATION
 #define IOX_2_CS_NUMBER         ((uint8_t)(0x01 << 2))
 #define IOX_2_DEVICE_ADDR       ((uint8_t)(0x01))
 #define IOX_2_IO_DIRECTION      ((uint8_t)(0xFF))
@@ -77,6 +78,17 @@ extern"C" {
 #define IOX_2_IRQ_CONTROL       ((uint8_t)(0x00))
 #define IOX_2_CONFIGURATION     (MCP23S08_SEQOP_BIT_MASK | MCP23S08_INTPOL_BIT_MASK)
 #define IOX_2_PULLUP            ((uint8_t)(0x00))
+// IO EXPANDER 1 OUTPUTS AND ALIAS
+#define IOX_1_OUTPUT_0_MASK     ((uint8_t)(0x01 << 0))
+#define IOX_1_OUTPUT_1_MASK     ((uint8_t)(0x01 << 1))
+#define IOX_1_OUTPUT_2_MASK     ((uint8_t)(0x01 << 2))
+#define IOX_1_OUTPUT_3_MASK     ((uint8_t)(0x01 << 3))
+#define IOX_1_OUTPUT_4_MASK     ((uint8_t)(0x01 << 4))
+#define IOX_1_OUTPUT_5_MASK     ((uint8_t)(0x01 << 5))
+#define IOX_1_OUTPUT_6_MASK     ((uint8_t)(0x01 << 6))
+#define IOX_1_OUTPUT_7_MASK     ((uint8_t)(0x01 << 7))
+#define LED_MODE_SIGNAL         ((uint8_t)(0x01 << 6))
+#define LED_MODE_AUDIO          ((uint8_t)(0x01 << 7))
 // IO EXPANDER 2 INPUTS AND ALIAS
 #define IOX_2_INPUT_0_MASK      ((uint8_t)(0x01 << 0))
 #define IOX_2_INPUT_1_MASK      ((uint8_t)(0x01 << 1))
@@ -88,14 +100,29 @@ extern"C" {
 #define UI_SW3                  IOX_2_INPUT_2_MASK
 #define UI_SW2                  IOX_2_INPUT_3_MASK
 #define UI_SW1                  IOX_2_INPUT_4_MASK
+#define MODE_SW                 IOX_2_INPUT_4_MASK
+#define SELECT_SW               IOX_2_INPUT_3_MASK
 // MISC
-#define MODE_PERIODIC_IRQ_TIME  4                                                       // Value in sec
+#define MODE_PERIODIC_IRQ_TIME  0.500                                                   // Value in sec
 #define MODE_TIMER_COUNT        (MODE_PERIODIC_IRQ_TIME * XPAR_CPU_CORE_CLOCK_FREQ_HZ)  // Count that lead to Value in sec delay
 #define FFT_BINS                1024U
 #define FFT_SIZE                FFT_BINS
 
 // TYPEDEFS AND ENUMS
+typedef enum
+{
+    MODE_AUDIO_SA = 0,
+    MODE_SIGNAL_SA
+}Type_Mode;
 
+typedef struct
+{
+    bool                        FrameReady;                 // An FFT size data is ready for processing in the PWM and HannWindow Buffers
+    uint16_t                    Size;
+    float                       HannWindow[FFT_SIZE];
+    float                       Samples[FFT_SIZE];
+    float                       RBW;
+} Type_FFT;
 
 // EXTERNS
 extern volatile uint32_t volatile ReceivedBytes;
@@ -118,8 +145,6 @@ bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_
 bool is_MicroSD_Inserted(void);
 void IOX_Reset(bool Status);
 void IOX_ChipSelect(bool ChipSelect);
-// ISR CALLBACK FUNCTIONS
-// void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData);
 
 
 #ifdef __cplusplus

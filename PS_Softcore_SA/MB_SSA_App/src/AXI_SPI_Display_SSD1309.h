@@ -37,7 +37,8 @@ extern"C" {
 #include "u8x8.h"
 
 // DEFINES
-
+#define DISPLAY_WIDTH_PIXEL     128U
+#define DISPLAY_HEIGH_PIXEL     64U
 
 // TYPEDEFES AND ENUMS
 typedef enum
@@ -86,8 +87,9 @@ void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309);
 void displayTest_2(void);
 void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309);
 void displayDirectTest(Type_Display_SSD1309 *SSD1309);
-void drawStaticAudioHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds);
-void drawStaticSignalHeader(Type_Display_SSD1309 *Display_SSD1309, char *Heading);
+void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds);
+void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading);
+void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev);
 
 #ifdef __cplusplus
 }
