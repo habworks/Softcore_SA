@@ -244,7 +244,7 @@ void enableExceptionHandling(XIntc *IRQ_ControllerHandle)
 * @brief Temporarily disables all currently-enabled fast interrupt sources at the AXI Interrupt
 * Controller and returns the previous interrupt enable mask.  This allows critical sections
 * (for example SPI or display transactions) to run without interruption, while preserving
-* which interrupts were active beforehand.
+* which interrupts were active beforehand.  Tested with fast, but shouild also work with normal interrupts. 
 *
 * @author original: Hab Collector \n
 *
@@ -283,7 +283,8 @@ uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle)
 /********************************************************************************************************
 * @brief Restores previously-enabled fast interrupt sources at the AXI Interrupt Controller
 * using a saved interrupt enable mask.  Intended to be paired with pauseFastIRQs() to
-* safely re-enable only those interrupts that were active before a critical section.
+* safely re-enable only those interrupts that were active before a critical section.  Tested with fast, but
+* shouild also work with normal interrupts. 
 *
 * @author original: Hab Collector \n
 *
@@ -303,3 +304,29 @@ void resumeFastIRQs(XIntc *IRQ_ControllerHandle, uint32_t SavedMask)
     Xil_Out32(BaseAddress + XIN_IER_OFFSET, SavedMask);
 
 } // END OF resumeFastIRQs
+
+
+// To Pause a Specific Interrupt
+void pauseSpecificIRQ(XIntc *IRQ_ControllerHandle, uint8_t InterruptId)
+{
+    uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
+    uint32_t Mask = (1 << InterruptId);
+
+    // Disable only the specific bit
+    uint32_t CurrentIER = Xil_In32(BaseAddress + XIN_IER_OFFSET);
+    Xil_Out32(BaseAddress + XIN_IER_OFFSET, CurrentIER & ~Mask);
+    
+    // Optional: Clear pending status for just this line
+    Xil_Out32(BaseAddress + XIN_IAR_OFFSET, Mask);
+}
+
+// To Resume a Specific Interrupt
+void resumeSpecificIRQ(XIntc *IRQ_ControllerHandle, uint8_t InterruptId)
+{
+    uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
+    uint32_t Mask = (1 << InterruptId);
+
+    // Enable only the specific bit
+    uint32_t CurrentIER = Xil_In32(BaseAddress + XIN_IER_OFFSET);
+    Xil_Out32(BaseAddress + XIN_IER_OFFSET, CurrentIER | Mask);
+}

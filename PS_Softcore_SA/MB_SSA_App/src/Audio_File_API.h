@@ -116,14 +116,6 @@ typedef enum
     PCM_24_BIT_SIGNED = 24
 } Type_PCM_BitsPerSample;
 
-typedef struct
-{
-    uint16_t                    Size;       // MAX NUMBER OF ELEMENTS
-    uint16_t                    Start;      // INDEX OF OLDEST ELEMENT
-    uint16_t                    End;        // INDEX AT WHICH TO WRITE NEW ELEMENT
-    int16_t                     *Elements;  // VECTOR OF ELEMENTS
-} Type_int16_t_CircularBuffer;
-
 typedef enum
 {
     LSB = 0,
@@ -152,8 +144,10 @@ typedef struct
     char                        Name[8+1+3];                   // FAT FS 8.3 file name support
     char                        PathFileName[50];
     #endif
+    FIL                         FileHandle;
     bool                        uSD_Present;
     bool                        IsOpen;
+    bool                        Is_EOF;
     uint16_t                    DirectoryFileCount;
     uint32_t                    Size;
     Type_WavHeader              Header;
@@ -170,13 +164,7 @@ FRESULT countFilesInDirectory(const char *DirectoryPath, uint16_t *FileCount);
 bool isWavFile(const char *FileName);
 bool getWavFileHeader(char *WavPathFileName, uint32_t WavFileSize, Type_WavHeader *WavHeader);
 void buildPathFileName(char *PathFileName, const char *DirectoryPath, char *FileName);
-bool init_CB(Type_int16_t_CircularBuffer *CircularBuffer, uint16_t Size);
-void free_CB(Type_int16_t_CircularBuffer *CircularBuffer);
-bool isFull_CB(Type_int16_t_CircularBuffer *CircularBuffer);
-bool isEmpty_CB(Type_int16_t_CircularBuffer *CircularBuffer);
-bool write_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element);
-bool read_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, bool *CB_Half_Empty, bool *CB_Half_Full);
-uint32_t unused_CB(Type_int16_t_CircularBuffer *CircularBuffer);
+
 
 #ifdef __cplusplus
 }

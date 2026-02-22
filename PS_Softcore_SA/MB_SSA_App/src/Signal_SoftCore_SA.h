@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            Signal_Mode_API.c
- * @brief           A collection of functions relevant to supporting incoming Signals (WAV only) files
+ * @file            Signal_Mode_API.h
+ * @brief           Header file to support Signal_Mode_API.c
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -24,6 +24,34 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#include "Signal_Mode_API.h"
+#ifndef SIGNAL_SOFTCORE_SA_H_
+#define SIGNAL_SOFTCORE_SA_H_
+#ifdef __cplusplus
+extern"C" {
+#endif
+
+#include <stdint.h>
+#include <stdbool.h>
+#include "Main_Support.h"
 
 
+// DEFINES
+
+
+// TYPEDEFS AND ENUMS
+typedef enum
+{
+    SIGNAL_ON_BOARD_OSCILLATOR = 0,
+    SIGNAL_OFF_BOARD_BNC
+}Type_SignalSelect;
+
+
+// FUNCTION PROTOTYPES
+void signalSpectrumAnalyzer(void);
+void signalSelect(Type_SignalSelect Signal);
+
+
+#ifdef __cplusplus
+}
+#endif
+#endif /* SIGNAL_SOFTCORE_SA_H_ */

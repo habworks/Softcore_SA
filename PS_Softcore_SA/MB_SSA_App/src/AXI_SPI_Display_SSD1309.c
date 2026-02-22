@@ -380,11 +380,11 @@ void displayTest_2(void)
 
 
 
-void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
+void drawSpectrumMock_old(Type_Display_SSD1309 *Display_SSD1309)
 {
     // USER-ADJUSTABLE LOCAL CONSTANTS (self-contained)
     uint8_t NumBars           = 16;     // Number of frequency columns
-    uint8_t SegmentsPerBar    = 10;     // Vertical resolution
+    uint8_t SegmentsPerBar    = 9;      // Vertical resolution
     uint8_t SegmentHeight     = 2;      // Height of each vertical block (pixels)
     uint8_t SegmentVSpace     = 1;      // Space between vertical blocks
     uint8_t BarWidth          = 4;      // Width of each bar (pixels)
@@ -425,79 +425,48 @@ void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
     u8g2_SendBuffer(U);
 }
 
+void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
+{
+    // USER-ADJUSTABLE LOCAL CONSTANTS (self-contained)
+    uint8_t NumBars           = 16;     // Number of frequency columns
+    uint8_t SegmentsPerBar    = 8;      // Vertical resolution
+    uint8_t SegmentHeight     = 2;      // Height of each vertical block (pixels)
+    uint8_t SegmentVSpace     = 1;      // Space between vertical blocks
+    uint8_t BarWidth          = 4;      // Width of each bar (pixels)
+    uint8_t BarHSpace         = 2;      // Horizontal spacing between bars
+    uint8_t BaselineY         = 63;     // Vertical baseline position (SSD1309 is 64px tall)
 
-// void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
-// {
-//     // LOCAL CONSTANTS (self-contained)
-//     uint8_t NumBars           = 16;     // Number of frequency columns
-//     uint8_t SegmentsPerBar    = 10;     // Vertical resolution
-//     uint8_t SegmentHeight     = 2;      // Height of each segment (pixels)
-//     uint8_t SegmentVSpace     = 1;      // Spacing between segments
-//     uint8_t BarWidth          = 4;      // Width of each bar
-//     uint8_t BarHSpace         = 2;      // Horizontal spacing between bars
-//     uint8_t BaselineY         = 60;     // Vertical baseline (SSD1309 = 64px)
+    // Clear the spectrum area of the display by drawing a black box
+    uint8_t Spectrum_Y_Start = 40;
+    uint8_t Spectrum_Height = (uint8_t)(DISPLAY_HEIGH_PIXEL - Spectrum_Y_Start);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, 0, Spectrum_Y_Start, DISPLAY_WIDTH_PIXEL, Spectrum_Height);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
 
-//     uint8_t DisplayWidth      = 128;    // SSD1309 width
+    // Draw each bar
+    for (uint8_t BarIndex = 0; BarIndex < NumBars; BarIndex++)
+    {
+        // Random height: 0–SegmentsPerBar
+        uint8_t Value = rand() % (SegmentsPerBar + 1);
 
-//     // Centering calculation:
-//     uint8_t TotalBarWidth     = NumBars * BarWidth;
-//     uint8_t TotalSpacing      = (NumBars - 1) * BarHSpace;
-//     uint8_t SpectrumWidth     = TotalBarWidth + TotalSpacing;
-//     uint8_t X_Offset          = (DisplayWidth - SpectrumWidth) / 2;  
+        // Compute X position of this bar
+        uint8_t X_Position = BarIndex * (BarWidth + BarHSpace);
 
-//     // Get U8G2 handle
-//     u8g2_t *U = Display_SSD1309->U8G2_Handle;
+        // Draw vertical segments bottom → top
+        for (uint8_t SegmentIndex = 0; SegmentIndex < Value; SegmentIndex++)
+        {
+            uint8_t Y_Top = BaselineY - (SegmentIndex * (SegmentHeight + SegmentVSpace)) - SegmentHeight;
 
-//     u8g2_ClearBuffer(U);
+            u8g2_DrawBox(Display_SSD1309->U8G2_Handle, X_Position, Y_Top, BarWidth, SegmentHeight);
+        }
+    }
 
-//     // Draw all bars
-//     for (uint8_t BarIndex = 0; BarIndex < NumBars; BarIndex++)
-//     {
-//         // Random bar height: 0–SegmentsPerBar
-//         uint8_t Value = rand() % (SegmentsPerBar + 1);
+    // Push to display
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
+}
 
-//         // Compute X of this bar (now centered)
-//         uint8_t X_Position = X_Offset + BarIndex * (BarWidth + BarHSpace);
 
-//         // Draw vertical segments bottom → top
-//         for (uint8_t SegmentIndex = 0; SegmentIndex < Value; SegmentIndex++)
-//         {
-//             uint8_t Y_Top = BaselineY
-//                             - (SegmentIndex * (SegmentHeight + SegmentVSpace))
-//                             - SegmentHeight;
 
-//             u8g2_DrawBox(U,
-//                          X_Position,
-//                          Y_Top,
-//                          BarWidth,
-//                          SegmentHeight);
-//         }
-
-//         // ---------------------------
-//         // Draw PEAK marker (random for now)
-//         // ---------------------------
-//         //
-//         // Peak value: somewhere above current bar.
-//         // 0 = baseline, higher numbers = more height.
-//         uint8_t PeakValue = rand() % (SegmentsPerBar + 1);
-
-//         uint8_t PeakY = BaselineY
-//                         - (PeakValue * (SegmentHeight + SegmentVSpace))
-//                         - (SegmentHeight + SegmentVSpace);
-
-//         if (PeakY > 0)
-//         {
-//             u8g2_DrawBox(U,
-//                          X_Position,
-//                          PeakY,
-//                          BarWidth,
-//                          2);   // Peak marker thickness
-//         }
-//     }
-
-//     // Push to display
-//     u8g2_SendBuffer(U);
-// }
 
 
 

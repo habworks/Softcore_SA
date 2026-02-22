@@ -34,7 +34,9 @@ extern"C" {
 #include <stdbool.h>
 #include "Audio_SoftCore_SA.h"
 #include "Main_Support.h"
-
+#include "xtmrctr.h"
+#include "xgpio.h"
+#include "xintc.h"
 
 // DEFINES
 // INIT_FAIL_MODES
@@ -52,6 +54,7 @@ extern"C" {
 #define INIT_FAIL_SOFTCORE_SA           ((uint16_t)(0x01 << 11))
 // MISC
 #define MAX_PRINT_BUFFER                255U
+#define SPLASH_SCREEN_HOLD_TIME         3000U   // Value in ms
 
 
 // TYPEDEFS AND ENUMS
@@ -62,6 +65,14 @@ typedef struct
     Type_FFT                    FFT;
     Type_Audio_SA               Audio_SA;
 }Type_SoftCore_SA;
+
+
+// EXTERNS
+extern XGpio AXI_GPIO_Handle;
+extern XTmrCtr AXI_SampleTimerHandle;
+extern XTmrCtr AXI_ModeTimerHandle;
+extern XTmrCtr AXI_PWM_Handle;
+extern XIntc AXI_IRQ_ControllerHandle;
 
 
 // FUNTION PROTOTYPES

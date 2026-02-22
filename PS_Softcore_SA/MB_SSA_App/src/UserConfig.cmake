@@ -181,6 +181,9 @@ set(USER_COMPILE_SOURCES
 "AXI_QSPI_Support.c"
 "MCP23S08_Driver.c"
 "Audio_SoftCore_SA.c"
+"Signal_SoftCore_SA.c"
+"Water_Mark.c"
+"Circular_Buffers.c"
 )
 
 # -----------------------------------------

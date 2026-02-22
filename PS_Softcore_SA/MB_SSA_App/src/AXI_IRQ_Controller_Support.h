@@ -54,6 +54,8 @@ void enableDevice_IRQ_Controller(XIntc *IRQ_ControllerHandle, uint8_t DeviceInte
 void enableExceptionHandling(XIntc *IRQ_ControllerHandle);
 uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle);
 void resumeFastIRQs(XIntc *IRQ_ControllerHandle, uint32_t SavedMask);
+void pauseSpecificIRQ(XIntc *IRQ_ControllerHandle, uint8_t InterruptId);
+void resumeSpecificIRQ(XIntc *IRQ_ControllerHandle, uint8_t InterruptId);
 
 #ifdef __cplusplus
 }

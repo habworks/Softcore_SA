@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            main.c
- * @brief           Run either in test mode or applicaiton mode - defined by RUN_MAIN_APPLICATION in Main_Support.h
+ * @file            Signal_Mode_API.c
+ * @brief           A collection of functions relevant to supporting incoming Signals (WAV only) files
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -24,18 +24,10 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#include "Main_App.h"
-#include "Main_Test.h"
-#include "Main_Support.h"
-#include "Water_Mark.h"
+#include "Signal_SoftCore_SA.h"
 
-
-int main()
+void signalSpectrumAnalyzer(void)
 {
-    seedStackForWaterMark();
-#ifdef RUN_MAIN_APPLICATION
-    mainApplication();
-#else
-    mainTest();
-#endif
+    DO_NOTHING();
 }
+

@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            Signal_Mode_API.h
- * @brief           Header file to support Signal_Mode_API.c
+ * @file            Water_Mark.h
+ * @brief           Header file to support Water_Mark.c
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -24,8 +24,8 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#ifndef SIGNAL_MODE_API_H_
-#define SIGNAL_MODE_API_H_
+#ifndef WATER_MARK_H_
+#define WATER_MARK_H_
 #ifdef __cplusplus
 extern"C" {
 #endif
@@ -35,21 +35,24 @@ extern"C" {
 
 
 // DEFINES
+#define STACK_HIGH_ADDRESS  _stack
+#define STACK_LOW_ADDRESS   _stack_end
 
 
 // TYPEDEFS AND ENUMS
-typedef enum
-{
-    SIGNAL_ON_BOARD_OSCILLATOR = 0,
-    SIGNAL_OFF_BOARD_BNC
-}Type_SignalSelect;
+
+
+// EXTERNS
+// ***User must extern the stack start and end address - Modify externs to fit application linker
+extern uint8_t _stack_end;
+extern uint8_t _stack;
 
 
 // FUNCTION PROTOTYPES
-void signalSelect(Type_SignalSelect Signal);
-
+void seedStackForWaterMark(void);
+uint32_t getStackHighWaterMarkBytes(void);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* SIGNAL_MODE_API_H_ */
+#endif /* WATER_MARK_H_ */

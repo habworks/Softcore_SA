@@ -287,3 +287,19 @@ bool stopPeriodicTimer(XTmrCtr *TimerHandle, u8 TimerNumber)
 
 } // END OF stopPeriodicTimer
 
+
+/**
+ * @brief Fast PWM Update
+ * @param DutyCycle_0_to_1024: Pass 0 for 0%, 512 for 50%, 1024 for 100%
+ */
+void update_PWM_Duty_Fast(XTmrCtr *TimerHandle, uint32_t DutyCycle_0_to_1024) 
+{
+    // Calculate High Time Ticks using integer shift instead of float division
+    // HighTicks = (Period * Duty) / 1024
+    uint32_t HighTimeTicks = (1000 * DutyCycle_0_to_1024) >> 10;
+
+    // TLR0 holds the Period, TLR1 holds the High Time (Duty Cycle)
+    // We only need to update TLR1 to change the duty cycle instantly.
+    XTmrCtr_WriteReg(TimerHandle->BaseAddress, 1, XTC_TLR_OFFSET, HighTimeTicks);
+}
+

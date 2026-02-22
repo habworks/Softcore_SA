@@ -34,19 +34,22 @@ extern"C" {
 #include <stdbool.h>
 #include "Audio_File_API.h"
 #include "Main_Support.h"
-// #include "Main_App.h"
+#include "Circular_Buffers.h"
 
 
 // DEFINES
 #define DEFAULT_AUDIO_FREQUENCY 44100       // Value in Hz
-#define CHUNK_MULTIPLIER        8
-#if ((CHUNK_MULTIPLIER / 2) * 2) != CHUNK_MULTIPLIER
-    #error "MULTIPLER must be even"
-#endif
-#if CHUNK_MULTIPLIER < 4
-    #error "CHUNK_MULTIPLIER must be >= 4 and be an even value
-#endif
-#define MAX_CHUNK_BUFFER        (FFT_SIZE * CHUNK_MULTIPLIER)
+#define AUDIO_PWM_FREQUENCY     100000      // Value in Hz
+#define AUDIO_PWM_DEFAULT_DUTY  50          
+#define CHUNK_MULTIPLIER        1
+// #if ((CHUNK_MULTIPLIER / 2) * 2) != CHUNK_MULTIPLIER
+//     #error "MULTIPLER must be even"
+// #endif
+// #if CHUNK_MULTIPLIER < 4
+//     #error "CHUNK_MULTIPLIER must be >= 4 and be an even value
+// #endif
+
+#define MAX_RAW_BUFFER        (1024 * CHUNK_MULTIPLIER)
 // DISPLAY RELATED
 #define DISPLAY_AUDIO_HEADING   "AUDIO_SA"
 #define DISPLAY_AUDIO_PLAY      "PLAY"
@@ -54,6 +57,7 @@ extern"C" {
 #define DISPLAY_AUDIO_PAUSE     "PAUSE"
 #define DISPLAY_AUDIO_ERROR     "ERROR"
 #define DISPLAY_SIGNAL_HEADING  "SIGNAL_SA"     // ***Hab move to more approipate file
+#define DISPLAY_FILE_ERROR      "No WAV File Found"
 
 // TYPEDEFS AND ENUMS
 typedef struct
@@ -61,21 +65,33 @@ typedef struct
     float                       Samples[FFT_SIZE];
 } Type_PWM;
 
+typedef enum
+{
+    AUDIO_ACTION_STOP = 0,
+    AUDIO_ACTION_PLAY,
+    AUDIO_ACUTION_PAUSE
+} Type_AudioAction;
+
 // TYPEDEFS AND ENUMS
 typedef struct
 {
     bool                        Enable;
-    bool                        IsFirstRead;
-    bool                        IsRawBufferEmpty;
+    bool                        IsPreLoadComplete;
+    Type_AudioAction            AudioAction;
     Type_AudioFile              File;
-    Type_int16_t_CircularBuffer CircularBuffer;
-    Type_PWM                    PWM
+    volatile 
+    Type_int16_t_CircularBuffer Samples_CB;
+    Type_uint8_t_CircularBuffer Raw_CB;
+    Type_PWM                    PWM;
 } Type_Audio_SA;
 
 
 // FUNCTION PROTOTYPES
 void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
-void stopAudioProcessing(void);
+void stopAudio_SA(Type_Audio_SA *Audio_SA);
+void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
+void audioEnable(bool Enable);
+void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT); 
 
 
 #ifdef __cplusplus

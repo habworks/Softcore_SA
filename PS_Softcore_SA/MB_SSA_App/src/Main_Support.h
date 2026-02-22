@@ -107,6 +107,7 @@ extern"C" {
 #define MODE_TIMER_COUNT        (MODE_PERIODIC_IRQ_TIME * XPAR_CPU_CORE_CLOCK_FREQ_HZ)  // Count that lead to Value in sec delay
 #define FFT_BINS                1024U
 #define FFT_SIZE                FFT_BINS
+#define AUDIO_TIMER_IRQ_ID      XPAR_FABRIC_AXI_TIMER_1_INTR
 
 // TYPEDEFS AND ENUMS
 typedef enum
@@ -117,10 +118,10 @@ typedef enum
 
 typedef struct
 {
-    bool                        FrameReady;                 // An FFT size data is ready for processing in the PWM and HannWindow Buffers
+    volatile bool               FrameReady;                 // An FFT size data is ready for processing in the PWM and HannWindow Buffers
     uint16_t                    Size;
     float                       HannWindow[FFT_SIZE];
-    float                       Samples[FFT_SIZE];
+    volatile float              Samples[FFT_SIZE];
     float                       RBW;
 } Type_FFT;
 

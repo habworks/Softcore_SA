@@ -50,6 +50,7 @@ bool init_PWM(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress);
 bool setup_PWM(XTmrCtr *TimerHandle, uint32_t PWM_Frequency, float DutyCyclePercent);
 void enable_PWM(XTmrCtr *TimerHandle);
 void disable_PWM(XTmrCtr *TimerHandle);
+void update_PWM_Duty_Fast(XTmrCtr *TimerHandle, uint32_t DutyCycle_0_to_1024);
 // TIMER FUNCTIONS
 bool init_PeriodicTimer(XTmrCtr *TimerHandle, UINTPTR IPB_BaseAddress, u8 TimerNumber, u32 TimerIntervalTicks, Type_TimerFunction_ISR TimerFunction_ISR);
 bool startPeriodicTimer(XTmrCtr *TimerHandle, u8 TimerNumber);
