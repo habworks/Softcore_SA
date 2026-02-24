@@ -84,7 +84,7 @@
 #include "AXI_UART_Lite_Support.h"
 #include "AXI_IRQ_Controller_Support.h"
 #include "AXI_IMR_ADC_7476A_DUAL.h"
-#include "AXI_SPI_Display_SSD1309.h"
+#include "Application_Display.h"
 #include "AXI_QSPI_Support.h"
 #include "AXI_IMR_PL_Revision.h"
 #include "IO_Support.h"

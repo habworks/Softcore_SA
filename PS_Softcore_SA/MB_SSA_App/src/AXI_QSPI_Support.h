@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            AXI_SPI_Display_SSD1309.h
- * @brief           Header file to support AXI_SPI_Display_SSD1309.c
+ * @file            AXI_QSPI_Support.h
+ * @brief           Header file to support AXI_QSPI_Support.c
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *

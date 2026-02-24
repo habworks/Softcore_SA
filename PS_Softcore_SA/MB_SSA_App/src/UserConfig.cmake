@@ -184,6 +184,7 @@ set(USER_COMPILE_SOURCES
 "Signal_SoftCore_SA.c"
 "Water_Mark.c"
 "Circular_Buffers.c"
+"Application_Display.c"
 )
 
 # -----------------------------------------

@@ -34,6 +34,8 @@ extern"C" {
 #include <stdbool.h>
 #include "Audio_SoftCore_SA.h"
 #include "Main_Support.h"
+#include "MCP23S08_Driver.h"
+#include "AXI_SPI_Display_SSD1309.h"
 #include "xtmrctr.h"
 #include "xgpio.h"
 #include "xintc.h"
@@ -73,6 +75,8 @@ extern XTmrCtr AXI_SampleTimerHandle;
 extern XTmrCtr AXI_ModeTimerHandle;
 extern XTmrCtr AXI_PWM_Handle;
 extern XIntc AXI_IRQ_ControllerHandle;
+extern Type_Display_SSD1309 Display_SSD1309;
+extern Type_MCP23S08_Driver IOX_1;
 
 
 // FUNTION PROTOTYPES

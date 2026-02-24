@@ -83,13 +83,8 @@ typedef struct
 
 // FUNCTION PROTOTYPES
 bool init_Display_SSD1309(Type_Display_SSD1309 *Display_SSD1309, XSpi *QSPI_Handle, uint8_t ChipSelect_N, uint16_t FIFO_Depth, displayResetRunFunctionPtr displayResetRunFunction, displayCommandDataFunctionPtr displayCommandDataFunction, displayTxRxFunctionPtr displayTxRxFunction, displayChipSelectFunctionPtr displayChipSelectFunction, displaySleep_msFunctionPtr displaySleep_msFunction, displaySleep_10usFunctionPtr displaySleep_10usFunction, u8g2_t *U8G2_Object);
-void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309);
-void displayTest_2(void);
-void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309);
-void displayDirectTest(Type_Display_SSD1309 *SSD1309);
-void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds);
-void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading);
-void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev);
+void displaySegmented_SPI_Transfer(Type_Display_SSD1309 *SSD1309, uint8_t *DataPtr, uint32_t DataLength);
+void *getUserPointer_U8G2(void);
 
 #ifdef __cplusplus
 }

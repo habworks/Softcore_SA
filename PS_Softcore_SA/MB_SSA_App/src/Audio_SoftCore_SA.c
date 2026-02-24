@@ -32,9 +32,11 @@
 #include "Terminal_Emulator_Support.h"
 #include "IO_Support.h"
 #include "Hab_Types.h"
+#include "Application_Display.h"
 #include "xgpio.h"
 #include "ff.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 
 static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT); // __attribute__((fast_interrupt));
@@ -42,6 +44,7 @@ static void errorCloseAudioFile(Type_Audio_SA *Audio_SA, char *ErrorMsg);
 static int16_t convert_PCM16_ToMono(int16_t Left_PCM16_Audio, int16_t Right_PCM16_Audion);
 static uint16_t convert_PCM16_To_PWM_DutyPercent(int16_t PCM16_Sample, uint16_t PercentBase);
 // static void load_FFT_PWM_ToBuffers(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
+static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t PlaybackRate);
 static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 
 
@@ -65,10 +68,19 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
 
     // STEP 3: When FFT size number of samples have been captured update the display
+    update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16);
+    static bool DisplayUpdate = true;
     if (FFT->FrameReady)
     {      
         // apply_FFT_Window(Audio_SA, FFT);
         // displayAudioSpectrum(FFT)
+        // if (DisplayUpdate)
+        {
+            updateDisplayPlaybackTimer(Audio_SA->PlaybackTickCounter, Audio_SA->File.Header.SampleRate);
+            drawSpectrumMock(&Display_SSD1309);
+            // update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16);
+        }
+        // DisplayUpdate = !DisplayUpdate;
         FFT->FrameReady = false;
     }    
 }
@@ -77,9 +89,9 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 
 /********************************************************************************************************
 * @brief Services a 16-bit PCM WAV audio stream by sequentially reading audio data from a WAV file and
-* loading decoded samples into a circular buffer for FFT processing.  This function is intended to be
-* called repeatedly until EOF or the action has been stopped externaly.  Each call advances the stream only 
-* as far as circular buffer has room avilable.
+* loading decoded samples into a circular buffer for FFT processing and feedback.  This function is intended 
+* to be called repeatedly until EOF or the action has been stopped / paused externaly.  Each call advances 
+* the stream only as far as circular buffer has room avilable.
 *
 * @author original: Hab Collector \n
 *
@@ -98,6 +110,12 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 * @note: For each stereo frame, both left and right samples are read, converted to signed 16-bit
 * values, and down-mixed to mono by averaging the two channels before being written to the
 * circular buffer.
+* @note: Though this function will play any PCM16 WAV audio file, the buffer size (circular primarly) and
+* the RawLinearBuffer impact how playback will sound.  This is because the read uSD speed is slow and 
+* depending on the playback speed the CB buffer can run empty.  The CB buffer running empty excessively will
+* sound like slow, or slow and muffled audio.  Tested to work good at 16KHz, Mono with the buffer sizes in 
+* use.  Future revision of this code and PL must make more LBM available to the heap for allocation and
+* the size of the buffers should then be based on audio rate and number of channels and not fixed.
 *
 * @param Audio_SA: Pointer to audio spectrum analyzer control structure
 * @param FFT: Pointer to FFT structure
@@ -113,137 +131,116 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 * STEP 6: Update raw buffer and file read offsets
 * STEP 7: Detect end of file and close WAV file when complete
 ********************************************************************************************************/
-static bool feedStream_PCM16_WAV_OLD(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
+static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 {
-    static uint32_t FileSeekOffset = 0;
     static uint32_t BytesToReadFromFile = 0;
-    uint32_t BytesLastReadFromFile = 0;
-    uint32_t RawBufferFreeSpace = 0;
-    FRESULT FileStatus = FR_OK;
+    bool Status;
     FIL *FileHandle = &Audio_SA->File.FileHandle;
-    bool Status = true;
-    NOT_USED(FFT);
-
+    FRESULT FileStatus = FR_OK;
+    uint32_t BytesLastReadFromFile = 0;
     
-    // STEP 1: Open file in read-only mode, set conditions to begin loading, and init CBs for use
+    // STEP 1: Initialization for audio play back
     if (!Audio_SA->File.IsOpen)
     {
         if (f_open(FileHandle, Audio_SA->File.PathFileName, FA_READ) != FR_OK)
-        {
+         {
             errorCloseAudioFile(Audio_SA, "Fail to open WAV file");
             return(false);
         }
-        else
+        // Upade handle members and data size
+        Audio_SA->File.IsOpen = true;
+        Audio_SA->File.Is_EOF = false;
+        Audio_SA->IsPreLoadComplete = false;
+        Audio_SA->PlaybackTickCounter = 0;
+        BytesToReadFromFile = Audio_SA->File.Header.DataSize;
+        // Ensure buffers are large enough (10K+ samples recommended at 16000KHz audio sample rate)
+        // Hab Future: Allocate memory based on audio sample rate
+        Status = init_I16_CB(&Audio_SA->Samples_CB, (1024 * 10)); 
+        if (Status == false)
         {
-            CB_EmptyIn_ISR = 0;
-            Audio_SA->File.IsOpen = true;
-            Audio_SA->File.Is_EOF = false;
-            Audio_SA->IsPreLoadComplete = false;
-            FileSeekOffset = WAV_DATA_OFFSET;
-            BytesToReadFromFile = Audio_SA->File.Header.DataSize;
-            if (!init_I16_CB(&Audio_SA->Samples_CB, (1024 * 5)))
-            {
-                errorCloseAudioFile(Audio_SA, "Faill to allocate sample CB memory");
-                return(false);
-            }
-            if (!init_U8_CB(&Audio_SA->Raw_CB, MAX_RAW_BUFFER))
-            {
-                errorCloseAudioFile(Audio_SA, "Fail to allocate raw CB memory");
-                return(false);
-            }
-            if ((FileStatus = f_lseek(FileHandle, FileSeekOffset)) != FR_OK)
-            {
-                errorCloseAudioFile(Audio_SA, "Fail file seek");
-                return(false);
-            }
+            errorCloseAudioFile(Audio_SA, "Fail to allocate memory");
+            return(false);
+        }
+        // Go to audio data offset within WAV file
+        FileStatus = f_lseek(FileHandle, WAV_DATA_OFFSET);
+        if (FileStatus != FR_OK)
+        {
+            errorCloseAudioFile(Audio_SA, "Fail file seek");
+            return(false);
         }
     }
 
-    // STEP 2: Check for done to be done playing
-    if ((Audio_SA->File.Is_EOF) && (isEmpty_I16_CB(&Audio_SA->Samples_CB)) && (isEmpty_U8_CB(&Audio_SA->Raw_CB)))
+    // STEP 2: Termination Check
+    if (Audio_SA->File.Is_EOF && isEmpty_I16_CB(&Audio_SA->Samples_CB))
     {
         stopAudio_SA(Audio_SA);
+        return(true);
     }
 
-    // STEP 3: If there are more than X number of space within the CB then look to refill
-    uint32_t AvailableSampleWrites = availableWrites_I16_CB(&Audio_SA->Samples_CB);
-    if (AvailableSampleWrites >= (1280U) || (Audio_SA->IsPreLoadComplete == false))
+    // STEP 3: High-Water Mark Refill
+    // Only trigger a read if space for a significant "chunk" (e.g., 2048 bytes = sizeof(RawLinearBuffer)
+    // This reduces SD Card overhead.
+    uint32_t FreeSamples = availableWrites_I16_CB(&Audio_SA->Samples_CB);
+    uint32_t ChunkInSamples = 512; // Process 512 samples at a time
+    if (FreeSamples >= ChunkInSamples && !Audio_SA->File.Is_EOF)
     {
-        uint32_t SampleBufferBytesToFill = AvailableSampleWrites * sizeof(int16_t);
-        uint32_t AvailableRawBufferBytes = availableWrites_U8_CB(&Audio_SA->Raw_CB);
-        // Must load on a multiple of 2 for mono or 4 for stero
-        if (Audio_SA->File.Header.ChannelNumber == MONO)
-            AvailableRawBufferBytes = (AvailableRawBufferBytes/2) * 2;
-        else
-            AvailableRawBufferBytes = (AvailableRawBufferBytes/4) * 4;
+        uint32_t BytesToRequest;
+        bool IsStereo = (Audio_SA->File.Header.ChannelNumber == STEREO);
+        
+        // Calculate bytes needed: Stereo = 4 bytes/sample, Mono = 2 bytes/sample
+        BytesToRequest = ChunkInSamples * (IsStereo ? 4 : 2);
+        // Clamp the read size
+        if (BytesToRequest > BytesToReadFromFile)
+            BytesToRequest = BytesToReadFromFile;
+        // Use Test Point to test Flash read speed - comment out when not done testing
+        // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+        // Read directly into your linear scratch buffer
+        FileStatus = f_read(FileHandle, RawLinearBuffer, BytesToRequest, &BytesLastReadFromFile);
+        // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+        if (FileStatus != FR_OK)
+        {
+            errorCloseAudioFile(Audio_SA, "Fail file read");
+            return(false);
+        }
+        if (BytesLastReadFromFile == 0) 
+            Audio_SA->File.Is_EOF = true;
 
-        if (SampleBufferBytesToFill >= AvailableRawBufferBytes)
-            RawBufferFreeSpace = AvailableRawBufferBytes;
-        else
-            RawBufferFreeSpace = SampleBufferBytesToFill; 
-
-        if (RawBufferFreeSpace > BytesToReadFromFile)
-            RawBufferFreeSpace = BytesToReadFromFile;
-    }
-    else
-    {
-         return(true);       
-    }
-
-    // STEP 4: Read from file the amount of bytes that will fill the raw buffers
-    XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-    if (f_read(FileHandle, RawLinearBuffer, RawBufferFreeSpace, &BytesLastReadFromFile) != FR_OK)
-    {
-        errorCloseAudioFile(Audio_SA, "Fail file read");
-        return(false);
-    }
-    else 
-    {
-        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-        // Copy linear buffer to CB, update bytes read from file and the file seek offset
-        Status = writeBufferTo_U8_CB(&Audio_SA->Raw_CB, RawLinearBuffer, BytesLastReadFromFile); 
+        // STEP 4: Conversion (Fast Pointer Math)
+        // Convert the raw bytes in RawLinearBuffer directly to a PCM16 which is of int16_t
+        int16_t *PCM16_Ptr = (int16_t *)RawLinearBuffer;
+        uint32_t SamplesToRead = BytesLastReadFromFile / (IsStereo ? 4 : 2);
+        for (uint32_t Index = 0; Index < SamplesToRead; Index++)
+        {
+            if (IsStereo)
+            {
+                // Left is PCM16_Ptr[i*2], Right is PCM16_Ptr[i*2 + 1]
+                int16_t MonoMix = convert_PCM16_ToMono(PCM16_Ptr[Index * 2], PCM16_Ptr[(Index * 2) + 1]);
+                write_I16_CB(&Audio_SA->Samples_CB, MonoMix);
+                Audio_SA->PresentValue_PCM16 = MonoMix;
+            }
+            else
+            {
+                write_I16_CB(&Audio_SA->Samples_CB, PCM16_Ptr[Index]);
+                Audio_SA->PresentValue_PCM16 = PCM16_Ptr[Index];
+            }
+        }
+        // Update the bytes read from file and check if EoF (end of data read)
         BytesToReadFromFile -= BytesLastReadFromFile;
-        // FileSeekOffset += BytesLastReadFromFile;
-        if (BytesToReadFromFile == 0)
-            Audio_SA->File.Is_EOF = true;  
+        if (BytesToReadFromFile == 0) 
+            Audio_SA->File.Is_EOF = true;
     }
 
-    // STEP 5: Load the sample CB from the raw CB mono or stero specific
-    uint32_t BytesPerFrame = (Audio_SA->File.Header.ChannelNumber == MONO) ? 2U : 4U;
-    Type_Union_PCM_AudioValue PCM_LeftAudioValue;
-    Type_Union_PCM_AudioValue PCM_RightAudioValue;
-    XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-    while (!isFull_I16_CB(&Audio_SA->Samples_CB) && (!isEmpty_U8_CB(&Audio_SA->Raw_CB)) && (availableReads_U8_CB(&Audio_SA->Raw_CB) >= BytesPerFrame))
-    {
-        // In Mono you make two reads for left channel a single signed 16b value
-        if (Audio_SA->File.Header.ChannelNumber == MONO)
-        {
-            read_U8_CB(&Audio_SA->Raw_CB, &PCM_LeftAudioValue.ByteValue[LSB], NULL, NULL);
-            read_U8_CB(&Audio_SA->Raw_CB, &PCM_LeftAudioValue.ByteValue[MSB], NULL, NULL);
-            write_I16_CB(&Audio_SA->Samples_CB, PCM_LeftAudioValue.Signed16Bit_Value);
-        }
-        // In Stero you make 4 reads for left and right channel signed 16b value
-        if (Audio_SA->File.Header.ChannelNumber == STEREO)
-        {
-            read_U8_CB(&Audio_SA->Raw_CB, &PCM_LeftAudioValue.ByteValue[LSB], NULL, NULL);
-            read_U8_CB(&Audio_SA->Raw_CB, &PCM_LeftAudioValue.ByteValue[MSB], NULL, NULL);
-            read_U8_CB(&Audio_SA->Raw_CB, &PCM_RightAudioValue.ByteValue[LSB], NULL, NULL);
-            read_U8_CB(&Audio_SA->Raw_CB, &PCM_RightAudioValue.ByteValue[MSB], NULL, NULL);
-            int16_t Value_PCM16 = convert_PCM16_ToMono(PCM_LeftAudioValue.Signed16Bit_Value, PCM_RightAudioValue.Signed16Bit_Value);
-            write_I16_CB(&Audio_SA->Samples_CB, Value_PCM16);              
-        }
-    }
-    XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-
-    // STEP 6: Preload is complete when the sample buffer is filled for the first time - start audio playback
+    // STEP 5: Start ISR Trigger - the buffer has been pre-loaded start the ISR - playback in handled by the ISR
     if (!Audio_SA->IsPreLoadComplete && isFull_I16_CB(&Audio_SA->Samples_CB))
     {
-        // Enable the PWM output
+        // Update the display to play
+        updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
+        // Enable audio output: PWM and audio amplifier
         enable_PWM(&AXI_PWM_Handle);
         setup_PWM(&AXI_PWM_Handle, AUDIO_PWM_FREQUENCY, AUDIO_PWM_DEFAULT_DUTY);
-        // Enable Audio 
         audioEnable(true);
-        // Enable the audio playback ISR
+        // Update the ISR to the audio playback frequency and enable the audio playback ISR
+        update_PeriodicTimerPeriod(&AXI_SampleTimerHandle, XTC_TIMER_0, (uint32_t)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / Audio_SA->File.Header.SampleRate), false);
         resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, AUDIO_TIMER_IRQ_ID);
         Audio_SA->IsPreLoadComplete = true;
     }
@@ -455,6 +452,7 @@ void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         return;
     }
 
+    Audio_SA->PlaybackTickCounter++;
     int16_t SampleValue;
     uint16_t PWM_DutyCycle;
     read_I16_CB(&Audio_SA->Samples_CB, &SampleValue, NULL, NULL);
@@ -478,101 +476,64 @@ void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 
 
 
-static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
+
+
+
+
+
+
+uint8_t LED_AudioBarGraph(int16_t PCM_AudioLevel)
 {
-    static uint32_t BytesToReadFromFile = 0;
-    FIL *FileHandle = &Audio_SA->File.FileHandle;
-    UINT BytesLastReadFromFile = 0;
-    
-    // --- STEP 1: Initialization ---
-    if (!Audio_SA->File.IsOpen)
-    {
-        if (f_open(FileHandle, Audio_SA->File.PathFileName, FA_READ) != FR_OK) return false;
-        
-        Audio_SA->File.IsOpen = true;
-        Audio_SA->File.Is_EOF = false;
-        Audio_SA->IsPreLoadComplete = false;
-        BytesToReadFromFile = Audio_SA->File.Header.DataSize;
+    // STEP 1: Convert signed PCM value to absolute magnitude safely (handle -32768)
+    uint32_t AbsoluteMagnitude = abs(PCM_AudioLevel);
 
-        // Ensure buffers are large enough (10k+ samples recommended)
-        init_I16_CB(&Audio_SA->Samples_CB, (1024 * 10)); 
-        f_lseek(FileHandle, WAV_DATA_OFFSET);
-    }
 
-    // --- STEP 2: Termination Check ---
-    if (Audio_SA->File.Is_EOF && isEmpty_I16_CB(&Audio_SA->Samples_CB))
-    {
-        stopAudio_SA(Audio_SA);
-        return true;
-    }
+    // STEP 2: Apply linear thresholds and return LED bar mask
+    // Threshold bands per your mapping:
+    // LED 1: 0..5461
+    // LED 2: 5461..10922
+    // LED 3: 10922..16384
+    // LED 4: 16384..21845
+    // LED 5: 21845..27306
+    // LED 6: >27306
+    if (AbsoluteMagnitude == 0U)
+        return((uint8_t)0U);
 
-    // --- STEP 3: High-Water Mark Refill ---
-    // Only trigger a read if we have space for a significant "chunk" (e.g., 2048 bytes)
-    // This reduces SD Card overhead.
-    uint32_t freeSamples = availableWrites_I16_CB(&Audio_SA->Samples_CB);
-    uint32_t chunkInSamples = 512; // Process 512 samples at a time
-    
-    if (freeSamples >= chunkInSamples && !Audio_SA->File.Is_EOF)
-    {
-        uint32_t bytesToRequest;
-        bool isStereo = (Audio_SA->File.Header.ChannelNumber == STEREO);
-        
-        // Calculate bytes needed: Stereo = 4 bytes/sample, Mono = 2 bytes/sample
-        bytesToRequest = chunkInSamples * (isStereo ? 4 : 2);
+    else if (AbsoluteMagnitude <= LEVEL_30DB) //5461U)
+        return(LED_BAR_1);
 
-        if (bytesToRequest > BytesToReadFromFile)
-            bytesToRequest = BytesToReadFromFile;
+    else if (AbsoluteMagnitude <= LEVEL_26DB)   //10922U)
+        return(LED_BAR_2);
 
-        // Read directly into your linear scratch buffer
-        XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-        FRESULT res = f_read(FileHandle, RawLinearBuffer, bytesToRequest, &BytesLastReadFromFile);
-        XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+    else if (AbsoluteMagnitude <= LEVEL_22DB)   //16384U)
+        return(LED_BAR_3);
 
-        if (res != FR_OK) return false;
-        if (BytesLastReadFromFile == 0) Audio_SA->File.Is_EOF = true;
+    else if (AbsoluteMagnitude <= LEVEL_18DB)   //21845U)
+        return(LED_BAR_4);
 
-        // --- STEP 4: Conversion (Fast Pointer Math) ---
-        // Convert the raw bytes in RawLinearBuffer directly to the Sample CB
-        int16_t *ptr16 = (int16_t *)RawLinearBuffer;
-        uint32_t samplesRead = BytesLastReadFromFile / (isStereo ? 4 : 2);
-
-        for (uint32_t i = 0; i < samplesRead; i++)
-        {
-            if (isStereo)
-            {
-                // Left is ptr16[i*2], Right is ptr16[i*2 + 1]
-                int16_t monoMix = convert_PCM16_ToMono(ptr16[i*2], ptr16[i*2 + 1]);
-                write_I16_CB(&Audio_SA->Samples_CB, monoMix);
-            }
-            else
-            {
-                write_I16_CB(&Audio_SA->Samples_CB, ptr16[i]);
-            }
-        }
-        
-        BytesToReadFromFile -= BytesLastReadFromFile;
-        if (BytesToReadFromFile == 0) Audio_SA->File.Is_EOF = true;
-    }
-
-    // --- STEP 5: Start Trigger ---
-    if (!Audio_SA->IsPreLoadComplete && isFull_I16_CB(&Audio_SA->Samples_CB))
-    {
-        enable_PWM(&AXI_PWM_Handle);
-        setup_PWM(&AXI_PWM_Handle, AUDIO_PWM_FREQUENCY, AUDIO_PWM_DEFAULT_DUTY);
-        audioEnable(true);
-        update_PeriodicTimerPeriod(&AXI_SampleTimerHandle, XTC_TIMER_0, (uint32_t)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / Audio_SA->File.Header.SampleRate), false);
-        resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, AUDIO_TIMER_IRQ_ID);
-        Audio_SA->IsPreLoadComplete = true;
-    }
-
-    return true;
+    else if (AbsoluteMagnitude <= LEVEL_14DB)   //27306U)
+        return(LED_BAR_5);
+    else
+        return(LED_BAR_6);
 }
 
 
+void update_LED_AudioBarGraph(int16_t PCM16_Value)
+{
+    uint8_t LED_BitMask = LED_AudioBarGraph(PCM16_Value);
+    MCP23S08_WriteOutput(&IOX_1, LED_BitMask);
+}
 
 
+static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t PlaybackRate)
+{
+    if (PlaybackRate == 0)
+        return(false);
+    uint32_t TimeInSeconds = (uint32_t)((1.0 / (float)PlaybackRate) * ISR_PlayBackTicks);
+    updateAudioDisplayPlaybackTime(&Display_SSD1309, TimeInSeconds);
 
-
+    return(true);
+}
 
 
 
