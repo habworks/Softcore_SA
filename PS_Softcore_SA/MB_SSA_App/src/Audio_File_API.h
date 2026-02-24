@@ -92,7 +92,7 @@ typedef struct
     uint32_t                    FormatChunkSize;         // Offset 16 16 for PCM
     uint16_t                    Compression;             // Offset 20 1 = PCM
     uint16_t                    ChannelNumber;           // Offset 22 1 = Mono, 2 = Stereo
-    uint32_t                    SampleRate;              // Offset 24 8000, 44100, etc
+    uint32_t                    SampleRate;              // Offset 24 8000, 22050, 44100, etc
     uint32_t                    ByteRate;                // Offset 28 SampleRate * Channels * BitsPerSample / 8
     uint16_t                    BlockAlign;              // Offset 32 Channels * BitsPerSample / 8
     uint16_t                    BitsPerSample;           // Offset 34 8 or 16

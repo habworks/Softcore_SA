@@ -289,6 +289,40 @@ bool stopPeriodicTimer(XTmrCtr *TimerHandle, u8 TimerNumber)
 
 
 /**
+ * @brief Updates the interval/period of a running periodic timer.
+ * @param TimerHandle Pointer to the XTmrCtr instance.
+ * @param TimerNumber XTC_TIMER_0 or XTC_TIMER_1.
+ * @param NewIntervalTicks The new number of ticks for the countdown.
+ * @param Immediate If true, stops/starts the timer to apply the change now. 
+ *                  If false, the change applies after the current period finishes.
+ */
+bool update_PeriodicTimerPeriod(XTmrCtr *TimerHandle, u8 TimerNumber, u32 NewIntervalTicks, bool Immediate)
+{
+    // STEP 1: Basic validation
+    if (!TimerHandle->IsReady || NewIntervalTicks == 0)
+        return false;
+
+    if (Immediate) {
+        // Stop the timer to force a reload on next start
+        XTmrCtr_Stop(TimerHandle, TimerNumber);
+        
+        // Update the Load Register (TLR)
+        XTmrCtr_SetResetValue(TimerHandle, TimerNumber, NewIntervalTicks);
+        
+        // Restart the timer - this loads NewIntervalTicks into the counter immediately
+        XTmrCtr_Start(TimerHandle, TimerNumber);
+    } else {
+        // Just update the Load Register. 
+        // The hardware will load this value automatically upon the next roll-under.
+        XTmrCtr_SetResetValue(TimerHandle, TimerNumber, NewIntervalTicks);
+    }
+
+    return true;
+}
+
+
+
+/**
  * @brief Fast PWM Update
  * @param DutyCycle_0_to_1024: Pass 0 for 0%, 512 for 50%, 1024 for 100%
  */

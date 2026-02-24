@@ -74,6 +74,7 @@ bool isEmpty_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 bool write_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t Element);
 bool read_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, bool *CB_AtOrBelowHalfFull, bool *CB_MoreThanHalfFull);
 uint32_t availableWrites_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer);
+uint32_t availableReads_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 
 
 #ifdef __cplusplus

@@ -305,7 +305,6 @@ bool writeBufferTo_U8_CB(Type_uint8_t_CircularBuffer *CircularBuffer, uint8_t *S
 
     if (availableWrites_U8_CB(CircularBuffer) < (uint32_t)Length)
         return(false);
-    
 
     // STEP 2: Calculate the block lenghts to copy before and after the wrap
     uint16_t Capacity = (uint16_t)(CircularBuffer->Size - 1U);
@@ -565,6 +564,23 @@ uint32_t availableWrites_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer)
 
 
 
+/********************************************************************************************************
+* @brief Returns the number of elements available for reading from the CB
+*
+* @author original: Hab Collector \n
+*
+* @note: Buffer uses a one-empty-slot design to distinguish full vs empty
+*        Returned value reflects how many additional writes can succeed
+*
+* @param CircularBuffer: Pointer to circular buffer structure
+*
+* @return Number of elements in the buffer
+********************************************************************************************************/
+uint32_t availableReads_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer)
+{   
+    uint32_t Capacity = CircularBuffer->Size - 1;
+    return(Capacity - availableWrites_I16_CB(CircularBuffer));
+} // END OF availableReads_U8_CB
 
 
 
