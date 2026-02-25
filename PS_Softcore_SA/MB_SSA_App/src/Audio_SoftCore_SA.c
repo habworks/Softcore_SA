@@ -68,14 +68,14 @@ uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
 *
 * @param Audio_SA: Pointer to audio spectrum analyzer control structure
 * @param FFT: Pointer to FFT structure
-*
+* @param LED_ModeStatus: LED7 and LED8 bit mask
 *
 * STEP 1: Audio play and spectrum qualifier
 * STEP 2: Stream the audio from the uSD - It is played in the audio ISR
 * STEP 3: Update the audio LED bar graph
 * STEP 4: FFT Update
 ********************************************************************************************************/
-void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
+void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_ModeStatus)
 {
     // STEP 1: Audio play and spectrum qualifier
     if ((!Audio_SA->Enable) || (Audio_SA->AudioAction != AUDIO_ACTION_PLAY))
@@ -85,9 +85,10 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
     feedStream_PCM16_WAV(Audio_SA, FFT);
     // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
+    StackUsedWaterMark = getStackHighWaterMarkBytes();
 
     // STEP 3: Update the audio LED bar graph
-    update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16);
+    update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16, LED_ModeStatus);
 
     // STEP 4: FFT Update
     static bool DisplayUpdate = true;
@@ -236,12 +237,10 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
                 // Left is PCM16_Ptr[i*2], Right is PCM16_Ptr[i*2 + 1]
                 int16_t MonoMix = convert_PCM16_ToMono(PCM16_Ptr[Index * 2], PCM16_Ptr[(Index * 2) + 1]);
                 write_I16_CB(&Audio_SA->Samples_CB, MonoMix);
-                Audio_SA->PresentValue_PCM16 = MonoMix;
             }
             else
             {
                 write_I16_CB(&Audio_SA->Samples_CB, PCM16_Ptr[Index]);
-                Audio_SA->PresentValue_PCM16 = PCM16_Ptr[Index];
             }
         }
         // Update the bytes read from file and check if EoF (end of data read)
@@ -481,7 +480,7 @@ void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // STEP 3: Update dispaly
     Audio_SA->AudioAction = AUDIO_ACTION_PLAY;
     updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
-
+ 
 } // END OF playAudio_SA
 
 
@@ -581,6 +580,7 @@ void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     int16_t SampleValue;
     uint16_t PWM_DutyCycle;
     read_I16_CB(&Audio_SA->Samples_CB, &SampleValue, NULL, NULL);
+    Audio_SA->PresentValue_PCM16 = SampleValue;
     PWM_DutyCycle = convert_PCM16_To_PWM_DutyPercent(SampleValue, 1024);
     update_PWM_Duty_Fast(&AXI_PWM_Handle, PWM_DutyCycle);
     
@@ -647,17 +647,18 @@ static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel)
 * @author original: Hab Collector \n
 *
 * @param PCM_AudioLevel: Audio level in int16_t 
+* @param LED_ModeStatusBitMask: LED7 and LED8 bit mask
 *
 * STEP 1: Determine the LED bit mask based on present audio level
 * STEP 2: Update the IO Expander that drives the LEDs
 ********************************************************************************************************/
-void update_LED_AudioBarGraph(int16_t PCM16_Value)
+void update_LED_AudioBarGraph(int16_t PCM16_Value, uint8_t LED_ModeStatusBitMask)
 {
     // STEP 1: Determine the LED bit mask based on present audio level
-    uint8_t LED_BitMask = LED_AudioBarGraphCalculate(PCM16_Value);
+    uint8_t IOX_1_LED_BitMask = LED_ModeStatusBitMask | LED_AudioBarGraphCalculate(PCM16_Value);
 
     // STEP 2: Update the IO Expander that drives the LEDs
-    MCP23S08_WriteOutput(&IOX_1, LED_BitMask);
+    MCP23S08_WriteOutput(&IOX_1, IOX_1_LED_BitMask);
 
 } // END OF update_LED_AudioBarGraph
 

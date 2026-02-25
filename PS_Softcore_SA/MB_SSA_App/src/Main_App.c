@@ -70,6 +70,7 @@ static void TimerCallbackMode_ISR(void) __attribute__((fast_interrupt));
 static void processUserInput(Type_SoftCore_SA *SoftCore_SA);
 static void modeSwitch(Type_SoftCore_SA *SoftCore_SA);
 static void selectSwitch(Type_SoftCore_SA *SoftCore_SA);
+static void updateMode_LED(void);
 
 
 
@@ -266,7 +267,7 @@ static void main_InitApplication(void)
         displayWelcomeScreen(&Display_SSD1309, FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV, HW_REV);
         sleep_ms_Wrapper(SPLASH_SCREEN_HOLD_TIME);
         // For debug stop the status LED update - remove comment from next line
-        pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);      
+        // pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);      
     }
 
 } // END OF main_InitApplication
@@ -301,9 +302,10 @@ static void main_WhileLoop(void)
     while(1)
     {
         processUserInput(&SoftCore_SA);
+        updateMode_LED();
 
         if (SoftCore_SA.Mode == MODE_AUDIO_SA)
-            audioSpectrumAnalyzer(&SoftCore_SA.Audio_SA, &SoftCore_SA.FFT);
+            audioSpectrumAnalyzer(&SoftCore_SA.Audio_SA, &SoftCore_SA.FFT, SoftCore_SA.UI_LED_Status);
         else
             signalSpectrumAnalyzer();
     }
@@ -486,7 +488,6 @@ static void TimerCallbackMode_ISR(void)
         SoftCore_SA.UI_LED_Status &= ~LED_MODE_AUDIO;
         SoftCore_SA.UI_LED_Status ^= LED_MODE_SIGNAL;
     }
-    MCP23S08_WriteOutput(&IOX_1, SoftCore_SA.UI_LED_Status);
 
     // STEP 4: Ack at interrupt Controller
     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_2_INTR);
@@ -642,3 +643,15 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
     }
 
 } // END OF selectSwitch
+
+
+static void updateMode_LED(void)
+{
+    static uint8_t PreviousModeState = 0;
+    uint8_t PresentModeState = (SoftCore_SA.UI_LED_Status | SoftCore_SA.Audio_SA.LED_BarGraph);
+    if (PreviousModeState != PresentModeState)
+    {
+        MCP23S08_WriteOutput(&IOX_1, PresentModeState);
+        PreviousModeState = PresentModeState;
+    }
+}

@@ -98,6 +98,7 @@ typedef struct
 {
     bool                        Enable;
     bool                        IsPreLoadComplete;
+    uint8_t                     LED_BarGraph;
     int16_t                     PresentValue_PCM16;
     uint32_t                    PlaybackTickCounter;
     Type_AudioAction            AudioAction;
@@ -109,13 +110,13 @@ typedef struct
 
 
 // FUNCTION PROTOTYPES
-void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
+void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_ModeStatus);
 void stopAudio_SA(Type_Audio_SA *Audio_SA);
 void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 void pauseAudio_SA(Type_Audio_SA *Audio_SA);
 void audioEnable(bool Enable);
 void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT); 
-void update_LED_AudioBarGraph(int16_t PCM16_Value);
+void update_LED_AudioBarGraph(int16_t PCM16_Value, uint8_t LED_ModeStatusBitMask);
 
 #ifdef __cplusplus
 }

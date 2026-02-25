@@ -77,6 +77,7 @@ extern XTmrCtr AXI_PWM_Handle;
 extern XIntc AXI_IRQ_ControllerHandle;
 extern Type_Display_SSD1309 Display_SSD1309;
 extern Type_MCP23S08_Driver IOX_1;
+extern uint32_t StackUsedWaterMark;
 
 
 // FUNTION PROTOTYPES
