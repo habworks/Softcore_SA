@@ -30,6 +30,7 @@
  ********************************************************************************************************/
 
 #include "Main_App.h"
+#include <stdbool.h>
 #ifdef RUN_MAIN_APPLICATION
 // START OF the Main Applicaiton
 #include "xparameters.h"
@@ -264,7 +265,8 @@ static void main_InitApplication(void)
         xil_printf("Hello Hab, I am ready...\r\n\n");
         displayWelcomeScreen(&Display_SSD1309, FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV, HW_REV);
         sleep_ms_Wrapper(SPLASH_SCREEN_HOLD_TIME);
-         pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);      
+        // For debug stop the status LED update - remove comment from next line
+        pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);      
     }
 
 } // END OF main_InitApplication
@@ -293,7 +295,7 @@ static void main_WhileLoop(void)
     {
         countFilesInDirectory(AUDIO_DIRECTORY, &SoftCore_SA.Audio_SA.File.DirectoryFileCount);
         getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
-        drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA.Audio_SA.File.Name, DISPLAY_AUDIO_PLAY, 235);
+        drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA.Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
     }
     
     while(1)
@@ -386,16 +388,34 @@ static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle)
 #endif
 
 
+/********************************************************************************************************
+* @brief This is the ISR callback for Timer 1.  Timer 1 serves as the periodic timer for both the Audio and
+* signal specturm.  The application usings test point TIMER_1_OUTPUT as a means for knowing how long the ISR
+* takes to run.  When enabled either sub-ISR responsibe for audio or signal spectrum analyzer duties will run.
+* consult audioPeriodicTimer_ISR or signalPeriodicTimer_ISR for respective details
+*
+* @author original: Hab Collector \n
+*
+* @note: ISR for low latency (fast) interrupt
+* @note: Serves both Audio and Signal Specturm Analyzer duties depending on moode
+* @note: This is a low latency (fast) Microblaze ISR and is registered as such and placed in LBM - see attributes
+* 
+* STEP 1: Mark the start of the ISR with IO toggle for testing only
+* STEP 2: Clear the interrupt 2 different methods - both are essentially the same
+* STEP 3: Run either the Audio or Signal Spectrum Analyzer sub-ISR routine
+* STEP 4: Ack at interrupt Controller
+* STEP 5: Mark the end of the ISR with IO toggle for testing sake only
+********************************************************************************************************/
 #define ISR_USE_DIRECT_REGISTER_ACCESS
 __attribute__((section(".Hab_Fast_Text")))
 static void TimerCallbackSample_ISR(void)
 {
-    // Mark the start of the ISR with IO toggle for testing only
+    // STEP 1: Mark the start of the ISR with IO toggle for testing only
     uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
     uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TIMER_1_OUTPUT);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 
-    // STEP 1: Clear the interrupt 2 different methods - both are essentially the same
+    // STEP 2: Clear the interrupt 2 different methods - both are essentially the same
 #ifdef ISR_USE_DIRECT_REGISTER_ACCESS
     uint32_t RegisterValue = Xil_In32(XPAR_AXI_TIMER_1_BASEADDR + XTC_TCSR_OFFSET);
     Xil_Out32(XPAR_AXI_TIMER_1_BASEADDR + XTC_TCSR_OFFSET, RegisterValue);
@@ -404,22 +424,42 @@ static void TimerCallbackSample_ISR(void)
     XTmrCtr_WriteReg(XPAR_AXI_TIMER_1_BASEADDR, 0, XTC_TCSR_OFFSET, ControlStatusReg);
 #endif
 
-    // STEP 2: User Logic
+    // STEP 3: Run either the Audio or Signal Spectrum Analyzer sub-ISR routine
     if (SoftCore_SA.Mode == MODE_AUDIO_SA)
         audioPeriodicTimer_ISR(&SoftCore_SA.Audio_SA, &SoftCore_SA.FFT);
 
-    // STEP 3: Ack at interrupt Controller
+    // STEP 4: Ack at interrupt Controller
 #ifdef ISR_USE_DIRECT_REGISTER_ACCESS
     Xil_Out32(XPAR_AXI_INTC_0_BASEADDR + IAR_OFFSET, (1 << XPAR_FABRIC_AXI_TIMER_1_INTR));
 #else
     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_1_INTR);
 #endif
 
-    // Mark the end of the ISR with IO toggle for testing sake only
+    // STEP 5: Mark the end of the ISR with IO toggle for testing sake only
     Output_GPIO = (Output_GPIO ^ TIMER_1_OUTPUT);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
-}
 
+} // END OF TimerCallbackSample_ISR
+
+
+
+/********************************************************************************************************
+* @brief This is the ISR callback for Timer 21.  Timer 1 serves as the periodic timer for status LEDs.  LED7
+* (Audio Status) and LED8 (Signal Staus) will blink at this ISR rate depending on the moode the device is in.
+*
+* @author original: Hab Collector \n
+*
+* @note: ISR for low latency (fast) interrupt
+* @note: Serves both Audio and Signal Specturm Analyzer duties depending on mode
+* @note: This is a low latency (fast) Microblaze ISR and is registered as such and placed in LBM - see attributes
+* @note: As this IRQ rate and what it needs to do is very slow - no need to time
+* @note: For debug testing it is recommend to disable this interrupt
+*
+* STEP 1: Clear the interrupt
+* STEP 2: Toggle the test point
+* STEP 3: Update the Mode LED with toggle action
+* STEP 4: Ack at interrupt Controller
+********************************************************************************************************/
 __attribute__((section(".Hab_Fast_Text")))
 static void TimerCallbackMode_ISR(void)
 {
@@ -450,18 +490,35 @@ static void TimerCallbackMode_ISR(void)
 
     // STEP 4: Ack at interrupt Controller
     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_2_INTR);
-}
+
+} // END OF TimerCallbackMode_ISR
 
 
 
+/********************************************************************************************************
+* @brief Process the user input - this function should be called when IO Expander 2 IRQ goes active. IO
+* Expander 2 represents all UI inputs
+*
+* @author original: Hab Collector \n
+*
+* @note: IO Expander 2 must be init
+* @note: Only process on IRQ from IO Expander 2
+*
+* @param SoftCore_SA: Pointer to the application main handle
+*
+* STEP 1: Only act upon change in input
+* STEP 2: Process the input and perform an action based unique to Audio or Signal Spectrum Mode
+********************************************************************************************************/
 static void processUserInput(Type_SoftCore_SA *SoftCore_SA)
 {
     static uint32_t PreviousUserInput = 0;
 
+    // STEP 1: Only act upon change in input
     uint32_t PresentSwitchState = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
     if (!(PresentSwitchState & IOX_2_IRQ))
         return;
     
+    // STEP 2: Process the input and perform an action based unique to Audio or Signal Spectrum Mode
     uint8_t UI_Input = MCP23S08_ReadClear_IRQ(&IOX_2, RISING_EDGE);
     switch (UI_Input)
     {
@@ -474,42 +531,61 @@ static void processUserInput(Type_SoftCore_SA *SoftCore_SA)
 
         case SELECT_SW:
         {
-            xil_printf("SW2 Pressed\r\n"); 
             selectSwitch(SoftCore_SA);
         }
         break;
 
         case UI_SW3:
         {
-            printMagenta("Audio Stop\r\n");
-            stopAudio_SA(&SoftCore_SA->Audio_SA);
+            if (SoftCore_SA->Mode == MODE_AUDIO_SA)
+            {
+                printMagenta("Audio Stop\r\n");
+                stopAudio_SA(&SoftCore_SA->Audio_SA);
+            }
         }
         break;
 
         case UI_SW4:
         {
-            xil_printf("SW4 Pressed\r\n"); 
-            drawSpectrumMock(&Display_SSD1309);
+            if (SoftCore_SA->Mode == MODE_AUDIO_SA)
+            {
+                printMagenta("Audio Pause\r\n"); 
+                pauseAudio_SA(&SoftCore_SA->Audio_SA);
+            }
         }
         break;
 
         case UI_SW5:
         {
-            printMagenta("Audio Play\r\n");
             if (SoftCore_SA->Mode == MODE_AUDIO_SA)
+            {
+                printMagenta("Audio Play\r\n");
                 playAudio_SA(&SoftCore_SA->Audio_SA, &SoftCore_SA->FFT);
+            }
         }
         break;
 
         default:
         break;
     } // END OF CASE
-}
+
+} // END OF processUserInput
 
 
+
+/********************************************************************************************************
+* @brief Process the user input SW1.  MODE: select a toggle function to switch between Audio and Signal specturm
+* modes.  Call the appropiate display and set default start conditions for that mode
+*
+* @author original: Hab Collector \n
+*
+* @param SoftCore_SA: Pointer to the application main handle
+*
+* STEP 1: Swith the present mode and take action to be at default state of the new mode
+********************************************************************************************************/
 static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
 {
-    // STEP 1: Swith the present present mode and take action to be at default state of the new mode
+    // STEP 1: Swith the present mode and take action to be at default state of the new mode
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
         SoftCore_SA->Mode = MODE_SIGNAL_SA;
@@ -524,8 +600,20 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
         xil_printf("Signal Mode Active\r\n"); 
     }
 
-}
+} // END OF modeSwitch
 
+
+
+/********************************************************************************************************
+* @brief Process the user input SW2.  SELECT: select action unique to mode.  In Audio mode selects the next
+* WAV file to play and sets the default start condition
+*
+* @author original: Hab Collector \n
+*
+* @param SoftCore_SA: Pointer to the application main handle
+*
+* STEP 1: Audio Mode: Get the next valid file - if valid file found enable Audio SA
+********************************************************************************************************/
 static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
 {
     // STEP 1: Audio Mode: Get the next valid file - if valid file found enable Audio SA
@@ -552,4 +640,5 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
         }
         printMagenta("Audio Select\r\n"); 
     }
-}
+
+} // END OF selectSwitch

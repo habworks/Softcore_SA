@@ -34,7 +34,7 @@ extern"C" {
 #include <stdbool.h>
 #include <xparameters.h>
 #include "xtmrctr.h"
-#include "AXI_SPI_Display_SSD1309.h"
+#include "SSD1309_Driver.h"
 
 
 // DEFINES
@@ -109,6 +109,7 @@ extern"C" {
 #define FFT_SIZE                FFT_BINS
 #define AUDIO_TIMER_IRQ_ID      XPAR_FABRIC_AXI_TIMER_1_INTR
 
+
 // TYPEDEFS AND ENUMS
 typedef enum
 {
@@ -124,6 +125,7 @@ typedef struct
     volatile float              Samples[FFT_SIZE];
     float                       RBW;
 } Type_FFT;
+
 
 // EXTERNS
 extern volatile uint32_t volatile ReceivedBytes;

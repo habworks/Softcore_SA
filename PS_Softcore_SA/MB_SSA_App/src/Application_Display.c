@@ -25,6 +25,9 @@
  ********************************************************************************************************/
 
 #include "Application_Display.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 
 /********************************************************************************************************
 * @brief Simple display test - clear the display and show Hello Hab in top left corner
@@ -41,68 +44,27 @@ void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309)
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 10, "Hello Hab!");
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
-}
+
+} // END OF displaySimpleTest
 
 
 
-void displayTest_2(void)
-{
-    Type_Display_SSD1309 *SSD1309 = (Type_Display_SSD1309 *)getUserPointer_U8G2();
-
-    static uint8_t Y = 20;
-    u8g2_DrawStr(SSD1309->U8G2_Handle, 10, Y, "Hello Hab Again!");
-    u8g2_SendBuffer(SSD1309->U8G2_Handle);
-    Y += 10;
-}
-
-
-
-void drawSpectrumMock_old(Type_Display_SSD1309 *Display_SSD1309)
-{
-    // USER-ADJUSTABLE LOCAL CONSTANTS (self-contained)
-    uint8_t NumBars           = 16;     // Number of frequency columns
-    uint8_t SegmentsPerBar    = 9;      // Vertical resolution
-    uint8_t SegmentHeight     = 2;      // Height of each vertical block (pixels)
-    uint8_t SegmentVSpace     = 1;      // Space between vertical blocks
-    uint8_t BarWidth          = 4;      // Width of each bar (pixels)
-    uint8_t BarHSpace         = 2;      // Horizontal spacing between bars
-    uint8_t BaselineY         = 63;     // Vertical baseline position (SSD1309 is 64px tall)
-
-    // Pull U8G2 handle
-    u8g2_t *U = Display_SSD1309->U8G2_Handle;
-
-    // Clear screen
-    u8g2_ClearBuffer(U);
-
-    // Draw each bar
-    for (uint8_t BarIndex = 0; BarIndex < NumBars; BarIndex++)
-    {
-        // Random height: 0–SegmentsPerBar
-        uint8_t Value = rand() % (SegmentsPerBar + 1);
-
-        // Compute X position of this bar
-        uint8_t X_Position = BarIndex * (BarWidth + BarHSpace);
-
-        // Draw vertical segments bottom → top
-        for (uint8_t SegmentIndex = 0; SegmentIndex < Value; SegmentIndex++)
-        {
-            uint8_t Y_Top = BaselineY
-                            - (SegmentIndex * (SegmentHeight + SegmentVSpace))
-                            - SegmentHeight;
-
-            u8g2_DrawBox(U,
-                         X_Position,
-                         Y_Top,
-                         BarWidth,
-                         SegmentHeight);
-        }
-    }
-
-    // Push to display
-    u8g2_SendBuffer(U);
-}
-
-void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
+/********************************************************************************************************
+* @brief Displays a mock audio specturm.  This will form the structure for the real thing and will suffice
+* for testing until I am at that point.
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* 
+* @param Display_SSD1309: Pointer to display handle
+* @param ClearOnly: Only clears the sprecrturm display area - no specturm is displayed
+*
+* STEP 1: Clear the spectrum area of the display by drawing a black box
+* STEP 2: Draw each spectral bar
+* STEP 3: Push to display
+********************************************************************************************************/
+void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309, bool ClearOnly)
 {
     // USER-ADJUSTABLE LOCAL CONSTANTS (self-contained)
     uint8_t NumBars           = 16;     // Number of frequency columns
@@ -113,37 +75,38 @@ void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
     uint8_t BarHSpace         = 2;      // Horizontal spacing between bars
     uint8_t BaselineY         = 63;     // Vertical baseline position (SSD1309 is 64px tall)
 
-    // Clear the spectrum area of the display by drawing a black box
+    // STEP 1: Clear the spectrum area of the display by drawing a black box
     uint8_t Spectrum_Y_Start = 40;
     uint8_t Spectrum_Height = (uint8_t)(DISPLAY_HEIGH_PIXEL - Spectrum_Y_Start);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
     u8g2_DrawBox(Display_SSD1309->U8G2_Handle, 0, Spectrum_Y_Start, DISPLAY_WIDTH_PIXEL, Spectrum_Height);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
 
-    // Draw each bar
-    for (uint8_t BarIndex = 0; BarIndex < NumBars; BarIndex++)
+    // STEP 2: Draw each spectral bar
+    if (!ClearOnly)
     {
-        // Random height: 0–SegmentsPerBar
-        uint8_t Value = rand() % (SegmentsPerBar + 1);
-
-        // Compute X position of this bar
-        uint8_t X_Position = BarIndex * (BarWidth + BarHSpace);
-
-        // Draw vertical segments bottom → top
-        for (uint8_t SegmentIndex = 0; SegmentIndex < Value; SegmentIndex++)
+        for (uint8_t BarIndex = 0; BarIndex < NumBars; BarIndex++)
         {
-            uint8_t Y_Top = BaselineY - (SegmentIndex * (SegmentHeight + SegmentVSpace)) - SegmentHeight;
+            // Random height: 0–SegmentsPerBar
+            uint8_t Value = rand() % (SegmentsPerBar + 1);
 
-            u8g2_DrawBox(Display_SSD1309->U8G2_Handle, X_Position, Y_Top, BarWidth, SegmentHeight);
+            // Compute X position of this bar
+            uint8_t X_Position = BarIndex * (BarWidth + BarHSpace);
+
+            // Draw vertical segments bottom → top
+            for (uint8_t SegmentIndex = 0; SegmentIndex < Value; SegmentIndex++)
+            {
+                uint8_t Y_Top = BaselineY - (SegmentIndex * (SegmentHeight + SegmentVSpace)) - SegmentHeight;
+
+                u8g2_DrawBox(Display_SSD1309->U8G2_Handle, X_Position, Y_Top, BarWidth, SegmentHeight);
+            }
         }
     }
 
-    // Push to display
+    // STEP 3: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
-}
 
-
-
+} // END OF drawSpectrumMock
 
 
 
@@ -172,7 +135,7 @@ void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309)
 *        u8g2_InitDisplay() and u8g2_SetPowerSave(..., 0)).  Uses the provided CS and C/D GPIO control
 *        function pointers and sends bytes using displaySegmented_SPI_Transfer().
 *
-* @param   SSD1309      Pointer to display handle and hardware interface function pointers.
+* @param SSD1309: Pointer to display handle and hardware interface function pointers.
 *
 * STEP 1: Assert display chip select (CS) for the duration of the transaction.
 * STEP 2: For each page 0–7:
@@ -221,19 +184,101 @@ void displayDirectTest(Type_Display_SSD1309 *SSD1309)
 
 
 
+/********************************************************************************************************
+* @brief Displays the welcome splash screen
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* 
+* @param Display_SSD1309: Pointer to display handle
+* @param FW_Major: Firmware Major Revision
+* @param FW_Minor: Firmware Minor Revision
+* @param FW_Test: Firmware Test Revision
+* @param HW_Revision: Hardware Revision
+*
+* STEP 1: Clear display buffer
+* STEP 2: Draw large IMR Engineering and Ideas Made Real
+* STEP 3: Format revision strings
+* STEP 4: Draw lower informational text (5x8)
+* STEP 5: Push to display
+********************************************************************************************************/
+void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev)
+{
+    char FW_String[20] = {0};
+    char HW_String[16] = {0};
+
+    // STEP 1: Clear display buffer
+    u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
+
+    // STEP 2: Draw large IMR Engineering
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x12_tr);
+    // const char *Title = "IMR Engineering";
+    // uint16_t TitleWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, Title);
+    // uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 13, "IMR Engineering");
+    // Draw Ideas Made Real
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x10_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0,24, "Ideas Made Real");
+
+    // STEP 3: Format revision strings
+    snprintf(FW_String, sizeof(FW_String),"FW REV: %02u.%02u.%02u", FW_Major, FW_Minor, FW_Test);
+    snprintf(HW_String, sizeof(HW_String), "HW REV: %02u", HW_Rev);
+
+    // STEP 4: Draw lower informational text (5x8)
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0,44, "SoftCore Spectrum Analyzer");
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 52, FW_String);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 60, HW_String);
+
+    // STEP 5: Push to display
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
+
+} // END OF displayWelcomeScreen
+
+
+
+/********************************************************************************************************
+* @brief Push the display buffer contents to the display
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* 
+* @param Display_SSD1309: Pointer to display handle
+********************************************************************************************************/
+void displayUpdateBuffer(Type_Display_SSD1309 *Display_SSD1309)
+{
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
+}
+
+
+
+/********************************************************************************************************
+* @brief Displays the static Audio Header.  This is the base information present when the user is in Audio
+* SA mode: Title, WAV file name, Stop (play action) and time (should be 00:00)
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* 
+* @param Display_SSD1309: Pointer to display handle
+*
+* STEP 1: Format time string
+* STEP 2: Clear the display buffer entirely 
+* STEP 3: Draw centered title (6x10)
+* STEP 4: Draw left-justified file info (5x8)
+* STEP 5: Push to display
+********************************************************************************************************/
 void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds)
 {
-
-    char TimeString[6] = {0};  // "mm:ss"
-    uint32_t Minutes = TimeInSeconds / 60;
-    uint32_t Seconds = TimeInSeconds % 60;
-
     // STEP 1: Format time string
-    snprintf(TimeString, sizeof(TimeString), "%02lu:%02lu",
-             (unsigned long)Minutes,
-             (unsigned long)Seconds);
+    char TimeString[6] = {0};  // "mm:ss"
+    uint8_t Minutes = (uint8_t)(TimeInSeconds / 60);
+    uint8_t  Seconds = (uint8_t)(TimeInSeconds % 60);
+    snprintf(TimeString, sizeof(TimeString), "%02u:%02u", (uint8_t)Minutes, (uint8_t)Seconds);
 
-    // STEP 2: Clear buffer
+    // STEP 2: Clear the display buffer entirely 
     u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
 
     // STEP 3: Draw centered title (6x10)
@@ -251,8 +296,95 @@ void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading,
 
     // STEP 5: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
-}
 
+} // END OF drawStaticHeaderAudio
+
+
+
+/********************************************************************************************************
+* @brief: Erases and updates the audio playback time in the format of 00:00 mm:ss
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* @note: This function does not in of itself refresh the screen.  It must be called prior to a function that
+* does (like: drawSpectrumMock, drawSpectrum, or displayUpdateBuffer)
+* 
+* @param Display_SSD1309: Pointer to display handle
+* @param TimeInSeconds: Playback audio time in seconds elapsed
+*
+* STEP 1: Format time string
+* STEP 2: Clear only time area (convert baseline to top-left)
+* STEP 3: Print the updated time to screen - note: requires another function call that will push to display
+********************************************************************************************************/
+void updateAudioDisplayPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint32_t TimeInSeconds)
+{
+    // STEP 1: Format time string 
+    char TimeString[6] = {0};
+    uint8_t Minutes = (uint8_t)(TimeInSeconds / 60);
+    uint8_t  Seconds = (uint8_t)(TimeInSeconds % 60);
+    snprintf(TimeString, sizeof(TimeString), "%02u:%02u", (uint8_t)Minutes, (uint8_t)Seconds);
+
+    // STEP 2: Clear only time area (convert baseline to top-left)
+    uint8_t Y_Top = (uint8_t)(TIME_BASELINE_Y - TIME_FONT_H);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, TIME_X, Y_Top, TIME_BOX_W, TIME_BOX_H);
+    
+    // STEP 3: Print the updated time to screen - note: requires another function call that will push to display
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, TIME_X, TIME_BASELINE_Y, TimeString);
+
+} // END OF updateAudioDisplayPlaybackTime
+
+
+
+/********************************************************************************************************
+* @brief: Erases and updates the audio playback action (Play, Pause, Stop, Error)
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* @note: This function does not in of itself refresh the screen.  It must be called prior to a function that
+* does (like: drawSpectrumMock, drawSpectrum, or displayUpdateBuffer)
+* 
+* @param Display_SSD1309: Pointer to display handle
+* @param PlaybackAction: String that descriptes the playback action: play, pause, stop, error
+*
+* STEP 1: Clear only the playback action area
+* STEP 2: Print the updated play action to screen - note: requires another function call that will push to display
+********************************************************************************************************/
+void updateAudioDisplayPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction)
+{
+    // STEP 1: Clear only the playback action area
+    uint8_t Y_Top = (uint8_t)(ACTION_BASELINE_Y - ACTION_FONT_H);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, ACTION_X, Y_Top, ACTION_BOX_W, ACTION_BOX_H);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
+
+    // STEP 2: Print the updated play action to screen - note: requires another function call that will push to display
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, ACTION_X, ACTION_BASELINE_Y, PlaybackAction);
+
+} // END OF updateAudioDisplayPlaybackAction
+
+
+
+/********************************************************************************************************
+* @brief Displays the static Signal Header.  This is the base information present when the user is in Audio
+* SA mode: Title, ...
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* 
+* @param Display_SSD1309: Pointer to display handle
+*
+* STEP 1: Clear buffer
+* STEP 2: Draw centered title (6x10)
+* STEP 3: ...
+* STEP 4: Push to display
+********************************************************************************************************/
 void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading)
 {
     // STEP 1: Clear buffer
@@ -265,74 +397,9 @@ void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading
     uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Title, 10, Title); 
 
-    // STEP 3: Push to display
+    // STEP 3: ...
+
+    // STEP 4: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
-}
 
-void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev)
-{
-    char FW_String[20] = {0};
-    char HW_String[16] = {0};
-
-    // STEP 1: Clear display buffer
-    u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
-
-    // STEP 2: Draw centered large title
-    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x12_tr);
-    // const char *Title = "IMR Engineering";
-    // uint16_t TitleWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, Title);
-    // uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 13, "IMR Engineering");
-
-    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x10_tr);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0,24, "Ideas Made Real");
-
-    // STEP 3: Format revision strings
-    snprintf(FW_String, sizeof(FW_String),"FW REV: %02u.%02u.%02u", FW_Major, FW_Minor, FW_Test);
-    snprintf(HW_String, sizeof(HW_String), "HW REV: %02u", HW_Rev);
-
-    // STEP 4: Draw lower informational text (5x8)
-    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0,44, "SoftCore Spectrum Analyzer");
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 52, FW_String);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 60, HW_String);
-
-    // STEP 5: Push to display
-    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
-}
-
-
-
-void updateAudioDisplayPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint32_t TimeInSeconds)
-{
-    char TimeString[6] = {0};
-    uint32_t Minutes = TimeInSeconds / 60U;
-    uint32_t Seconds = TimeInSeconds % 60U;
-
-    snprintf(TimeString, sizeof(TimeString), "%02lu:%02lu",
-             (unsigned long)Minutes,
-             (unsigned long)Seconds);
-
-    // Clear only time area (convert baseline to top-left)
-    uint8_t Y_Top = (uint8_t)(TIME_BASELINE_Y - TIME_FONT_H);
-    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
-    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, TIME_X, Y_Top, TIME_BOX_W, TIME_BOX_H);
-    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
-
-    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, TIME_X, TIME_BASELINE_Y, TimeString);
-}
-
-
-
-void updateAudioDisplayPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction)
-{
-    uint8_t Y_Top = (uint8_t)(ACTION_BASELINE_Y - ACTION_FONT_H);
-
-    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
-    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, ACTION_X, Y_Top, ACTION_BOX_W, ACTION_BOX_H);
-    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
-
-    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, ACTION_X, ACTION_BASELINE_Y, PlaybackAction);
-}
+} // END OF drawStaticHeaderSignal

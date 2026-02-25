@@ -37,7 +37,6 @@ set(USER_COMPILE_SOURCES
 "AXI_IMR_ADC_7476A_DUAL.c"
 "AXI_IMR_PL_Revision.c"
 "AXI_IRQ_Controller_Support.c"
-"AXI_SPI_Display_SSD1309.c"
 "AXI_Timer_PWM_Support.c"
 "AXI_UART_Lite_Support.c"
 "FAT_FS/diskio.c"
@@ -185,6 +184,7 @@ set(USER_COMPILE_SOURCES
 "Water_Mark.c"
 "Circular_Buffers.c"
 "Application_Display.c"
+"SSD1309_Driver.c"
 )
 
 # -----------------------------------------

@@ -76,7 +76,6 @@ bool read_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer, int16_t *Element, 
 uint32_t availableWrites_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 uint32_t availableReads_I16_CB(Type_int16_t_CircularBuffer *CircularBuffer);
 
-
 #ifdef __cplusplus
 }
 #endif

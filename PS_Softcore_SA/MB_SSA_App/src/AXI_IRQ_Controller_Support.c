@@ -252,13 +252,13 @@ void enableExceptionHandling(XIntc *IRQ_ControllerHandle)
 *        globally disable MicroBlaze exceptions.  Only interrupt sources enabled in the
 *        AXI INTC are affected.
 *
-* STEP 1: Read and save the current Interrupt Enable Register (IER) mask.
-* STEP 2: Disable all interrupt sources by clearing the IER.
-* STEP 3: Acknowledge any pending interrupts to prevent immediate retrigger on resume.
-*
 * @param   IRQ_ControllerHandle   Pointer to initialized AXI Interrupt Controller handle
 *
 * @return  Saved interrupt enable mask representing interrupts that were active prior to disable
+*
+* STEP 1: Read and save the current Interrupt Enable Register (IER) mask.
+* STEP 2: Disable all interrupt sources by clearing the IER.
+* STEP 3: Acknowledge any pending interrupts to prevent immediate retrigger on resume.
 ********************************************************************************************************/
 uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle)
 {
@@ -291,10 +291,10 @@ uint32_t pauseFastIRQs(XIntc *IRQ_ControllerHandle)
 * @note: If an interrupt source is level-sensitive and remains asserted while masked,
 *        it may fire immediately upon restore.  This behavior is expected and hardware-dependent.
 *
-* STEP 1: Write the saved interrupt enable mask back to the Interrupt Enable Register (IER).
-*
 * @param   IRQ_ControllerHandle   Pointer to initialized AXI Interrupt Controller handle
 * @param   SavedMask              Interrupt enable mask previously returned by pauseFastIRQs()
+*
+* STEP 1: Write the saved interrupt enable mask back to the Interrupt Enable Register (IER).
 ********************************************************************************************************/
 void resumeFastIRQs(XIntc *IRQ_ControllerHandle, uint32_t SavedMask)
 {
@@ -306,27 +306,61 @@ void resumeFastIRQs(XIntc *IRQ_ControllerHandle, uint32_t SavedMask)
 } // END OF resumeFastIRQs
 
 
-// To Pause a Specific Interrupt
+
+/********************************************************************************************************
+* @brief Temporarily disables an individual interrupt source at the AXI Interrupt Controller.  Tested with 
+* fast, but shouild also work with normal interrupts. 
+*
+* @author original: Hab Collector \n
+*
+* @note: This function operates at the AXI INTC level (IER/IPR/IAR registers) and does not
+*        globally disable MicroBlaze exceptions.  Only interrupt sources enabled in the
+*        AXI INTC are affected.
+*
+* @param IRQ_ControllerHandle: Pointer to initialized AXI Interrupt Controller handle
+* @param InterruptId: Fabric ID of the interrupt to pause
+*
+* STEP 1: Disable only the specific bit
+* STEP 2: Optional: Clear pending status for just this line
+********************************************************************************************************/
 void pauseSpecificIRQ(XIntc *IRQ_ControllerHandle, uint8_t InterruptId)
 {
     uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
     uint32_t Mask = (1 << InterruptId);
 
-    // Disable only the specific bit
+    // STEP 1: Disable only the specific bit
     uint32_t CurrentIER = Xil_In32(BaseAddress + XIN_IER_OFFSET);
     Xil_Out32(BaseAddress + XIN_IER_OFFSET, CurrentIER & ~Mask);
     
-    // Optional: Clear pending status for just this line
+    // STEP 2: Optional: Clear pending status for just this line
     Xil_Out32(BaseAddress + XIN_IAR_OFFSET, Mask);
-}
 
-// To Resume a Specific Interrupt
+} // END OF pauseSpecificIRQ 
+
+
+
+/********************************************************************************************************
+* @brief resumes a paused individual interrupt source at the AXI Interrupt Controller.  Tested with fast,  
+* but shouild also work with normal interrupts. 
+*
+* @author original: Hab Collector \n
+*
+* @note: This function operates at the AXI INTC level (IER/IPR/IAR registers) and does not
+*        globally disable MicroBlaze exceptions.  Only interrupt sources enabled in the
+*        AXI INTC are affected.
+*
+* @param IRQ_ControllerHandle: Pointer to initialized AXI Interrupt Controller handle
+* @param InterruptId: Fabric ID of the interrupt to pause
+*
+* STEP 1: Enable only the specific interrupt bit
+********************************************************************************************************/
 void resumeSpecificIRQ(XIntc *IRQ_ControllerHandle, uint8_t InterruptId)
 {
     uint32_t BaseAddress = IRQ_ControllerHandle->CfgPtr->BaseAddress;
     uint32_t Mask = (1 << InterruptId);
 
-    // Enable only the specific bit
+    // STEP 1: Enable only the specific interrupt bit
     uint32_t CurrentIER = Xil_In32(BaseAddress + XIN_IER_OFFSET);
     Xil_Out32(BaseAddress + XIN_IER_OFFSET, CurrentIER | Mask);
-}
+
+} // END OF resumeSpecificIRQ

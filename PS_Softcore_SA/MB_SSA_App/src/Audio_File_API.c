@@ -260,10 +260,10 @@ bool getWavFileHeader(char *WavPathFileName, uint32_t WavFileSize, Type_WavHeade
     // Only supporting 16 bit samples at this time
     if (WavHeader->BitsPerSample != PCM_16_BIT_SIGNED)
         return(false);
-    
 
     return(true);
-}
+
+} // END OF getWavFileHeader
 
 
 
@@ -322,7 +322,8 @@ float pcm16ToPwmPercent(int16_t PcmSample)
     // STEP 2: Normalize to a 0.0 to 1.0 range as a percentage (0 to 100%)
     PWM_Percent = NormalizedValue * 100.0f;
     return(PWM_Percent);
-}
+
+} // END OF pcm16ToPwmPercent
 
 
 

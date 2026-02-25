@@ -35,7 +35,7 @@ extern"C" {
 #include "Audio_SoftCore_SA.h"
 #include "Main_Support.h"
 #include "MCP23S08_Driver.h"
-#include "AXI_SPI_Display_SSD1309.h"
+#include "SSD1309_Driver.h"
 #include "xtmrctr.h"
 #include "xgpio.h"
 #include "xintc.h"

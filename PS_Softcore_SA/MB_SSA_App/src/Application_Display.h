@@ -32,7 +32,7 @@ extern"C" {
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "AXI_SPI_Display_SSD1309.h"
+#include "SSD1309_Driver.h"
 
 // DEFINES
 // FOR USE WITH THE AUDIO SPECTRUM TIME
@@ -48,19 +48,24 @@ extern"C" {
 #define ACTION_BOX_W      ((uint8_t)(DISPLAY_WIDTH_PIXEL))
 #define ACTION_BOX_H      ((uint8_t)9U)     // 1px margin
 
+
 // TYPEDEFS AND ENUMS
 
 
 // FUNCTION PROTOTYPES
+// TEST SCREENS
 void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309);
-void displayTest_2(void);
-void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309);
+void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309, bool ClearOnly);
 void displayDirectTest(Type_Display_SSD1309 *SSD1309);
-void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds);
-void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading);
+// WELCOME SPLASH SCREEN
 void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev);
+void displayUpdateBuffer(Type_Display_SSD1309 *Display_SSD1309);
+// AUDIO SA RELATED
+void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds);
 void updateAudioDisplayPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint32_t TimeInSeconds);
 void updateAudioDisplayPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction);
+// SIGNAL SA RELATED
+void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading);
 
 #ifdef __cplusplus
 }

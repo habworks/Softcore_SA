@@ -1,5 +1,5 @@
 /******************************************************************************************************
- * @file            AXI_SPI_Display_SSD1309.c
+ * @file            SSD1309_Driver.c
  * @brief           A collection of functions relevant to the Display SSD1309 128x64 pixels
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
@@ -31,7 +31,7 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#include "AXI_SPI_Display_SSD1309.h"
+#include "SSD1309_Driver.h"
 #include "Hab_Types.h"
 #include "u8g2.h"
 #include <string.h>

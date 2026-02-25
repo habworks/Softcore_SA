@@ -93,7 +93,7 @@
 
 
 // DISPLAY SUPPORT
-// #include "AXI_SPI_Display_SSD1309.h"
+// #include "SSD1309_Driver.h"
 #include "u8g2.h"
 XSpi AXI_SPI_DisplayHandle;     // Did not seem to make a difference if placed in fast memory
 u8g2_t U8G2; // Did not seem to make a difference if placed in fast memory
@@ -447,7 +447,7 @@ void mainTest(void)
             if (SwitchState & PB_2)
             {
                 // stopPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
-                drawSpectrumMock(&Display_SSD1309);
+                drawSpectrumMock(&Display_SSD1309, false);
                 xil_printf("Display Specturm Test\r\n");
                 // startPeriodicTimer(&AXI_TimerHandle_1, XTC_TIMER_0);
             }

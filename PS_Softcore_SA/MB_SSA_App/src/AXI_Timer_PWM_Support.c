@@ -107,6 +107,7 @@ bool setup_PWM(XTmrCtr *TimerHandle, uint32_t PWM_Frequency, float DutyCyclePerc
 } // END OF setup_PWM
 
 
+
 /********************************************************************************************************
 * @brief Starts the PWM.  PWM must already be init and configured (setup).  This function is meant to be 
 * used if PWM has been disabled and previously setup and needs to be restarted again
@@ -146,6 +147,36 @@ void disable_PWM(XTmrCtr *TimerHandle)
     XTmrCtr_PwmDisable(TimerHandle);
     
 } // END OF disable_PWM
+
+
+
+/********************************************************************************************************
+* @brief Updates the PWM interval quickly - done via direct register access
+*
+* @author original: Hab Collector \n
+*
+* @note: See BSP xtmrcntr.h for peripheral specifics based version of timer in use (supports v4.11)
+*
+* @param TimerHandle Pointer to the XTmrCtr instance.
+* @param DutyCycle_0_to_1024 Duty cycle based on this number 
+*
+* @return: If false if change not applied
+*
+* STEP 1: Basic validation
+* STEP 2: Update to new tick interval based no action
+********************************************************************************************************/
+void update_PWM_Duty_Fast(XTmrCtr *TimerHandle, uint32_t DutyCycle_0_to_1024) 
+{
+    // STEP 1: Calculate High Time Ticks using integer shift instead of float division
+    // HighTicks = (Period * Duty) / 1024
+    uint32_t HighTimeTicks = (1000 * DutyCycle_0_to_1024) >> 10;
+
+    // STEP 2: Update the TLR register offset
+    // TLR0 holds the Period, TLR1 holds the High Time (Duty Cycle)
+    // We only need to update TLR1 to change the duty cycle instantly.
+    XTmrCtr_WriteReg(TimerHandle->BaseAddress, 1, XTC_TLR_OFFSET, HighTimeTicks);
+
+} // END OF update_PWM_Duty_Fast
 
 
 
@@ -288,21 +319,34 @@ bool stopPeriodicTimer(XTmrCtr *TimerHandle, u8 TimerNumber)
 } // END OF stopPeriodicTimer
 
 
-/**
- * @brief Updates the interval/period of a running periodic timer.
- * @param TimerHandle Pointer to the XTmrCtr instance.
- * @param TimerNumber XTC_TIMER_0 or XTC_TIMER_1.
- * @param NewIntervalTicks The new number of ticks for the countdown.
- * @param Immediate If true, stops/starts the timer to apply the change now. 
- *                  If false, the change applies after the current period finishes.
- */
+
+/********************************************************************************************************
+* @brief Updates the interval/period of a running periodic timer.
+*
+* @author original: Hab Collector \n
+*
+* @note: See BSP xtmrcntr.h for peripheral specifics based version of timer in use (supports v4.11)
+* @note: Updates teh interval - user must take precation on if the counter is counting up or down
+*
+* @param TimerHandle Pointer to the XTmrCtr instance.
+* @param TimerNumber XTC_TIMER_0 or XTC_TIMER_1.
+* @param NewIntervalTicks The new number of ticks for the countdown.
+* @param Immediate If true, stops/starts the timer to apply the change now. 
+*
+* @return: If false if change not applied
+*
+* STEP 1: Basic validation
+* STEP 2: Update to new tick interval based no action
+********************************************************************************************************/
 bool update_PeriodicTimerPeriod(XTmrCtr *TimerHandle, u8 TimerNumber, u32 NewIntervalTicks, bool Immediate)
 {
     // STEP 1: Basic validation
     if (!TimerHandle->IsReady || NewIntervalTicks == 0)
-        return false;
+        return(false);
 
-    if (Immediate) {
+    // STEP 2: Update to new tick interval based no action
+    if (Immediate) 
+    {
         // Stop the timer to force a reload on next start
         XTmrCtr_Stop(TimerHandle, TimerNumber);
         
@@ -311,29 +355,15 @@ bool update_PeriodicTimerPeriod(XTmrCtr *TimerHandle, u8 TimerNumber, u32 NewInt
         
         // Restart the timer - this loads NewIntervalTicks into the counter immediately
         XTmrCtr_Start(TimerHandle, TimerNumber);
-    } else {
+    } 
+    else 
+    {
         // Just update the Load Register. 
         // The hardware will load this value automatically upon the next roll-under.
         XTmrCtr_SetResetValue(TimerHandle, TimerNumber, NewIntervalTicks);
     }
 
-    return true;
-}
+    return(true);
 
-
-
-/**
- * @brief Fast PWM Update
- * @param DutyCycle_0_to_1024: Pass 0 for 0%, 512 for 50%, 1024 for 100%
- */
-void update_PWM_Duty_Fast(XTmrCtr *TimerHandle, uint32_t DutyCycle_0_to_1024) 
-{
-    // Calculate High Time Ticks using integer shift instead of float division
-    // HighTicks = (Period * Duty) / 1024
-    uint32_t HighTimeTicks = (1000 * DutyCycle_0_to_1024) >> 10;
-
-    // TLR0 holds the Period, TLR1 holds the High Time (Duty Cycle)
-    // We only need to update TLR1 to change the duty cycle instantly.
-    XTmrCtr_WriteReg(TimerHandle->BaseAddress, 1, XTC_TLR_OFFSET, HighTimeTicks);
-}
+} // END OF update_PeriodicTimerPeriod
 

@@ -59,6 +59,7 @@ extern"C" {
 #define DISPLAY_SIGNAL_HEADING  "SIGNAL_SA"     // ***Hab move to more approipate file
 #define DISPLAY_FILE_ERROR      "No WAV File Found"
 // LED DISPLAY RELATED
+// LED BAR MASKS
 #define LED_1_MASK  ((uint8_t)(1U << 0U))
 #define LED_2_MASK  ((uint8_t)(1U << 1U))
 #define LED_3_MASK  ((uint8_t)(1U << 2U))
@@ -71,14 +72,14 @@ extern"C" {
 #define LED_BAR_4   ((uint8_t)(LED_1_MASK | LED_2_MASK | LED_3_MASK | LED_4_MASK))
 #define LED_BAR_5   ((uint8_t)(LED_1_MASK | LED_2_MASK | LED_3_MASK | LED_4_MASK | LED_5_MASK))
 #define LED_BAR_6   ((uint8_t)(LED_1_MASK | LED_2_MASK | LED_3_MASK | LED_4_MASK | LED_5_MASK | LED_6_MASK))
-
-// LED BAR GRAPH LEVELS
+// LED BAR GRAPH LEVELS IN DB
 #define LEVEL_30DB   1036u          // BASED ON 32768 FULL SCALE -30dB
 #define LEVEL_26DB   1642u          // BASED ON 32768 FULL SCALE -26dB
 #define LEVEL_22DB   2603u          // BASED ON 32768 FULL SCALE -22dB
 #define LEVEL_18DB   4125u          // BASED ON 32768 FULL SCALE -18dB
 #define LEVEL_14DB   6537u          // BASED ON 32768 FULL SCALE -14dB
 #define LEVEL_10DB   10361u         // BASED ON 32768 FULL SCALE -10dB
+
 
 // TYPEDEFS AND ENUMS
 typedef struct
@@ -90,11 +91,9 @@ typedef enum
 {
     AUDIO_ACTION_STOP = 0,
     AUDIO_ACTION_PLAY,
-    AUDIO_ACUTION_PAUSE
+    AUDIO_ACTION_PAUSE
 } Type_AudioAction;
 
-
-// TYPEDEFS AND ENUMS
 typedef struct
 {
     bool                        Enable;
@@ -105,7 +104,6 @@ typedef struct
     Type_AudioFile              File;
     volatile 
     Type_int16_t_CircularBuffer Samples_CB;
-    Type_uint8_t_CircularBuffer Raw_CB;
     Type_PWM                    PWM;
 } Type_Audio_SA;
 
@@ -114,9 +112,10 @@ typedef struct
 void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 void stopAudio_SA(Type_Audio_SA *Audio_SA);
 void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
+void pauseAudio_SA(Type_Audio_SA *Audio_SA);
 void audioEnable(bool Enable);
 void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT); 
-
+void update_LED_AudioBarGraph(int16_t PCM16_Value);
 
 #ifdef __cplusplus
 }

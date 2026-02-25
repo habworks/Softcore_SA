@@ -46,6 +46,7 @@ static uint16_t convert_PCM16_To_PWM_DutyPercent(int16_t PCM16_Sample, uint16_t 
 // static void load_FFT_PWM_ToBuffers(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t PlaybackRate);
 static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
+static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel);
 
 
 uint8_t __attribute__ ((section (".Hab_Fast_Data"))) RawLinearBuffer[MAX_RAW_BUFFER];
@@ -53,9 +54,27 @@ bool __attribute__ ((section (".Hab_Fast_Data"))) *FFT_FrameReadyPtr;
 Type_int16_t_CircularBuffer __attribute__ ((section (".Hab_Fast_Data"))) *Samples_CB_Ptr;
 Type_AudioAction __attribute__ ((section (".Hab_Fast_Data"))) *AudioActionPtr;
 float __attribute__ ((section (".Hab_Fast_Data"))) *FFT_SamplesPtr;
-
+// For testing only
 uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
 
+
+
+/********************************************************************************************************
+* @brief This is the main function that handles the audio spectrum analyzer function - it is non-blocking so
+* other UI inputs can be processed.  It loads the audio playback stream, updates the audio display LED bar graph, 
+* applies the FFT window and updates the audio spectrum display.
+*
+* @author original: Hab Collector \n
+*
+* @param Audio_SA: Pointer to audio spectrum analyzer control structure
+* @param FFT: Pointer to FFT structure
+*
+*
+* STEP 1: Audio play and spectrum qualifier
+* STEP 2: Stream the audio from the uSD - It is played in the audio ISR
+* STEP 3: Update the audio LED bar graph
+* STEP 4: FFT Update
+********************************************************************************************************/
 void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 {
     // STEP 1: Audio play and spectrum qualifier
@@ -67,8 +86,10 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     feedStream_PCM16_WAV(Audio_SA, FFT);
     // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
 
-    // STEP 3: When FFT size number of samples have been captured update the display
+    // STEP 3: Update the audio LED bar graph
     update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16);
+
+    // STEP 4: FFT Update
     static bool DisplayUpdate = true;
     if (FFT->FrameReady)
     {      
@@ -77,13 +98,13 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         // if (DisplayUpdate)
         {
             updateDisplayPlaybackTimer(Audio_SA->PlaybackTickCounter, Audio_SA->File.Header.SampleRate);
-            drawSpectrumMock(&Display_SSD1309);
-            // update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16);
+            drawSpectrumMock(&Display_SSD1309, false);
         }
         // DisplayUpdate = !DisplayUpdate;
         FFT->FrameReady = false;
-    }    
-}
+    }  
+
+} // END OF audioSpectrumAnalyzer
 
 
 
@@ -123,13 +144,11 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 * @return true if operation is successful or no action is required
 * @return false if a file or buffer initialization error occurs
 *
-* STEP 1: Verify Audio_SA is enabled and open WAV file on first use
-* STEP 2: Seek to WAV data offset if raw buffer is empty
-* STEP 3: Read a chunk of raw audio data from the WAV file into the raw buffer
-* STEP 4: Check circular buffer has sufficient unused elements for FFT_SIZE samples
-* STEP 5: Decode PCM16 samples and convert stereo to mono if required, then load circular buffer
-* STEP 6: Update raw buffer and file read offsets
-* STEP 7: Detect end of file and close WAV file when complete
+* STEP 1: Initialization for audio play back
+* STEP 2: Termination Check
+* STEP 3: High-Water Mark Refill
+* STEP 4: Conversion (Fast Pointer Math)
+* STEP 5: Start ISR Trigger - the buffer has been pre-loaded start the ISR - playback in handled by the ISR
 ********************************************************************************************************/
 static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 {
@@ -148,6 +167,7 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
             return(false);
         }
         // Upade handle members and data size
+        CB_EmptyIn_ISR = 0;
         Audio_SA->File.IsOpen = true;
         Audio_SA->File.Is_EOF = false;
         Audio_SA->IsPreLoadComplete = false;
@@ -233,8 +253,6 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // STEP 5: Start ISR Trigger - the buffer has been pre-loaded start the ISR - playback in handled by the ISR
     if (!Audio_SA->IsPreLoadComplete && isFull_I16_CB(&Audio_SA->Samples_CB))
     {
-        // Update the display to play
-        updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
         // Enable audio output: PWM and audio amplifier
         enable_PWM(&AXI_PWM_Handle);
         setup_PWM(&AXI_PWM_Handle, AUDIO_PWM_FREQUENCY, AUDIO_PWM_DEFAULT_DUTY);
@@ -395,41 +413,145 @@ static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 
 
 
+/********************************************************************************************************
+* @brief Process the user input SW3. Stop audio playing action - can be called by user or via other funciton.  
+* Stop safely by closing file and clearing allocated memory.
+*
+* @author original: Hab Collector \n
+*
+* @param Audio_SA: Pointer to Audio Spectrum Analyzer structure
+*
+* STEP 1: Apply safe stop of audio playback
+********************************************************************************************************/
 void stopAudio_SA(Type_Audio_SA *Audio_SA)
 {
+    // STEP 1: Apply safe stop of audio playback
     Audio_SA->AudioAction = AUDIO_ACTION_STOP;
-    
+    // Stop audio playback and disable audio outpput
     pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, AUDIO_TIMER_IRQ_ID);
     audioEnable(false);
     disable_PWM(&AXI_PWM_Handle);
-    
+    // Free resources
     f_close(&Audio_SA->File.FileHandle);
     Audio_SA->File.IsOpen = false;
     free_I16_CB(&Audio_SA->Samples_CB);
-    free_U8_CB(&Audio_SA->Raw_CB);
-}
+    // Update the display
+    updateAudioDisplayPlaybackTime(&Display_SSD1309, 0);
+    updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_STOP);
+    drawSpectrumMock(&Display_SSD1309, true);
 
+} // END OF stopAudio_SA
+
+
+
+/********************************************************************************************************
+* @brief Process the user input SW5. Start audio playback, but note that audio playback can start from a
+* stopped or pause.  If comming from stop take action to ready resouces to a default state to play.  If
+* comming from a pause you are just resuming - the ISR does not playback in any mode but play and the buffer
+* will background fill
+*
+* @author original: Hab Collector \n
+*
+* @param Audio_SA: Pointer to Audio Spectrum Analyzer structure
+* @param FFT: Pointer to FFT structure
+*
+* STEP 1: Siimple check
+* STEP 2: Take a reset action if comming from a state other than pause
+* STEP 3: Update dispaly
+********************************************************************************************************/
 void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 {
+    // STEP 1: Siimple check
     if (!Audio_SA->Enable)
         return;
+    
+    // STEP 2: Take a reset action if comming from a state other than pause
+    if (Audio_SA->AudioAction != AUDIO_ACTION_PAUSE)
+    {
+        Audio_SA->IsPreLoadComplete = false;
+        f_close(&Audio_SA->File.FileHandle);    // File should not be open - but just in case
+        FFT->FrameReady = false;
+        FFT->RBW = Audio_SA->File.Header.SampleRate / FFT->Size;
+        // Update the display
+        updateAudioDisplayPlaybackTime(&Display_SSD1309, 0);
+        updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
+        drawSpectrumMock(&Display_SSD1309, true);
+    }
 
+    // STEP 3: Update dispaly
     Audio_SA->AudioAction = AUDIO_ACTION_PLAY;
-    Audio_SA->IsPreLoadComplete = false;
-    f_close(&Audio_SA->File.FileHandle);    // File should not be open - but just in case
-    FFT->FrameReady = false;
-    FFT->RBW = Audio_SA->File.Header.SampleRate / FFT->Size;
-}
+    updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
 
+} // END OF playAudio_SA
+
+
+
+/********************************************************************************************************
+* @brief Process the user input SW4. Pause audio playback 
+*
+* @author original: Hab Collector \n
+*
+* @param Audio_SA: Pointer to Audio Spectrum Analyzer structure
+*
+* STEP 1: Apply safe start of audio playback
+********************************************************************************************************/
+void pauseAudio_SA(Type_Audio_SA *Audio_SA)
+{
+    // STEP 1: Apply safe start of audio playback
+    if (!Audio_SA->Enable)
+        return;
+    
+    if (Audio_SA->AudioAction != AUDIO_ACTION_PLAY)
+        return;
+
+    Audio_SA->AudioAction = AUDIO_ACTION_PAUSE;
+
+    // Update the display
+    updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PAUSE);
+    displayUpdateBuffer(&Display_SSD1309);
+
+} // END OF playAudio_SA
+
+
+
+/********************************************************************************************************
+* @brief Enable the audio amplifier
+*
+* @author original: Hab Collector \n
+*
+* @param Enable: Status of amplifier
+********************************************************************************************************/
 void audioEnable(bool Enable)
 {
     if (Enable)
         XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, AUDIO_EN);
     else
         XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, AUDIO_EN);
-}
+} 
 
 
+
+/********************************************************************************************************
+* @brief This is the audio periodic timer ISR.  It is called from main periodic timer ISR for the timer 1
+* interrupt.  This ISR handles audio playback.  It is fired at the same rate as as the audio sample 11025, 
+* 16000, 22050, 44100Hz.  It reads from the CB Samples buffer and feeds the PWM output.  It also keep udpates
+* the FFT samples and sets condition for when the FFT is to be calculated.  The increment tick measure play
+* back time (based on audio tick interval).
+*
+* @author original: Hab Collector \n
+*
+* @note: Timer is fired at the audio playback rate
+* @note: If the CB Samples or Raw Linear Buffers are too small you will get a lot of buffer empty exits
+*
+* @param Audio_SA: Pointer to Audio Spectrum Analyzer structure
+* @param FFT: Pointer to the FFT structure
+*
+* STEP 1: Simple test 
+* STEP 2: Check for done playing - at EOF it is the ISR that stops the playback
+* STEP 3: Check if buffer empty - CB_EmptyIn_ISR is a test variable 
+* STEP 4: Update tick counter, read audio sample from CB, calculate PWM and udpate PWM output
+* STEP 5: Set flag when FFT Frame is ready for processing
+********************************************************************************************************/
 void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 {
     static uint16_t SampleIndex = 0;
@@ -438,6 +560,7 @@ void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     if (Audio_SA->AudioAction != AUDIO_ACTION_PLAY)
         return;
     
+    // STEP 2: Check for done playing - at EOF it is the ISR that stops the playback
     if (isEmpty_I16_CB(&Audio_SA->Samples_CB) && (Audio_SA->File.Is_EOF == true))
     {
         pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, AUDIO_TIMER_IRQ_ID);
@@ -446,56 +569,54 @@ void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         return;
     }
     
+    // STEP 3: Check if buffer empty - CB_EmptyIn_ISR is a test variable 
     if (isEmpty_I16_CB(&Audio_SA->Samples_CB))
     {
-        CB_EmptyIn_ISR++;
+        CB_EmptyIn_ISR++;   // Testing var
         return;
     }
 
+    // STEP 4: Update tick counter, read audio sample from CB, calculate PWM and udpate PWM output
     Audio_SA->PlaybackTickCounter++;
     int16_t SampleValue;
     uint16_t PWM_DutyCycle;
     read_I16_CB(&Audio_SA->Samples_CB, &SampleValue, NULL, NULL);
     PWM_DutyCycle = convert_PCM16_To_PWM_DutyPercent(SampleValue, 1024);
     update_PWM_Duty_Fast(&AXI_PWM_Handle, PWM_DutyCycle);
+    
+    // STEP 5: Set flag when FFT Frame is ready for processing
     SampleIndex++;
     if (SampleIndex == FFT_SIZE)
     {
         FFT->FrameReady = true;
         SampleIndex = 0;
     }
-}
+
+} // END OF audioPeriodicTimer_ISR
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-uint8_t LED_AudioBarGraph(int16_t PCM_AudioLevel)
+/********************************************************************************************************
+* @brief Determines which LEDs should be turned on to represent the represent the audio level 
+*
+* @author original: Hab Collector \n
+*
+* @note: Function is logarithmic to match human hearing - linear interpolation would not match
+* @note: Based on present audio sample in PCM format (int16_t)
+*
+* @param PCM_AudioLevel: Audio level in int16_t 
+*
+* @return A bitmask lowest to hightest of 6 LEDs that should be set
+*
+* STEP 1: Convert signed PCM value to absolute magnitude safely (handle -32768 and 32768 as same)
+* STEP 2: Apply log thresholds and return LED bar mask
+********************************************************************************************************/
+static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel)
 {
-    // STEP 1: Convert signed PCM value to absolute magnitude safely (handle -32768)
+    // STEP 1: Convert signed PCM value to absolute magnitude safely (handle -32768 and 32768 as same)
     uint32_t AbsoluteMagnitude = abs(PCM_AudioLevel);
 
-
-    // STEP 2: Apply linear thresholds and return LED bar mask
-    // Threshold bands per your mapping:
-    // LED 1: 0..5461
-    // LED 2: 5461..10922
-    // LED 3: 10922..16384
-    // LED 4: 16384..21845
-    // LED 5: 21845..27306
-    // LED 6: >27306
+    // STEP 2: Apply log thresholds and return LED bar mask
     if (AbsoluteMagnitude == 0U)
         return((uint8_t)0U);
 
@@ -515,25 +636,59 @@ uint8_t LED_AudioBarGraph(int16_t PCM_AudioLevel)
         return(LED_BAR_5);
     else
         return(LED_BAR_6);
-}
+
+} // END OF LED_AudioBarGraphCalculate
 
 
+
+/********************************************************************************************************
+* @brief Display of the audio LEDs
+*
+* @author original: Hab Collector \n
+*
+* @param PCM_AudioLevel: Audio level in int16_t 
+*
+* STEP 1: Determine the LED bit mask based on present audio level
+* STEP 2: Update the IO Expander that drives the LEDs
+********************************************************************************************************/
 void update_LED_AudioBarGraph(int16_t PCM16_Value)
 {
-    uint8_t LED_BitMask = LED_AudioBarGraph(PCM16_Value);
+    // STEP 1: Determine the LED bit mask based on present audio level
+    uint8_t LED_BitMask = LED_AudioBarGraphCalculate(PCM16_Value);
+
+    // STEP 2: Update the IO Expander that drives the LEDs
     MCP23S08_WriteOutput(&IOX_1, LED_BitMask);
-}
+
+} // END OF update_LED_AudioBarGraph
 
 
+
+/********************************************************************************************************
+* @brief Update the audio timer display
+*
+* @author original: Hab Collector \n
+*
+* @param ISR_PlayBackTicks: Ticks of the audio playback ISR - Time is counted in ticks
+* @param PlaybackRate: The playback rate of the audio - frequency of the audio playback ISR
+*
+* @return True if OK - false on invalid playback rate of 0Hz
+*
+* STEP 1: Determine the LED bit mask based on present audio level
+* STEP 2: Update the IO Expander that drives the LEDs
+********************************************************************************************************/
 static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t PlaybackRate)
 {
+    // STEP 1: Simple check 
     if (PlaybackRate == 0)
         return(false);
+    
+    // STEP 2: Calculate time in seconds and upate the dispaly
     uint32_t TimeInSeconds = (uint32_t)((1.0 / (float)PlaybackRate) * ISR_PlayBackTicks);
     updateAudioDisplayPlaybackTime(&Display_SSD1309, TimeInSeconds);
 
     return(true);
-}
+
+} // END OF updateDisplayPlaybackTimer
 
 
 

@@ -1,6 +1,6 @@
 /******************************************************************************************************
- * @file            AXI_SPI_Display_SSD1309.h
- * @brief           Header file to support AXI_SPI_Display_SSD1309.c
+ * @file            SSD1309_Driver.h
+ * @brief           Header file to support SSD1309_Driver.c
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -24,8 +24,8 @@
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
-#ifndef AXI_SPI_DISPLAY_SSD1309_H_
-#define AXI_SPI_DISPLAY_SSD1309_H_
+#ifndef SSD1309_DRIVER_H_
+#define SSD1309_DRIVER_H_
 #ifdef __cplusplus
 extern"C" {
 #endif
@@ -39,6 +39,7 @@ extern"C" {
 // DEFINES
 #define DISPLAY_WIDTH_PIXEL     128U
 #define DISPLAY_HEIGH_PIXEL     64U
+
 
 // TYPEDEFES AND ENUMS
 typedef enum
@@ -89,4 +90,4 @@ void *getUserPointer_U8G2(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /* AXI_SPI_DISPLAY_SSD1309_H_ */
+#endif /* SSD1309_DRIVER_H_ */
