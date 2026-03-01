@@ -108,7 +108,7 @@
 			xlnx,debug-latency-counters = <1>;
 			i-cache-size = <65536>;
 			xlnx,exceptions-in-delay-slots = <1>;
-			xlnx,use-fpu = <1>;
+			xlnx,use-fpu = <2>;
 			xlnx,reset-msr-ie = <0>;
 			xlnx,edge-is-positive = <1>;
 			xlnx,use-pcmp-instr = <1>;
@@ -453,7 +453,7 @@
 			xlnx,arbitration = <0>;
 			xlnx,num-lmb = <1>;
 			xlnx,mask4 = <0x800000>;
-			reg = <0x00000000 0x10000>;
+			reg = <0x00000000 0x20000>;
 			xlnx,s-axi-ctrl-addr-width = <32>;
 			xlnx,mask5 = <0x800000>;
 			xlnx,ecc-status-registers = <0>;
@@ -488,7 +488,7 @@
 			xlnx,arbitration = <0>;
 			xlnx,num-lmb = <1>;
 			xlnx,mask4 = <0x800000>;
-			reg = <0x00000000 0x10000>;
+			reg = <0x00000000 0x20000>;
 			xlnx,s-axi-ctrl-addr-width = <32>;
 			xlnx,mask5 = <0x800000>;
 			xlnx,ecc-status-registers = <0>;

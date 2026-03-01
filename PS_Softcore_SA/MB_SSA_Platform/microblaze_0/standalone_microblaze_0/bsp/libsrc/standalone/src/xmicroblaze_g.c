@@ -66,7 +66,7 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		0x0,  /* xlnx,use-ext-brk */
 		0x0,  /* xlnx,use-ext-nm-brk */
 		0x0,  /* xlnx,use-extended-fsl-instr */
-		0x1,  /* xlnx,use-fpu */
+		0x2,  /* xlnx,use-fpu */
 		0x2,  /* xlnx,use-hw-mul */
 		0x1,  /* xlnx,use-icache */
 		0x2,  /* xlnx,use-interrupt */

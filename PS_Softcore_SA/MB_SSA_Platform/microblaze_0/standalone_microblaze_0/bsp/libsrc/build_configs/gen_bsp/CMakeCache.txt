@@ -29,7 +29,7 @@ CMAKE_ASM_COMPILER_AR:FILEPATH=C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microb
 CMAKE_ASM_COMPILER_RANLIB:FILEPATH=C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microblaze/nt/bin/mb-gcc-ranlib.exe
 
 //ASMFLAGS
-CMAKE_ASM_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT  -MMD -MP -specs=C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/Xilinx.spec -IC:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/include
+CMAKE_ASM_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0 -DSDT  -MMD -MP -specs=C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/Xilinx.spec -IC:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/include
 
 //Flags used by the ASM compiler during DEBUG builds.
 CMAKE_ASM_FLAGS_DEBUG:STRING=-g
@@ -56,7 +56,7 @@ CMAKE_CXX_COMPILER_AR:FILEPATH=C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microb
 CMAKE_CXX_COMPILER_RANLIB:FILEPATH=C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microblaze/nt/bin/mb-gcc-ranlib.exe
 
 //CXXFLAGS
-CMAKE_CXX_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT  -MMD -MP -specs=C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/Xilinx.spec -IC:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/include
+CMAKE_CXX_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0 -DSDT  -MMD -MP -specs=C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/Xilinx.spec -IC:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/include
 
 //Flags used by the CXX compiler during DEBUG builds.
 CMAKE_CXX_FLAGS_DEBUG:STRING=-g
@@ -82,7 +82,7 @@ CMAKE_C_COMPILER_AR:FILEPATH=C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microbla
 CMAKE_C_COMPILER_RANLIB:FILEPATH=C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microblaze/nt/bin/mb-gcc-ranlib.exe
 
 //CFLAGS
-CMAKE_C_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT  -MMD -MP -specs=C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/Xilinx.spec -IC:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/include
+CMAKE_C_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0 -DSDT  -MMD -MP -specs=C:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/Xilinx.spec -IC:/IMR_Projects/IMR/Softcore_SA/PS_Softcore_SA/MB_SSA_Platform/microblaze_0/standalone_microblaze_0/bsp/include
 
 //Flags used by the C compiler during DEBUG builds.
 CMAKE_C_FLAGS_DEBUG:STRING=-g
@@ -263,13 +263,13 @@ SCUGIC_DIR:PATH=SCUGIC_DIR-NOTFOUND
 SUBDIR_LIST:STRING=ALL
 
 //ASM FLAGS
-TOOLCHAIN_ASM_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT
+TOOLCHAIN_ASM_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0 -DSDT
 
 //CXXFLAGS
-TOOLCHAIN_CXX_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT
+TOOLCHAIN_CXX_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0 -DSDT
 
 //CFLAGS
-TOOLCHAIN_C_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT
+TOOLCHAIN_C_FLAGS:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0 -DSDT
 
 //Flags used by compiler to generate dependency files
 TOOLCHAIN_DEP_FLAGS:STRING= -MMD -MP
@@ -349,7 +349,7 @@ proc_compiler:STRING=mb-gcc.exe
 // gcc tries to link the code, which will fail because there is
 // no application involved during libgen.'-O2' can be overwritten
 // by extra compile flags.
-proc_compiler_flags:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT;-c
+proc_compiler_flags:STRING= -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0 -DSDT;-c
 
 //Extra Compiler Flags used in BSP and library generation
 proc_extra_compiler_flags:STRING= -g -ffunction-sections -fdata-sections -Wall -Wextra -fno-tree-loop-distribute-patterns

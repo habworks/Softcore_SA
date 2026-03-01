@@ -129,9 +129,11 @@ proc_config:
       permission: readonly
       type: string
       value: ' -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul
-        -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT;-c'
+        -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt
+        -mcpu=v11.0 -DSDT;-c'
       default: ' -O2 -mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul
-        -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0 -DSDT;-c'
+        -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt
+        -mcpu=v11.0 -DSDT;-c'
       options: []
       description: Compiler Flags used in BSP and library generation.'-c'flag stands
         for 'compile and assemble, but do not link'.Without this flag, gcc tries to

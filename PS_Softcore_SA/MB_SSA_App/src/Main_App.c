@@ -222,7 +222,6 @@ static void main_InitApplication(void)
         if (FileResult != FR_OK)
             InitFailMode |= INIT_FAIL_FAT_FS;
     }
-    
 
     // Init Display
     Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_UI_Handle, DISPLAY_CS_NUMBER, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2); 
@@ -296,7 +295,7 @@ static void main_WhileLoop(void)
     {
         countFilesInDirectory(AUDIO_DIRECTORY, &SoftCore_SA.Audio_SA.File.DirectoryFileCount);
         getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
-        drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA.Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+        displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA.Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
     }
     
     while(1)
@@ -340,7 +339,7 @@ static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleF
     // Calculate the FFT Hann Window
     for (uint16_t N = 0; N < FFT_SIZE; N++)
     {
-        Handle->FFT.HannWindow[N] = 0.5 * (1 - cos((2* M_PI* N)/(FFT_SIZE - 1)));
+        Handle->FFT.HannWindow[N] = 0.5 * (1 - cos((2* M_PI * N)/(FFT_SIZE - 1)));
     }
 
     return(true);
@@ -591,13 +590,13 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
     {
         SoftCore_SA->Mode = MODE_SIGNAL_SA;
         SoftCore_SA->Audio_SA.Enable = false;
-        drawStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
+        displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
         printMagenta("Audio Mode Active\r\n"); 
     }
     else
     {
         SoftCore_SA->Mode = MODE_AUDIO_SA;
-        drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+        displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
         xil_printf("Signal Mode Active\r\n"); 
     }
 
@@ -632,12 +631,12 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
         if (Status == true)
         {
             SoftCore_SA->Audio_SA.Enable = true;
-            drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
         }
         else
         {
             SoftCore_SA->Audio_SA.Enable = false;
-            drawStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, DISPLAY_FILE_ERROR, DISPLAY_AUDIO_ERROR, 0);
+            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, DISPLAY_FILE_ERROR, DISPLAY_AUDIO_ERROR, 0);
         }
         printMagenta("Audio Select\r\n"); 
     }

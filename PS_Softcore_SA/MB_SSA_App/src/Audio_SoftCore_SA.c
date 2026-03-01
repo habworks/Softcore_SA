@@ -33,6 +33,7 @@
 #include "IO_Support.h"
 #include "Hab_Types.h"
 #include "Application_Display.h"
+#include "FFT_Support.h"
 #include "xgpio.h"
 #include "ff.h"
 #include <stdio.h>
@@ -50,10 +51,10 @@ static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel);
 
 
 uint8_t __attribute__ ((section (".Hab_Fast_Data"))) RawLinearBuffer[MAX_RAW_BUFFER];
-bool __attribute__ ((section (".Hab_Fast_Data"))) *FFT_FrameReadyPtr;
-Type_int16_t_CircularBuffer __attribute__ ((section (".Hab_Fast_Data"))) *Samples_CB_Ptr;
-Type_AudioAction __attribute__ ((section (".Hab_Fast_Data"))) *AudioActionPtr;
-float __attribute__ ((section (".Hab_Fast_Data"))) *FFT_SamplesPtr;
+
+float __attribute__ ((section (".Hab_Fast_Data"))) BinMagnitudes[(FFT_SIZE/2) + 1];
+uint8_t __attribute__ ((section (".Hab_Fast_Data"))) DisplayMagnitude[FREQUENCY_SLOTS];
+
 // For testing only
 uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
 
@@ -77,32 +78,61 @@ uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
 ********************************************************************************************************/
 void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_ModeStatus)
 {
+    static bool DoOnce = true;
+
+    bool Status;
+
     // STEP 1: Audio play and spectrum qualifier
     if ((!Audio_SA->Enable) || (Audio_SA->AudioAction != AUDIO_ACTION_PLAY))
         return;
 
+    if (DoOnce)
+    {
+        Status = init_FFT(FFT, 16000);
+        if (Status != true)
+        {
+            errorCloseAudioFile(Audio_SA, "Fail FFT init");
+            return(false);
+        }
+        DoOnce = false;
+    }
+
     // STEP 2: Stream the audio from the uSD - It is played in the audio ISR
-    // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-    feedStream_PCM16_WAV(Audio_SA, FFT);
-    // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
-    StackUsedWaterMark = getStackHighWaterMarkBytes();
+// XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+    // if (!DisplayUpdateToggle)
+        feedStream_PCM16_WAV(Audio_SA, FFT);
+// XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
+    // StackUsedWaterMark = getStackHighWaterMarkBytes();
 
     // STEP 3: Update the audio LED bar graph
     update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16, LED_ModeStatus);
 
     // STEP 4: FFT Update
-    static bool DisplayUpdate = true;
+    
     if (FFT->FrameReady)
-    {      
-        // apply_FFT_Window(Audio_SA, FFT);
-        // displayAudioSpectrum(FFT)
-        // if (DisplayUpdate)
-        {
-            updateDisplayPlaybackTimer(Audio_SA->PlaybackTickCounter, Audio_SA->File.Header.SampleRate);
-            drawSpectrumMock(&Display_SSD1309, false);
-        }
-        // DisplayUpdate = !DisplayUpdate;
-        FFT->FrameReady = false;
+    {            
+        Status = FFT_ProcessFrame(FFT, BinMagnitudes, BIN_COUNT);
+
+
+
+        updateDisplayPlaybackTimer(Audio_SA->PlaybackTickCounter, Audio_SA->File.Header.SampleRate);
+        if (Status == true)
+            Status = buildAudioSpectrumFrame(Audio_SA->File.Header.SampleRate,
+                            FFT->Size,
+                            BinMagnitudes,
+                            BIN_COUNT,
+                            SLOT_MAGNITUDE_RMS,
+                            LINEAR_COMPRESSION_NONE,
+                            -60.0F,
+                            DisplayMagnitude,
+                            FREQUENCY_SLOTS,
+                            MAX_VERTICAL_BAR_COUNT,
+                            &AudioSpectrum);
+
+
+        displayAudioSpectrum(&Display_SSD1309, DisplayMagnitude, FREQUENCY_SLOTS, MAX_VERTICAL_BAR_COUNT, false);
+
+        
     }  
 
 } // END OF audioSpectrumAnalyzer
@@ -176,7 +206,7 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         BytesToReadFromFile = Audio_SA->File.Header.DataSize;
         // Ensure buffers are large enough (10K+ samples recommended at 16000KHz audio sample rate)
         // Hab Future: Allocate memory based on audio sample rate
-        Status = init_I16_CB(&Audio_SA->Samples_CB, (1024 * 10)); 
+        Status = init_I16_CB(&Audio_SA->Samples_CB, (1024 * 22)); 
         if (Status == false)
         {
             errorCloseAudioFile(Audio_SA, "Fail to allocate memory");
@@ -435,9 +465,9 @@ void stopAudio_SA(Type_Audio_SA *Audio_SA)
     Audio_SA->File.IsOpen = false;
     free_I16_CB(&Audio_SA->Samples_CB);
     // Update the display
-    updateAudioDisplayPlaybackTime(&Display_SSD1309, 0);
-    updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_STOP);
-    drawSpectrumMock(&Display_SSD1309, true);
+    displayUpdateAudioPlaybackTime(&Display_SSD1309, 0);
+    displayUpdateAudioPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_STOP);
+    displaySpectrumMock(&Display_SSD1309, true);
 
 } // END OF stopAudio_SA
 
@@ -472,14 +502,14 @@ void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         FFT->FrameReady = false;
         FFT->RBW = Audio_SA->File.Header.SampleRate / FFT->Size;
         // Update the display
-        updateAudioDisplayPlaybackTime(&Display_SSD1309, 0);
-        updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
-        drawSpectrumMock(&Display_SSD1309, true);
+        displayUpdateAudioPlaybackTime(&Display_SSD1309, 0);
+        displayUpdateAudioPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
+        displaySpectrumMock(&Display_SSD1309, true);
     }
 
-    // STEP 3: Update dispaly
+    // STEP 3: Update display
     Audio_SA->AudioAction = AUDIO_ACTION_PLAY;
-    updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
+    displayUpdateAudioPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PLAY);
  
 } // END OF playAudio_SA
 
@@ -506,7 +536,7 @@ void pauseAudio_SA(Type_Audio_SA *Audio_SA)
     Audio_SA->AudioAction = AUDIO_ACTION_PAUSE;
 
     // Update the display
-    updateAudioDisplayPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PAUSE);
+    displayUpdateAudioPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PAUSE);
     displayUpdateBuffer(&Display_SSD1309);
 
 } // END OF playAudio_SA
@@ -581,6 +611,7 @@ void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     uint16_t PWM_DutyCycle;
     read_I16_CB(&Audio_SA->Samples_CB, &SampleValue, NULL, NULL);
     Audio_SA->PresentValue_PCM16 = SampleValue;
+    FFT->Samples[SampleIndex] = SampleValue;
     PWM_DutyCycle = convert_PCM16_To_PWM_DutyPercent(SampleValue, 1024);
     update_PWM_Duty_Fast(&AXI_PWM_Handle, PWM_DutyCycle);
     
@@ -685,7 +716,7 @@ static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t Play
     
     // STEP 2: Calculate time in seconds and upate the dispaly
     uint32_t TimeInSeconds = (uint32_t)((1.0 / (float)PlaybackRate) * ISR_PlayBackTicks);
-    updateAudioDisplayPlaybackTime(&Display_SSD1309, TimeInSeconds);
+    displayUpdateAudioPlaybackTime(&Display_SSD1309, TimeInSeconds);
 
     return(true);
 

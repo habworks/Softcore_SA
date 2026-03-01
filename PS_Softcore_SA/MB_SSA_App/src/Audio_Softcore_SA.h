@@ -41,7 +41,7 @@ extern"C" {
 #define DEFAULT_AUDIO_FREQUENCY 44100       // Value in Hz
 #define AUDIO_PWM_FREQUENCY     100000      // Value in Hz
 #define AUDIO_PWM_DEFAULT_DUTY  50          
-#define CHUNK_MULTIPLIER        2
+#define CHUNK_MULTIPLIER        4
 // #if ((CHUNK_MULTIPLIER / 2) * 2) != CHUNK_MULTIPLIER
 //     #error "MULTIPLER must be even"
 // #endif

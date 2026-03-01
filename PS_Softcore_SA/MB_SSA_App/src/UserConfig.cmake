@@ -31,22 +31,33 @@ set(USER_UNDEFINED_SYMBOLS
 set(USER_INCLUDE_DIRECTORIES
 "U8G2/csrc"
 "FAT_FS"
+"KISS_FFT"
 )
 set(USER_COMPILE_SOURCES
+"Application_Display.c"
 "Audio_File_API.c"
+"Audio_SoftCore_SA.c"
 "AXI_IMR_ADC_7476A_DUAL.c"
 "AXI_IMR_PL_Revision.c"
 "AXI_IRQ_Controller_Support.c"
+"AXI_QSPI_Support.c"
 "AXI_Timer_PWM_Support.c"
 "AXI_UART_Lite_Support.c"
+"Circular_Buffers.c"
 "FAT_FS/diskio.c"
 "FAT_FS/ff.c"
 "FAT_FS/ffsystem.c"
 "FAT_FS/ffunicode.c"
+"FFT_Support.c"
+"KISS_FFT/kiss_fft.c"
+"KISS_FFT/kiss_fftr.c"
 "main.c"
 "Main_App.c"
 "Main_Support.c"
 "Main_Test.c"
+"MCP23S08_Driver.c"
+"Signal_SoftCore_SA.c"
+"SSD1309_Driver.c"
 "Terminal_Emulator_Support.c"
 "U8G2/csrc/mui.c"
 "U8G2/csrc/mui_u8g2.c"
@@ -177,14 +188,7 @@ set(USER_COMPILE_SOURCES
 "U8G2/csrc/u8x8_string.c"
 "U8G2/csrc/u8x8_u16toa.c"
 "U8G2/csrc/u8x8_u8toa.c"
-"AXI_QSPI_Support.c"
-"MCP23S08_Driver.c"
-"Audio_SoftCore_SA.c"
-"Signal_SoftCore_SA.c"
 "Water_Mark.c"
-"Circular_Buffers.c"
-"Application_Display.c"
-"SSD1309_Driver.c"
 )
 
 # -----------------------------------------
@@ -241,7 +245,7 @@ set(USER_COMPILE_ANSI "")
 
 # Add any compiler options that are not covered by the above variables, they will be added as extra compiler options
 # To enable profiling -pg [ for gprof ]  or -p [ for prof information ]
-set(USER_COMPILE_OTHER_FLAGS "")
+set(USER_COMPILE_OTHER_FLAGS "-mhard-float -mxl-float-sqrt -fno-math-errno")
 
 # -----------------------------------------
 
@@ -280,7 +284,7 @@ set(USER_LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/lscript.ld")
 # Add linker options to be passed, they will be added as extra linker options
 # Example : Adding -s will pass -s to the linker.
 set(USER_LINK_OTHER_FLAGS
-"-u _printf_float"
+"-u _printf_float -Wl,-Map=output.map"
 )
 
 # -----------------------------------------

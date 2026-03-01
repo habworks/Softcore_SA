@@ -13,7 +13,7 @@ set( CMAKE_AR mb-ar CACHE FILEPATH "Archiver" )
 set( CMAKE_SIZE mb-size CACHE FILEPATH "Size" )
 set( CMAKE_SYSTEM_PROCESSOR "microblaze" )
 set( CMAKE_SYSTEM_NAME "Generic" )
-set( CMAKE_HW_FLAGS "-mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mcpu=v11.0" )
+set( CMAKE_HW_FLAGS "-mxl-barrel-shift -mlittle-endian -mxl-pattern-compare -mno-xl-soft-mul -mxl-multiply-high -mno-xl-soft-div -mhard-float -mxl-float-convert -mxl-float-sqrt -mcpu=v11.0" )
 
 set( CMAKE_COMPILER_LIB_PATH "C:/Xilinx_Embedded_2024.2/Vitis/2024.2/gnu/microblaze/nt/microblazeeb-xilinx-elf/usr/lib/le/bs/p/m/fpd/" )
 

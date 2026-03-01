@@ -4,13 +4,13 @@
 ******************************************************************************/
 
 _STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 0x0C00;
-_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0x6000;
+_HEAP_SIZE = DEFINED(_HEAP_SIZE) ? _HEAP_SIZE : 0xE000;
 
 MEMORY
 {
 	mig_0 : ORIGIN = 0x80000000, LENGTH = 0x10000000
     vectors_bram : ORIGIN = 0x00000000, LENGTH = 0x00000050 /* Hab added this to move vectors to LBM */
-	lmb_bram_0 : ORIGIN = 0x50, LENGTH = 0xffb0
+	lmb_bram_0 : ORIGIN = 0x50, LENGTH = 0x1ffb0
 }
 
 /* Specify the default entry point to the program */

@@ -35,6 +35,7 @@ extern"C" {
 #include <xparameters.h>
 #include "xtmrctr.h"
 #include "SSD1309_Driver.h"
+#include "kiss_fftr.h"
 
 
 // DEFINES
@@ -121,9 +122,11 @@ typedef struct
 {
     volatile bool               FrameReady;                 // An FFT size data is ready for processing in the PWM and HannWindow Buffers
     uint16_t                    Size;
+    uint32_t                    SampleRate_Hz;
     float                       HannWindow[FFT_SIZE];
     volatile float              Samples[FFT_SIZE];
     float                       RBW;
+    kiss_fftr_cfg               FFT_Config;
 } Type_FFT;
 
 

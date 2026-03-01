@@ -64,7 +64,7 @@ void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309)
 * STEP 2: Draw each spectral bar
 * STEP 3: Push to display
 ********************************************************************************************************/
-void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309, bool ClearOnly)
+void displaySpectrumMock(Type_Display_SSD1309 *Display_SSD1309, bool ClearOnly)
 {
     // USER-ADJUSTABLE LOCAL CONSTANTS (self-contained)
     uint8_t NumBars           = 16;     // Number of frequency columns
@@ -106,7 +106,7 @@ void drawSpectrumMock(Type_Display_SSD1309 *Display_SSD1309, bool ClearOnly)
     // STEP 3: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
-} // END OF drawSpectrumMock
+} // END OF displaySpectrumMock
 
 
 
@@ -270,7 +270,7 @@ void displayUpdateBuffer(Type_Display_SSD1309 *Display_SSD1309)
 * STEP 4: Draw left-justified file info (5x8)
 * STEP 5: Push to display
 ********************************************************************************************************/
-void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds)
+void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds)
 {
     // STEP 1: Format time string
     char TimeString[6] = {0};  // "mm:ss"
@@ -297,7 +297,7 @@ void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading,
     // STEP 5: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
-} // END OF drawStaticHeaderAudio
+} // END OF displayStaticHeaderAudio
 
 
 
@@ -317,7 +317,7 @@ void drawStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading,
 * STEP 2: Clear only time area (convert baseline to top-left)
 * STEP 3: Print the updated time to screen - note: requires another function call that will push to display
 ********************************************************************************************************/
-void updateAudioDisplayPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint32_t TimeInSeconds)
+void displayUpdateAudioPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint32_t TimeInSeconds)
 {
     // STEP 1: Format time string 
     char TimeString[6] = {0};
@@ -335,7 +335,7 @@ void updateAudioDisplayPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint3
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, TIME_X, TIME_BASELINE_Y, TimeString);
 
-} // END OF updateAudioDisplayPlaybackTime
+} // END OF displayUpdateAudioPlaybackTime
 
 
 
@@ -354,7 +354,7 @@ void updateAudioDisplayPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint3
 * STEP 1: Clear only the playback action area
 * STEP 2: Print the updated play action to screen - note: requires another function call that will push to display
 ********************************************************************************************************/
-void updateAudioDisplayPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction)
+void displayUpdateAudioPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction)
 {
     // STEP 1: Clear only the playback action area
     uint8_t Y_Top = (uint8_t)(ACTION_BASELINE_Y - ACTION_FONT_H);
@@ -366,7 +366,52 @@ void updateAudioDisplayPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, cha
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, ACTION_X, ACTION_BASELINE_Y, PlaybackAction);
 
-} // END OF updateAudioDisplayPlaybackAction
+} // END OF displayUpdateAudioPlaybackAction
+
+
+void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *DisplayMagnitude, uint8_t FrequencySlots, uint8_t VerticalBarCount, bool ClearOnly)
+{
+    // USER-ADJUSTABLE LOCAL CONSTANTS (self-contained)
+    uint8_t NumBars           = FrequencySlots;     // Number of frequency columns
+    uint8_t SegmentsPerBar    = VerticalBarCount;      // Vertical resolution
+    uint8_t SegmentHeight     = 2;      // Height of each vertical block (pixels)
+    uint8_t SegmentVSpace     = 1;      // Space between vertical blocks
+    uint8_t BarWidth          = 4;      // Width of each bar (pixels)
+    uint8_t BarHSpace         = 2;      // Horizontal spacing between bars
+    uint8_t BaselineY         = 63;     // Vertical baseline position (SSD1309 is 64px tall)
+
+    // STEP 1: Clear the spectrum area of the display by drawing a black box
+    uint8_t Spectrum_Y_Start = 40;
+    uint8_t Spectrum_Height = (uint8_t)(DISPLAY_HEIGH_PIXEL - Spectrum_Y_Start);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, 0, Spectrum_Y_Start, DISPLAY_WIDTH_PIXEL, Spectrum_Height);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
+
+    // STEP 2: Draw each spectral bar
+    if (!ClearOnly)
+    {
+        for (uint8_t BarIndex = 0; BarIndex < NumBars; BarIndex++)
+        {
+            // Random height: 0–SegmentsPerBar
+            uint8_t Value = DisplayMagnitude[BarIndex];
+
+            // Compute X position of this bar
+            uint8_t X_Position = BarIndex * (BarWidth + BarHSpace);
+
+            // Draw vertical segments bottom → top
+            for (uint8_t SegmentIndex = 0; SegmentIndex < Value; SegmentIndex++)
+            {
+                uint8_t Y_Top = BaselineY - (SegmentIndex * (SegmentHeight + SegmentVSpace)) - SegmentHeight;
+
+                u8g2_DrawBox(Display_SSD1309->U8G2_Handle, X_Position, Y_Top, BarWidth, SegmentHeight);
+            }
+        }
+    }
+
+    // STEP 3: Push to display
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
+
+} // END OF displayAudioSpectrum
 
 
 
@@ -385,7 +430,7 @@ void updateAudioDisplayPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, cha
 * STEP 3: ...
 * STEP 4: Push to display
 ********************************************************************************************************/
-void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading)
+void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading)
 {
     // STEP 1: Clear buffer
     u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
@@ -402,4 +447,4 @@ void drawStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading
     // STEP 4: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
-} // END OF drawStaticHeaderSignal
+} // END OF displayStaticHeaderSignal
