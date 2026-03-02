@@ -72,7 +72,7 @@ uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
 * STEP 1: Audio play and spectrum qualifier
 * STEP 2: Stream the audio from the uSD - It is played in the audio ISR
 * STEP 3: Update the audio LED bar graph
-* STEP 4: FFT Update
+* STEP 4: FFT Update when frame ready (FFT number of samples collected
 ********************************************************************************************************/
 void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_ModeStatus)
 {
@@ -92,14 +92,17 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_M
     // STEP 3: Update the audio LED bar graph
     update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16, LED_ModeStatus);
 
-    // STEP 4: FFT Update
+    // STEP 4: FFT Update when frame ready (FFT number of samples collected)
     if (FFT->FrameReady)
     {            
-        Status = FFT_ProcessFrame(FFT, BinMagnitudes, BIN_COUNT);
+        // Process the FFT frame data
+        FFT_ProcessFrame(FFT, BinMagnitudes, BIN_COUNT);
 
+        // Update the display playback time
         updateDisplayPlaybackTimer(Audio_SA->PlaybackTickCounter, Audio_SA->File.Header.SampleRate);
-        if (Status == true)
-            Status = buildAudioSpectrumFrame(Audio_SA->File.Header.SampleRate,
+        
+        // Prep the information from processing to be displayed - a way to present the BIN Amplitude
+        buildAudioSpectrumFrame(Audio_SA->File.Header.SampleRate,
                             FFT->Size,
                             BinMagnitudes,
                             BIN_COUNT,
@@ -111,7 +114,7 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_M
                             MAX_VERTICAL_BAR_COUNT,
                             &AudioSpectrum);
 
-
+        // Present the display audio spectrum
         displayAudioSpectrum(&Display_SSD1309, DisplayMagnitude, FREQUENCY_SLOTS, MAX_VERTICAL_BAR_COUNT, false);
     }  
 

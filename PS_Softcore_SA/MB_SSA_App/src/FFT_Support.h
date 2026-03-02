@@ -37,10 +37,6 @@ extern"C" {
 // DEFINES
 #define FREQUENCY_SLOTS         18U  // Number of frequency slots (bars) to display
 #define MAX_VERTICAL_BAR_COUNT  8U   // Max vertical bar height in segments
-#ifndef FFT_MAX_BINS
-#define FFT_MAX_BINS            ((uint32_t)(FFT_SIZE / 2 + 1))
-#endif
-#define BIN_COUNT               FFT_MAX_BINS
 
 
 // TYPEDEFS AND ENUMS
@@ -76,8 +72,6 @@ extern Type_AudioSpectrum AudioSpectrum;
 bool init_FFT(Type_FFT *FFT, uint32_t SampleRate_Hz);
 void deinit_FFT(Type_FFT *FFT);
 uint32_t FFT_ProcessFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount);
-bool FFT_MapBinsToBars(Type_FFT *FFT, const float *BinMagnitudes, uint32_t BinCount, float *BarMagnitudes, uint32_t BarCount, bool UseLogSpacing);
-bool FFT_ScaleBars(float *BarMagnitudes, uint32_t BarCount, bool UseDBScale, float MinDB);
 bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
                             uint16_t FFT_Size,
                             const float *BinMagnitudes,

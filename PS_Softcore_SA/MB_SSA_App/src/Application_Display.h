@@ -38,15 +38,15 @@ extern"C" {
 // FOR USE WITH THE AUDIO SPECTRUM TIME
 #define TIME_X                  0U
 #define TIME_BASELINE_Y         37U
-#define TIME_FONT_H             8U
-#define TIME_BOX_W              (5U * 6U)   // conservative for 5x8 font width
+#define TIME_FONT_H             8U          // 5x8 font height
+#define TIME_BOX_W              (5U * 6U)   // conservative for 5x8 font width - 6 chars long
 #define TIME_BOX_H              9U
 // FOR USE WITH THE AUDIO SPECTRUM ACTION 
 #define ACTION_X                0U
 #define ACTION_BASELINE_Y       28U
-#define ACTION_FONT_H           8U      // 5x8 font height
-#define ACTION_BOX_W            DISPLAY_WIDTH_PIXEL
-#define ACTION_BOX_H            9U      // 1px margin
+#define ACTION_FONT_H           8U          // 5x8 font height
+#define ACTION_BOX_W            (5U * 8U)   // conservative for 5x8 font width - 10 chars long
+#define ACTION_BOX_H            9U          // 1px margin
 // FOR USE WITH CLEARING THE SPECTRUM
 #define SPECTRUM_ERASE_WIDTH    111U      
 

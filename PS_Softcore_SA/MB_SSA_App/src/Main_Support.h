@@ -106,9 +106,14 @@ extern"C" {
 // MISC
 #define MODE_PERIODIC_IRQ_TIME  0.500                                                   // Value in sec
 #define MODE_TIMER_COUNT        (MODE_PERIODIC_IRQ_TIME * XPAR_CPU_CORE_CLOCK_FREQ_HZ)  // Count that lead to Value in sec delay
-#define FFT_BINS                1024U
-#define FFT_SIZE                FFT_BINS
+// FFT RELATED
+#define FFT_SAMPLES             1024U
+#define FFT_SIZE                FFT_SAMPLES
 #define AUDIO_TIMER_IRQ_ID      XPAR_FABRIC_AXI_TIMER_1_INTR
+#ifndef FFT_MAX_BINS
+#define FFT_MAX_BINS            ((uint32_t)((FFT_SIZE / 2) + 1))
+#endif
+#define BIN_COUNT               FFT_MAX_BINS
 
 
 // TYPEDEFS AND ENUMS
