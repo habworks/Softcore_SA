@@ -79,7 +79,7 @@ void displaySpectrumMock(Type_Display_SSD1309 *Display_SSD1309, bool ClearOnly)
     uint8_t Spectrum_Y_Start = 40;
     uint8_t Spectrum_Height = (uint8_t)(DISPLAY_HEIGH_PIXEL - Spectrum_Y_Start);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
-    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, 0, Spectrum_Y_Start, DISPLAY_WIDTH_PIXEL, Spectrum_Height);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, 0, Spectrum_Y_Start, SPECTRUM_ERASE_WIDTH, Spectrum_Height);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
 
     // STEP 2: Draw each spectral bar
@@ -270,7 +270,7 @@ void displayUpdateBuffer(Type_Display_SSD1309 *Display_SSD1309)
 * STEP 4: Draw left-justified file info (5x8)
 * STEP 5: Push to display
 ********************************************************************************************************/
-void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds)
+void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds, int8_t MinValue_dB)
 {
     // STEP 1: Format time string
     char TimeString[6] = {0};  // "mm:ss"
@@ -294,7 +294,21 @@ void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Headi
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 28, AudioAction);    // Line 2
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 37, TimeString);    // Line 3
 
-    // STEP 5: Push to display
+    // STEP 5: Draw right-justified dB scale labels on the far right side
+    char MinDbString[6] = {0};
+    snprintf(MinDbString, sizeof(MinDbString), "%d", (int)MinValue_dB);
+    uint16_t Width_dB = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, "dB");
+    uint16_t Width_Zero = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, "00");
+    uint16_t Width_Min = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, MinDbString);
+    uint8_t X_dB = (uint8_t)(DISPLAY_WIDTH_PIXEL - Width_dB);
+    uint8_t X_Zero = (uint8_t)(DISPLAY_WIDTH_PIXEL - Width_Zero);
+    uint8_t X_Min = (uint8_t)(DISPLAY_WIDTH_PIXEL - Width_Min);
+    // Place scale labels safely within the spectrum area (Spectrum_Y_Start = 40) using 5x8 font
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_dB, 29U, "dB");
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Zero, 37U, "00");
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Min, 63U, MinDbString);
+
+    // STEP 6: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
 } // END OF displayStaticHeaderAudio
@@ -369,11 +383,30 @@ void displayUpdateAudioPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, cha
 } // END OF displayUpdateAudioPlaybackAction
 
 
+
+/********************************************************************************************************
+* @brief Displays a the audio specturm.  No calculations are done here.  All caculations are computed by
+* the calling function to match the display height and number of spectrum slots.  
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* 
+* @param Display_SSD1309: Pointer to display handle
+* @param DisplayMagnitude: Buffer of relatiive amplitude to match the VerticalBarCount for each slot
+* @param FrequencySlots: Number of frequencies to display
+* @param VerticalBarCount: The max number of bars - corresponds to the max display magnitude
+* @param ClearOnly: Only clears the sprecrturm display area - no specturm is displayed
+*
+* STEP 1: Clear the spectrum area of the display by drawing a black box
+* STEP 2: Draw each spectral bar
+* STEP 3: Push to display
+********************************************************************************************************/
 void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *DisplayMagnitude, uint8_t FrequencySlots, uint8_t VerticalBarCount, bool ClearOnly)
 {
     // USER-ADJUSTABLE LOCAL CONSTANTS (self-contained)
     uint8_t NumBars           = FrequencySlots;     // Number of frequency columns
-    uint8_t SegmentsPerBar    = VerticalBarCount;      // Vertical resolution
+    uint8_t SegmentsPerBar    = VerticalBarCount;   // Vertical resolution
     uint8_t SegmentHeight     = 2;      // Height of each vertical block (pixels)
     uint8_t SegmentVSpace     = 1;      // Space between vertical blocks
     uint8_t BarWidth          = 4;      // Width of each bar (pixels)
@@ -384,7 +417,7 @@ void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *Displa
     uint8_t Spectrum_Y_Start = 40;
     uint8_t Spectrum_Height = (uint8_t)(DISPLAY_HEIGH_PIXEL - Spectrum_Y_Start);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
-    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, 0, Spectrum_Y_Start, DISPLAY_WIDTH_PIXEL, Spectrum_Height);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, 0, Spectrum_Y_Start, SPECTRUM_ERASE_WIDTH, Spectrum_Height);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
 
     // STEP 2: Draw each spectral bar

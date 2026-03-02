@@ -39,9 +39,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+// STATIC FUNCTIONS
 static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT); // __attribute__((fast_interrupt));
-static void errorCloseAudioFile(Type_Audio_SA *Audio_SA, char *ErrorMsg);
+static void errorCloseAudioFile(Type_Audio_SA *Audio_SA, Type_FFT *FFT, char *ErrorMsg);
 static int16_t convert_PCM16_ToMono(int16_t Left_PCM16_Audio, int16_t Right_PCM16_Audion);
 static uint16_t convert_PCM16_To_PWM_DutyPercent(int16_t PCM16_Sample, uint16_t PercentBase);
 // static void load_FFT_PWM_ToBuffers(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
@@ -49,12 +49,10 @@ static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t Play
 static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel);
 
-
+// GLOBAL AUDIO PLAYBACK
 uint8_t __attribute__ ((section (".Hab_Fast_Data"))) RawLinearBuffer[MAX_RAW_BUFFER];
-
 float __attribute__ ((section (".Hab_Fast_Data"))) BinMagnitudes[(FFT_SIZE/2) + 1];
 uint8_t __attribute__ ((section (".Hab_Fast_Data"))) DisplayMagnitude[FREQUENCY_SLOTS];
-
 // For testing only
 uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
 
@@ -78,7 +76,6 @@ uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
 ********************************************************************************************************/
 void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_ModeStatus)
 {
-    static bool DoOnce = true;
 
     bool Status;
 
@@ -86,34 +83,19 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_M
     if ((!Audio_SA->Enable) || (Audio_SA->AudioAction != AUDIO_ACTION_PLAY))
         return;
 
-    if (DoOnce)
-    {
-        Status = init_FFT(FFT, 16000);
-        if (Status != true)
-        {
-            errorCloseAudioFile(Audio_SA, "Fail FFT init");
-            return(false);
-        }
-        DoOnce = false;
-    }
-
     // STEP 2: Stream the audio from the uSD - It is played in the audio ISR
 // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-    // if (!DisplayUpdateToggle)
-        feedStream_PCM16_WAV(Audio_SA, FFT);
+    feedStream_PCM16_WAV(Audio_SA, FFT);
 // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
-    // StackUsedWaterMark = getStackHighWaterMarkBytes();
+// StackUsedWaterMark = getStackHighWaterMarkBytes();
 
     // STEP 3: Update the audio LED bar graph
     update_LED_AudioBarGraph(Audio_SA->PresentValue_PCM16, LED_ModeStatus);
 
     // STEP 4: FFT Update
-    
     if (FFT->FrameReady)
     {            
         Status = FFT_ProcessFrame(FFT, BinMagnitudes, BIN_COUNT);
-
-
 
         updateDisplayPlaybackTimer(Audio_SA->PlaybackTickCounter, Audio_SA->File.Header.SampleRate);
         if (Status == true)
@@ -123,7 +105,7 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_M
                             BIN_COUNT,
                             SLOT_MAGNITUDE_RMS,
                             LINEAR_COMPRESSION_NONE,
-                            -60.0F,
+                            AUDIO_MIN_DB_DISPLAY,
                             DisplayMagnitude,
                             FREQUENCY_SLOTS,
                             MAX_VERTICAL_BAR_COUNT,
@@ -131,8 +113,6 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_M
 
 
         displayAudioSpectrum(&Display_SSD1309, DisplayMagnitude, FREQUENCY_SLOTS, MAX_VERTICAL_BAR_COUNT, false);
-
-        
     }  
 
 } // END OF audioSpectrumAnalyzer
@@ -194,7 +174,7 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     {
         if (f_open(FileHandle, Audio_SA->File.PathFileName, FA_READ) != FR_OK)
          {
-            errorCloseAudioFile(Audio_SA, "Fail to open WAV file");
+            errorCloseAudioFile(Audio_SA, FFT, "Fail to open WAV file");
             return(false);
         }
         // Upade handle members and data size
@@ -209,14 +189,14 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         Status = init_I16_CB(&Audio_SA->Samples_CB, (1024 * 22)); 
         if (Status == false)
         {
-            errorCloseAudioFile(Audio_SA, "Fail to allocate memory");
+            errorCloseAudioFile(Audio_SA, FFT, "Fail to allocate memory");
             return(false);
         }
         // Go to audio data offset within WAV file
         FileStatus = f_lseek(FileHandle, WAV_DATA_OFFSET);
         if (FileStatus != FR_OK)
         {
-            errorCloseAudioFile(Audio_SA, "Fail file seek");
+            errorCloseAudioFile(Audio_SA, FFT, "Fail file seek");
             return(false);
         }
     }
@@ -224,7 +204,7 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // STEP 2: Termination Check
     if (Audio_SA->File.Is_EOF && isEmpty_I16_CB(&Audio_SA->Samples_CB))
     {
-        stopAudio_SA(Audio_SA);
+        stopAudio_SA(Audio_SA, FFT);
         return(true);
     }
 
@@ -232,7 +212,7 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // Only trigger a read if space for a significant "chunk" (e.g., 2048 bytes = sizeof(RawLinearBuffer)
     // This reduces SD Card overhead.
     uint32_t FreeSamples = availableWrites_I16_CB(&Audio_SA->Samples_CB);
-    uint32_t ChunkInSamples = 512; // Process 512 samples at a time
+    uint32_t ChunkInSamples = 512 * 4; // Process 512 samples at a time
     if (FreeSamples >= ChunkInSamples && !Audio_SA->File.Is_EOF)
     {
         uint32_t BytesToRequest;
@@ -243,14 +223,11 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         // Clamp the read size
         if (BytesToRequest > BytesToReadFromFile)
             BytesToRequest = BytesToReadFromFile;
-        // Use Test Point to test Flash read speed - comment out when not done testing
-        // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
         // Read directly into your linear scratch buffer
         FileStatus = f_read(FileHandle, RawLinearBuffer, BytesToRequest, &BytesLastReadFromFile);
-        // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
         if (FileStatus != FR_OK)
         {
-            errorCloseAudioFile(Audio_SA, "Fail file read");
+            errorCloseAudioFile(Audio_SA, FFT, "Fail file read");
             return(false);
         }
         if (BytesLastReadFromFile == 0) 
@@ -304,15 +281,16 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 * @author original: Hab Collector \n
 *
 * @param Audio_SA: Pointer to Audio Spectrum Analyzer structure
+* @param FFT: Pointer to FFT structure
 * @param FileHandle: Pointer to the WAV file handle that maybe open
 *
 * STEP 1: Make preperations to leave feedStream_PCM16_WAV gracefully
 ********************************************************************************************************/
-static void errorCloseAudioFile(Type_Audio_SA *Audio_SA, char *ErrorMsg)
+static void errorCloseAudioFile(Type_Audio_SA *Audio_SA, Type_FFT *FFT, char *ErrorMsg)
 {
     char PrintBuffer[100];
     // STEP 1: Make preperations to leave feedStream_PCM16_WAV gracefully
-    stopAudio_SA(Audio_SA);
+    stopAudio_SA(Audio_SA, FFT);
     snprintf(PrintBuffer, sizeof(PrintBuffer), "ERROR: %s\r\n", ErrorMsg);
     printBrightRed(PrintBuffer);
 
@@ -449,10 +427,11 @@ static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 * @author original: Hab Collector \n
 *
 * @param Audio_SA: Pointer to Audio Spectrum Analyzer structure
+* @param FFT: Pointer to FFT structure
 *
 * STEP 1: Apply safe stop of audio playback
 ********************************************************************************************************/
-void stopAudio_SA(Type_Audio_SA *Audio_SA)
+void stopAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 {
     // STEP 1: Apply safe stop of audio playback
     Audio_SA->AudioAction = AUDIO_ACTION_STOP;
@@ -464,10 +443,19 @@ void stopAudio_SA(Type_Audio_SA *Audio_SA)
     f_close(&Audio_SA->File.FileHandle);
     Audio_SA->File.IsOpen = false;
     free_I16_CB(&Audio_SA->Samples_CB);
+    deinit_FFT(FFT);
     // Update the display
     displayUpdateAudioPlaybackTime(&Display_SSD1309, 0);
     displayUpdateAudioPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_STOP);
     displaySpectrumMock(&Display_SSD1309, true);
+
+    // For testing only - remove later
+    if (CB_EmptyIn_ISR != 0)
+    {
+        char PrintBuffer[100];
+        snprintf(PrintBuffer, sizeof(PrintBuffer), "  Empty CB on playback: %d\r\n", CB_EmptyIn_ISR);
+        printBrightRed(PrintBuffer);
+    }
 
 } // END OF stopAudio_SA
 
@@ -497,6 +485,14 @@ void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // STEP 2: Take a reset action if comming from a state other than pause
     if (Audio_SA->AudioAction != AUDIO_ACTION_PAUSE)
     {
+        // Init FFT
+        if (!init_FFT(FFT, Audio_SA->File.Header.SampleRate))
+        {
+            errorCloseAudioFile(Audio_SA, FFT, "Fail FFT init");
+            displayUpdateAudioPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_ERROR);
+            return;
+        }
+        // Ready struct members
         Audio_SA->IsPreLoadComplete = false;
         f_close(&Audio_SA->File.FileHandle);    // File should not be open - but just in case
         FFT->FrameReady = false;
@@ -538,6 +534,14 @@ void pauseAudio_SA(Type_Audio_SA *Audio_SA)
     // Update the display
     displayUpdateAudioPlaybackAction(&Display_SSD1309, DISPLAY_AUDIO_PAUSE);
     displayUpdateBuffer(&Display_SSD1309);
+    
+    // For testing only - remove later
+    if (CB_EmptyIn_ISR != 0)
+    {
+        char PrintBuffer[100];
+        snprintf(PrintBuffer, sizeof(PrintBuffer), "  Empty CB on playback: %d\r\n", CB_EmptyIn_ISR);
+        printBrightRed(PrintBuffer);
+    }
 
 } // END OF playAudio_SA
 

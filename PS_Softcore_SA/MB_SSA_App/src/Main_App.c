@@ -72,8 +72,6 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA);
 static void selectSwitch(Type_SoftCore_SA *SoftCore_SA);
 static void updateMode_LED(void);
 
-
-
 // AXI SUPPORT:
 XGpio __attribute__ ((section (".Hab_Fast_Data"))) AXI_GPIO_Handle;
 XTmrCtr __attribute__ ((section (".Hab_Fast_Data"))) AXI_SampleTimerHandle;
@@ -92,7 +90,6 @@ Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_2;
 u8g2_t __attribute__ ((section (".Hab_Fast_Data"))) U8G2; 
 FATFS __attribute__ ((section (".Hab_Fast_Data"))) FatFs;
 uint32_t StackUsedWaterMark = 0;
-
 
 
 
@@ -295,7 +292,7 @@ static void main_WhileLoop(void)
     {
         countFilesInDirectory(AUDIO_DIRECTORY, &SoftCore_SA.Audio_SA.File.DirectoryFileCount);
         getNextWavFile(AUDIO_DIRECTORY, SoftCore_SA.Audio_SA.File.Name, SoftCore_SA.Audio_SA.File.PathFileName, &SoftCore_SA.Audio_SA.File.Size, SoftCore_SA.Audio_SA.File.DirectoryFileCount);
-        displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA.Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+        displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA.Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0, AUDIO_MIN_DB_DISPLAY);
     }
     
     while(1)
@@ -540,7 +537,7 @@ static void processUserInput(Type_SoftCore_SA *SoftCore_SA)
             if (SoftCore_SA->Mode == MODE_AUDIO_SA)
             {
                 printMagenta("Audio Stop\r\n");
-                stopAudio_SA(&SoftCore_SA->Audio_SA);
+                stopAudio_SA(&SoftCore_SA->Audio_SA, &SoftCore_SA->FFT);
             }
         }
         break;
@@ -596,7 +593,7 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
     else
     {
         SoftCore_SA->Mode = MODE_AUDIO_SA;
-        displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+        displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0, AUDIO_MIN_DB_DISPLAY);
         xil_printf("Signal Mode Active\r\n"); 
     }
 
@@ -619,7 +616,7 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
     // STEP 1: Audio Mode: Get the next valid file - if valid file found enable Audio SA
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
-        stopAudio_SA(&SoftCore_SA->Audio_SA);
+        stopAudio_SA(&SoftCore_SA->Audio_SA, &SoftCore_SA->FFT);
         bool Status = false;
         uint16_t FilesChecked = 0;
         do 
@@ -631,12 +628,12 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
         if (Status == true)
         {
             SoftCore_SA->Audio_SA.Enable = true;
-            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0);
+            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0, AUDIO_MIN_DB_DISPLAY);
         }
         else
         {
             SoftCore_SA->Audio_SA.Enable = false;
-            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, DISPLAY_FILE_ERROR, DISPLAY_AUDIO_ERROR, 0);
+            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, DISPLAY_FILE_ERROR, DISPLAY_AUDIO_ERROR, 0), AUDIO_MIN_DB_DISPLAY;
         }
         printMagenta("Audio Select\r\n"); 
     }

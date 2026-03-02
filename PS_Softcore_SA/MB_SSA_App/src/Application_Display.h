@@ -36,17 +36,19 @@ extern"C" {
 
 // DEFINES
 // FOR USE WITH THE AUDIO SPECTRUM TIME
-#define TIME_X          ((uint8_t)0U)
-#define TIME_BASELINE_Y ((uint8_t)37U)
-#define TIME_FONT_H     ((uint8_t)8U)
-#define TIME_BOX_W      ((uint8_t)(5U * 6U))   // conservative for 5x8 font width
-#define TIME_BOX_H      ((uint8_t)9U)
+#define TIME_X                  0U
+#define TIME_BASELINE_Y         37U
+#define TIME_FONT_H             8U
+#define TIME_BOX_W              (5U * 6U)   // conservative for 5x8 font width
+#define TIME_BOX_H              9U
 // FOR USE WITH THE AUDIO SPECTRUM ACTION 
-#define ACTION_X          ((uint8_t)0U)
-#define ACTION_BASELINE_Y ((uint8_t)28U)
-#define ACTION_FONT_H     ((uint8_t)8U)     // 5x8 font height
-#define ACTION_BOX_W      ((uint8_t)(DISPLAY_WIDTH_PIXEL))
-#define ACTION_BOX_H      ((uint8_t)9U)     // 1px margin
+#define ACTION_X                0U
+#define ACTION_BASELINE_Y       28U
+#define ACTION_FONT_H           8U      // 5x8 font height
+#define ACTION_BOX_W            DISPLAY_WIDTH_PIXEL
+#define ACTION_BOX_H            9U      // 1px margin
+// FOR USE WITH CLEARING THE SPECTRUM
+#define SPECTRUM_ERASE_WIDTH    111U      
 
 
 // TYPEDEFS AND ENUMS
@@ -61,7 +63,7 @@ void displayDirectTest(Type_Display_SSD1309 *SSD1309);
 void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev);
 void displayUpdateBuffer(Type_Display_SSD1309 *Display_SSD1309);
 // AUDIO SA RELATED
-void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds);
+void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds, int8_t MinValue_dB);
 void displayUpdateAudioPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint32_t TimeInSeconds);
 void displayUpdateAudioPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction);
 void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *DisplayMagnitude, uint8_t FrequencySlots, uint8_t VerticalBarCount, bool ClearOnly);

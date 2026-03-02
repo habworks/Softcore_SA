@@ -33,9 +33,10 @@
 #include "Main_App.h"
 #include "IO_Support.h"
 
+// STATIC FUNCTIONS
 static uint32_t clamp_u32(uint32_t Value, uint32_t Min, uint32_t Max);
 
-
+// GLOBAL FFT RELATED
 float SpectrumFrequency[FREQUENCY_SLOTS];
 float SpectrumMagnitude[FREQUENCY_SLOTS];
 Type_AudioSpectrum  AudioSpectrum =
@@ -49,46 +50,88 @@ Type_AudioSpectrum  AudioSpectrum =
 };
 
 
+
+/********************************************************************************************************
+* @brief Init the FFT for use
+*
+* @author original: Hab Collector \n
+*
+* @note: Uses KissFFT library
+* @note: Sample rate only needs to meet Nquist (2x frequency of signal)
+* 
+* @param FFT: Pointer to FFT structure
+* @param SampleRate_Hz: Sample rate of the signal (can be any signal)
+*
+* @return: True if OK
+*
+* STEP 1: Validate input pointer
+* STEP 2: Store FFT size and sample rate
+* STEP 3: Compute resolution bandwidth (RBW)
+* STEP 4: Clear runtime flags
+* STEP 5: Allocate KissFFT real FFT configuration
+********************************************************************************************************/
 bool init_FFT(Type_FFT *FFT, uint32_t SampleRate_Hz)
 {
-    // STEP 1: Validate input pointer.
+    // STEP 1: Validate input pointer
     if (FFT == NULL)
         return(false);
 
-    // STEP 2: Store FFT size and sample rate.
+    // STEP 2: Store FFT size and sample rate
     FFT->Size = FFT_SIZE;
     FFT->SampleRate_Hz = SampleRate_Hz;
 
-    // STEP 3: Compute resolution bandwidth (RBW).
+    // STEP 3: Compute resolution bandwidth (RBW)
     FFT->RBW = ((float)SampleRate_Hz / (float)FFT_SIZE);
 
-    // STEP 4: Clear runtime flags.
+    // STEP 4: Clear runtime flags
     FFT->FrameReady = false;
 
-    // STEP 5: Generate Hann window coefficients.
-    // for (uint16_t N = 0; N < FFT_SIZE; N++)
-    // {
-    //     FFT->HannWindow[N] =
-    //         0.5f * (1.0f - cosf((2.0f * M_PI * N) / (FFT_SIZE - 1)));
-    // }
-
-    // STEP 6: Allocate KissFFT real FFT configuration.
+    // STEP 5: Allocate KissFFT real FFT configuration
     FFT->FFT_Config = kiss_fftr_alloc(FFT_SIZE, 0, NULL, NULL);
-
     if (FFT->FFT_Config == NULL)
         return(false);
 
     return(true);
-}
+
+} // END OF init_FFT
 
 
-// __attribute__((section(".Hab_Fast_Text")))
+
+/********************************************************************************************************
+* @brief DeInit the FFT
+*
+* @author original: Hab Collector \n
+*
+* @note: Uses KissFFT library
+* @note: Sample rate only needs to meet Nquist (2x frequency of signal)
+* 
+* @param FFT: Pointer to FFT structure
+* @param SampleRate_Hz: Sample rate of the signal (can be any signal)
+*
+* @return: True if OK
+*
+* STEP 1: Free memory that was allocated for the FFT
+********************************************************************************************************/
+void deinit_FFT(Type_FFT *FFT)
+{
+    // STEP 1: Free memory that was allocated for the FFT
+    if (FFT->FFT_Config != NULL)
+    {
+        kiss_fftr_free(FFT->FFT_Config);
+        FFT->FFT_Config = NULL;
+    }
+
+} // END OF deinit_FFT
+
+
+
 uint32_t FFT_ProcessFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount)
 {
+    // Place in fast memory to speed things up
     static float __attribute__ ((section (".Hab_Fast_Data"))) WindowedSamples[FFT_SIZE];
     static kiss_fft_cpx __attribute__ ((section (".Hab_Fast_Data"))) OutputBins[FFT_MAX_BINS];
 
-    // STEP 1: Validate inputs and confirm a frame is ready.
+    // STEP 1: Validate inputs and confirm a frame is ready
     if (FFT == NULL)
         return(false);
 
@@ -107,36 +150,29 @@ uint32_t FFT_ProcessFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount
     if (FFT->FrameReady == false)
         return(false);
 
-    // STEP 2: Snapshot the FFT sample buffer and clear FrameReady.
-    
+    // STEP 2: Snapshot the FFT sample buffer and clear FrameReady
     memcpy(WindowedSamples, (const void *)FFT->Samples, (size_t)(FFT_SIZE * sizeof(float)));
-
     FFT->FrameReady = false;
 
-    // STEP 3: Apply Hann window to the snapshot samples.
-
+    // STEP 3: Apply Hann window to the snapshot samples
     for (uint16_t Index = 0; Index < FFT_SIZE; Index++)
     {
         WindowedSamples[Index] = (WindowedSamples[Index] * FFT->HannWindow[Index]);
     }
 
-
-    // STEP 4: Run KissFFT real FFT on the windowed samples.
+    // STEP 4: Run KissFFT real FFT on the windowed samples - this takes the longest amount of time
 XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
     kiss_fftr(FFT->FFT_Config, WindowedSamples, OutputBins);
 XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
 
-    // STEP 5: Compute magnitude for each requested bin and store into BinMagnitudes.
-
+    // STEP 5: Compute magnitude for each requested bin and store into BinMagnitudes
     for (uint32_t Bin = 0; Bin < BinCount; Bin++)
     {
         float Real = (float)OutputBins[Bin].r;
         float Imag = (float)OutputBins[Bin].i;
-
-        BinMagnitudes[Bin] = sqrtf((Real * Real) + (Imag * Imag));
-        // BinMagnitudes[Bin] = ((Real * Real) + (Imag * Imag));
+        BinMagnitudes[Bin] = sqrtf((Real * Real) + (Imag * Imag));  // Amplidute 
+        // BinMagnitudes[Bin] = ((Real * Real) + (Imag * Imag));    // Power
     }
-
 
     return(true);
 }

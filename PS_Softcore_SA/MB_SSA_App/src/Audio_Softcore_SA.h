@@ -41,15 +41,15 @@ extern"C" {
 #define DEFAULT_AUDIO_FREQUENCY 44100       // Value in Hz
 #define AUDIO_PWM_FREQUENCY     100000      // Value in Hz
 #define AUDIO_PWM_DEFAULT_DUTY  50          
-#define CHUNK_MULTIPLIER        4
+#define CHUNK_MULTIPLIER        6
 // #if ((CHUNK_MULTIPLIER / 2) * 2) != CHUNK_MULTIPLIER
 //     #error "MULTIPLER must be even"
 // #endif
 // #if CHUNK_MULTIPLIER < 4
 //     #error "CHUNK_MULTIPLIER must be >= 4 and be an even value
 // #endif
-
 #define MAX_RAW_BUFFER          (1024 * CHUNK_MULTIPLIER)
+#define AUDIO_MIN_DB_DISPLAY    -60         // Value represents dB
 // LCD DISPLAY RELATED
 #define DISPLAY_AUDIO_HEADING   "AUDIO_SA"
 #define DISPLAY_AUDIO_PLAY      "PLAY"
@@ -111,7 +111,7 @@ typedef struct
 
 // FUNCTION PROTOTYPES
 void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_ModeStatus);
-void stopAudio_SA(Type_Audio_SA *Audio_SA);
+void stopAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 void pauseAudio_SA(Type_Audio_SA *Audio_SA);
 void audioEnable(bool Enable);

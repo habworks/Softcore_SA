@@ -74,6 +74,7 @@ extern Type_AudioSpectrum AudioSpectrum;
 
 // FUNCTION PROTOTYPES
 bool init_FFT(Type_FFT *FFT, uint32_t SampleRate_Hz);
+void deinit_FFT(Type_FFT *FFT);
 uint32_t FFT_ProcessFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount);
 bool FFT_MapBinsToBars(Type_FFT *FFT, const float *BinMagnitudes, uint32_t BinCount, float *BarMagnitudes, uint32_t BarCount, bool UseLogSpacing);
 bool FFT_ScaleBars(float *BarMagnitudes, uint32_t BarCount, bool UseDBScale, float MinDB);
