@@ -40,7 +40,8 @@
 			      <0x41c20000 &axi_timer_2 0x41c20000 0x10000>, 
 			      <0x41c30000 &axi_timer_3 0x41c30000 0x10000>, 
 			      <0x44a00000 &axi_quad_spi_1 0x44a00000 0x10000>, 
-			      <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>;
+			      <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>, 
+			      <0x44a20000 &IMR_PL_Revision_0 0x44a20000 0x10000>;
 		#ranges-address-cells = <0x1>;
 		#ranges-size-cells = <0x1>;
 	};

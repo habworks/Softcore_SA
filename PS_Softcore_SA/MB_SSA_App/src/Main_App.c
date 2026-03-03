@@ -52,6 +52,7 @@
 #include "AXI_IRQ_Controller_Support.h"
 #include "Terminal_Emulator_Support.h"
 #include "AXI_QSPI_Support.h"
+#include "AXI_IMR_PL_Revision.h"
 #include "IO_Support.h"
 #include "Audio_File_API.h"
 #include "Audio_SoftCore_SA.h"
@@ -241,14 +242,20 @@ static void main_InitApplication(void)
     
     // STEP 6: Welcome
     terminal_ClearScreen();
+    // PL BLK GPIO Revision
     uint32_t PL_Ver = XGpio_DiscreteRead(&AXI_GPIO_Handle, GPIO_INPUT_CHANNEL);
     PL_Ver = (PL_Ver & HW_PL_VER_MASK) >> HW_PL_VER_OFFSET;
+    // PL IMR Revision
+    Type_PL_Revision PL_Revision = IMR_PL_RevisionGet(XPAR_IMR_PL_REVISION_0_BASEADDR);
+    // Display to screen
     printGreen("IMR Engineering, LLC\r\n");
     printGreen("  Hab Collector, Principal Engineer\r\n");
     printGreen("  http://www.imrengineering.com\r\n\n");
     xil_printf("Softcore Spectrum Analyzer\r\n");
     xil_printf("PS REV: %02d.%02d.%02d\r\n", FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV);
-    xil_printf("PL VER: %d\r\n\n", PL_Ver);
+    xil_printf("PL REV: %02d.%02d.%02d\r\n", PL_Revision.Major, PL_Revision.Minor, PL_Revision.Test);
+    xil_printf("PL BLK: %d\r\n", PL_Ver);
+    xil_printf("HW REV: %d\r\n\n", HW_REV);
     if (InitFailMode)
     {
         printBrightRed("Error on Init:\r\n");
@@ -260,7 +267,7 @@ static void main_InitApplication(void)
     else
     {
         xil_printf("Hello Hab, I am ready...\r\n\n");
-        displayWelcomeScreen(&Display_SSD1309, FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV, HW_REV);
+        displayWelcomeScreen(&Display_SSD1309, FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV, PL_Revision.Major, PL_Revision.Minor, PL_Revision.Test);
         sleep_ms_Wrapper(SPLASH_SCREEN_HOLD_TIME);
         // For debug stop the status LED update - remove comment from next line
         // pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);      

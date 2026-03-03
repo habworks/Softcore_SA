@@ -23,10 +23,11 @@
                  <0x41c20000 &axi_timer_2 0x41c20000 0x10000>,
                  <0x41c30000 &axi_timer_3 0x41c30000 0x10000>,
                  <0x44a00000 &axi_quad_spi_1 0x44a00000 0x10000>,
-                 <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>;
+                 <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>,
+                 <0x44a20000 &IMR_PL_Revision_0 0x44a20000 0x10000>;
                 #ranges-address-cells = <0x1>;
                 #ranges-size-cells = <0x1>;
-                phandle = <0xf>;
+                phandle = <0x10>;
 
                 microblaze_0: cpu@0 {
                         xlnx,reset-msr-dce = <0x0>;
@@ -98,7 +99,7 @@
                         xlnx,dcache-use-writeback = <0x1>;
                         xlnx,div-zero-exception = <0x1>;
                         xlnx,mmu-tlb-access = <0x3>;
-                        bus-handle = <0xd>;
+                        bus-handle = <0xe>;
                         xlnx,cache-byte-size = <0x10000>;
                         xlnx,pvr-user2 = <0x0>;
                         xlnx,opcode-0x0-illegal = <0x1>;
@@ -174,14 +175,14 @@
                         xlnx,use-msr-instr = <0x1>;
                         xlnx,icache-data-width = <0x0>;
                         xlnx,debug-counter-width = <0x20>;
-                        phandle = <0x10>;
+                        phandle = <0x11>;
                 };
         };
 
         clock: clocks {
                 #address-cells = <0x1>;
                 #size-cells = <0x0>;
-                phandle = <0x11>;
+                phandle = <0x12>;
 
                 clk_cpu_0: clk_cpu@0 {
                         compatible = "fixed-clock";
@@ -189,7 +190,7 @@
                         clock-frequency = <0x5f5e100>;
                         clock-output-names = "clk_cpu";
                         #clock-cells = <0x0>;
-                        phandle = <0x12>;
+                        phandle = <0x13>;
                 };
 
                 clk_bus_0: clk_bus_0@1 {
@@ -198,7 +199,7 @@
                         clock-frequency = <0x5f5e100>;
                         clock-output-names = "clk_bus_0";
                         #clock-cells = <0x0>;
-                        phandle = <0xe>;
+                        phandle = <0xf>;
                 };
         };
 
@@ -207,7 +208,7 @@
                 compatible = "simple-bus";
                 #address-cells = <0x1>;
                 #size-cells = <0x1>;
-                phandle = <0xd>;
+                phandle = <0xe>;
 
                 axi_intc_0: interrupt-controller@41200000 {
                         #interrupt-cells = <0x2>;
@@ -250,6 +251,22 @@
                         xlnx,async-intr = <0xfffffffc>;
                         xlnx,name = "axi_intc_0";
                         phandle = <0x6>;
+                };
+
+                IMR_PL_Revision_0: IMR_PL_Revision@44a20000 {
+                        compatible = "xlnx,IMR-PL-Revision-1.0";
+                        xlnx,revision-test = <0x1>;
+                        xlnx,revision-major = <0x1>;
+                        xlnx,s00-axi-data-width = <0x20>;
+                        xlnx,rable = <0x0>;
+                        xlnx,ip-name = "IMR_PL_Revision";
+                        reg = <0x44a20000 0x10000>;
+                        xlnx,edk-iptype = "PERIPHERAL";
+                        status = "okay";
+                        xlnx,s00-axi-addr-width = <0x4>;
+                        xlnx,name = "IMR_PL_Revision_0";
+                        xlnx,revision-minor = <0x0>;
+                        phandle = <0xd>;
                 };
 
                 axi_gpio_0: gpio@40000000 {
@@ -559,7 +576,7 @@
                         xlnx,s-axi-ctrl-data-width = <0x20>;
                         xlnx,bram-awidth = <0x20>;
                         xlnx,lmb-awidth = <0x20>;
-                        phandle = <0x13>;
+                        phandle = <0x14>;
                 };
         };
 
@@ -599,6 +616,7 @@
                 clk_bus_0 = "/clocks/clk_bus_0@1";
                 amba_pl = "/amba_pl";
                 axi_intc_0 = "/amba_pl/interrupt-controller@41200000";
+                IMR_PL_Revision_0 = "/amba_pl/IMR_PL_Revision@44a20000";
                 axi_gpio_0 = "/amba_pl/gpio@40000000";
                 axi_quad_spi_0 = "/amba_pl/axi_quad_spi@44a10000";
                 axi_quad_spi_1 = "/amba_pl/axi_quad_spi@44a00000";

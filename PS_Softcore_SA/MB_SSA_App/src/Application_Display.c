@@ -203,10 +203,10 @@ void displayDirectTest(Type_Display_SSD1309 *SSD1309)
 * STEP 4: Draw lower informational text (5x8)
 * STEP 5: Push to display
 ********************************************************************************************************/
-void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev)
+void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t PL_Major, uint8_t PL_Minor, uint8_t PL_Test)
 {
     char FW_String[20] = {0};
-    char HW_String[16] = {0};
+    char PL_String[20] = {0};
 
     // STEP 1: Clear display buffer
     u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
@@ -223,13 +223,13 @@ void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Majo
 
     // STEP 3: Format revision strings
     snprintf(FW_String, sizeof(FW_String),"FW REV: %02u.%02u.%02u", FW_Major, FW_Minor, FW_Test);
-    snprintf(HW_String, sizeof(HW_String), "HW REV: %02u", HW_Rev);
+    snprintf(PL_String, sizeof(PL_String),"PL REV: %02u.%02u.%02u", PL_Major, PL_Minor, PL_Test);
 
     // STEP 4: Draw lower informational text (5x8)
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0,44, "SoftCore Spectrum Analyzer");
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 52, FW_String);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 60, HW_String);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 60, PL_String);
 
     // STEP 5: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);

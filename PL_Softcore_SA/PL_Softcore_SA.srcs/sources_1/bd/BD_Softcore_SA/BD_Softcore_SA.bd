@@ -43,7 +43,8 @@
       "axi_timer_1": "",
       "axi_timer_0": "",
       "axi_timer_2": "",
-      "axi_timer_3": ""
+      "axi_timer_3": "",
+      "IMR_PL_Revision_0": ""
     },
     "interface_ports": {
       "DDR3_0": {
@@ -833,7 +834,7 @@
         "inst_hier_path": "smartconnect_CPU",
         "parameters": {
           "NUM_MI": {
-            "value": "10"
+            "value": "11"
           },
           "NUM_SI": {
             "value": "3"
@@ -862,7 +863,8 @@
               "M06_AXI",
               "M07_AXI",
               "M08_AXI",
-              "M09_AXI"
+              "M09_AXI",
+              "M10_AXI"
             ]
           },
           "S01_AXI": {
@@ -887,7 +889,8 @@
               "M06_AXI",
               "M07_AXI",
               "M08_AXI",
-              "M09_AXI"
+              "M09_AXI",
+              "M10_AXI"
             ]
           },
           "S02_AXI": {
@@ -912,7 +915,8 @@
               "M06_AXI",
               "M07_AXI",
               "M08_AXI",
-              "M09_AXI"
+              "M09_AXI",
+              "M10_AXI"
             ]
           },
           "M00_AXI": {
@@ -1224,6 +1228,37 @@
                 "value": "0"
               }
             }
+          },
+          "M10_AXI": {
+            "mode": "Master",
+            "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "parameters": {
+              "MAX_BURST_LENGTH": {
+                "value": "1"
+              },
+              "NUM_READ_OUTSTANDING": {
+                "value": "8"
+              },
+              "NUM_READ_THREADS": {
+                "value": "1"
+              },
+              "NUM_WRITE_OUTSTANDING": {
+                "value": "32"
+              },
+              "NUM_WRITE_THREADS": {
+                "value": "1"
+              },
+              "RUSER_BITS_PER_BYTE": {
+                "value": "0"
+              },
+              "SUPPORTS_NARROW_BURST": {
+                "value": "0"
+              },
+              "WUSER_BITS_PER_BYTE": {
+                "value": "0"
+              }
+            }
           }
         }
       },
@@ -1335,7 +1370,7 @@
         "inst_hier_path": "xlconstant_3",
         "parameters": {
           "CONST_VAL": {
-            "value": "12"
+            "value": "13"
           },
           "CONST_WIDTH": {
             "value": "4"
@@ -1416,7 +1451,7 @@
             "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
             "parameters": {
               "MAX_BURST_LENGTH": {
-                "value": "8"
+                "value": "256"
               },
               "NUM_READ_OUTSTANDING": {
                 "value": "8"
@@ -1555,6 +1590,18 @@
         "xci_name": "BD_Softcore_SA_axi_timer_3_0",
         "xci_path": "ip\\BD_Softcore_SA_axi_timer_3_0\\BD_Softcore_SA_axi_timer_3_0.xci",
         "inst_hier_path": "axi_timer_3"
+      },
+      "IMR_PL_Revision_0": {
+        "vlnv": "IMR:user:IMR_PL_Revision:1.0",
+        "ip_revision": "7",
+        "xci_name": "BD_Softcore_SA_IMR_PL_Revision_0_0",
+        "xci_path": "ip\\BD_Softcore_SA_IMR_PL_Revision_0_0\\BD_Softcore_SA_IMR_PL_Revision_0_0.xci",
+        "inst_hier_path": "IMR_PL_Revision_0",
+        "parameters": {
+          "C_REVISION_TEST": {
+            "value": "1"
+          }
+        }
       }
     },
     "interface_nets": {
@@ -1670,6 +1717,12 @@
         "interface_ports": [
           "smartconnect_CPU/M09_AXI",
           "axi_timer_3/S_AXI"
+        ]
+      },
+      "smartconnect_CPU_M10_AXI": {
+        "interface_ports": [
+          "smartconnect_CPU/M10_AXI",
+          "IMR_PL_Revision_0/S00_AXI"
         ]
       }
     },
@@ -1877,7 +1930,8 @@
           "axi_intc_0/processor_clk",
           "axi_timer_3/s_axi_aclk",
           "microblaze_0/Clk",
-          "smartconnect_CPU/aclk"
+          "smartconnect_CPU/aclk",
+          "IMR_PL_Revision_0/s00_axi_aclk"
         ]
       },
       "microblaze_0_Interrupt_Ack": {
@@ -1935,7 +1989,8 @@
           "axi_intc_0/s_axi_aresetn",
           "axi_timer_2/s_axi_aresetn",
           "axi_timer_3/s_axi_aresetn",
-          "smartconnect_CPU/aresetn"
+          "smartconnect_CPU/aresetn",
+          "IMR_PL_Revision_0/s00_axi_aresetn"
         ]
       },
       "rst_clk_wiz_1_100M_bus_struct_reset": {
@@ -2014,6 +2069,13 @@
         "address_spaces": {
           "Data": {
             "segments": {
+              "SEG_IMR_PL_Revision_0_S00_AXI_reg": {
+                "address_block": "/IMR_PL_Revision_0/S00_AXI/S00_AXI_reg",
+                "offset": "0x44A20000",
+                "range": "64K",
+                "offset_base_param": "C_S00_AXI_BASEADDR",
+                "offset_high_param": "C_S00_AXI_HIGHADDR"
+              },
               "SEG_axi_gpio_0_Reg": {
                 "address_block": "/axi_gpio_0/S_AXI/Reg",
                 "offset": "0x40000000",
@@ -2076,6 +2138,13 @@
           },
           "Instruction": {
             "segments": {
+              "SEG_IMR_PL_Revision_0_S00_AXI_reg": {
+                "address_block": "/IMR_PL_Revision_0/S00_AXI/S00_AXI_reg",
+                "offset": "0x44A20000",
+                "range": "64K",
+                "offset_base_param": "C_S00_AXI_BASEADDR",
+                "offset_high_param": "C_S00_AXI_HIGHADDR"
+              },
               "SEG_axi_gpio_0_Reg": {
                 "address_block": "/axi_gpio_0/S_AXI/Reg",
                 "offset": "0x40000000",

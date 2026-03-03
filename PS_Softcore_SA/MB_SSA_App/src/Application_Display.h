@@ -60,7 +60,7 @@ void displaySimpleTest(Type_Display_SSD1309 *Display_SSD1309);
 void displaySpectrumMock(Type_Display_SSD1309 *Display_SSD1309, bool ClearOnly);
 void displayDirectTest(Type_Display_SSD1309 *SSD1309);
 // WELCOME SPLASH SCREEN
-void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t HW_Rev);
+void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Major, uint8_t FW_Minor, uint8_t FW_Test, uint8_t PL_Major, uint8_t PL_Minor, uint8_t PL_Test);
 void displayUpdateBuffer(Type_Display_SSD1309 *Display_SSD1309);
 // AUDIO SA RELATED
 void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Heading, char *FileName, char *AudioAction, uint32_t TimeInSeconds, int8_t MinValue_dB);

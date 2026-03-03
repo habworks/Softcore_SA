@@ -1,0 +1,28 @@
+# Copyright (C) 2025 Advanced Micro Devices, Inc.  All rights reserved.
+# Copyright (c) 2021 Xilinx, Inc.  All rights reserved.
+# SPDX-License-Identifier: MIT
+%YAML 1.2
+---
+title: Driver for IMR_PL_Revision
+maintainers:
+  - User
+type: driver
+device_type: custom_ip
+
+# The compatible string MUST match your component.xml VLNV
+properties:
+  compatible:
+    - enum:
+        - imr,IMR_PL_Revision-1.0
+
+# These link your Vivado parameters to xparameters.h
+config:
+  - C_S00_AXI_BASEADDR
+  - C_S00_AXI_HIGHADDR
+  - C_REVISION_MAJOR
+  - C_REVISION_MINOR
+  - C_REVISION_TEST
+
+required:
+  - compatible
+  - reg

@@ -222,6 +222,20 @@
    xlnx,async-intr = <0xfffffffc>;
    xlnx,name = "axi_intc_0";
   };
+  IMR_PL_Revision_0: IMR_PL_Revision@44a20000 {
+   compatible = "xlnx,IMR-PL-Revision-1.0";
+   xlnx,revision-test = <1>;
+   xlnx,revision-major = <1>;
+   xlnx,s00-axi-data-width = <32>;
+   xlnx,rable = <0>;
+   xlnx,ip-name = "IMR_PL_Revision";
+   reg = <0x44a20000 0x10000>;
+   xlnx,edk-iptype = "PERIPHERAL";
+   status = "okay";
+   xlnx,s00-axi-addr-width = <4>;
+   xlnx,name = "IMR_PL_Revision_0";
+   xlnx,revision-minor = <0>;
+  };
   axi_gpio_0: gpio@40000000 {
    xlnx,gpio-board-interface = "Custom";
    compatible = "xlnx,axi-gpio-2.0" , "xlnx,xps-gpio-1.00.a";
@@ -555,7 +569,8 @@
          <0x41c20000 &axi_timer_2 0x41c20000 0x10000>,
          <0x41c30000 &axi_timer_3 0x41c30000 0x10000>,
          <0x44a00000 &axi_quad_spi_1 0x44a00000 0x10000>,
-         <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>;
+         <0x44a10000 &axi_quad_spi_0 0x44a10000 0x10000>,
+         <0x44a20000 &IMR_PL_Revision_0 0x44a20000 0x10000>;
   #ranges-address-cells = <0x1>;
   #ranges-size-cells = <0x1>;
  };
