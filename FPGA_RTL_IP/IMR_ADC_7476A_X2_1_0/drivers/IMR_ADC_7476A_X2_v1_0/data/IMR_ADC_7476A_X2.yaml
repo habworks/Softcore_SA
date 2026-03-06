@@ -3,30 +3,30 @@
 # SPDX-License-Identifier: MIT
 %YAML 1.2
 ---
-title: Bindings for IMR_ADC_7476A_X2
-
+title: Driver for IMR_ADC_7476A_X2 Dual ADC
 maintainers:
-  - Hab Collector <Hab.Collector@imrengineering.com>
-
+  - User
 type: driver
+device_type: custom_ip
 
 properties:
   compatible:
-    OneOf:
-      - items:
-        - enum:
-          - xlnx,IMR_ADC_7476A_X2-1.0
+    - enum:
+        - imr,IMR_ADC_7476A_X2-1.0
   reg:
-    description: Add a description here
-
+    description: AXI4-Lite register space for ADC Control and Data
+  interrupts:
+    description: Interrupt signal asserted when ADC conversion is ready
+    
+# These link your AXI address and the IRQ to xparameters.h
 config:
-    - XIMR_ADC_7476A_X2_Config
+  - C_S00_AXI_BASEADDR
+  - C_S00_AXI_HIGHADDR
 
 required:
-    - compatible
-    - reg
-    - interrupts
-    - interrupt-parent
+  - compatible
+  - reg
+  - interrupts
 
 examples:
 ...

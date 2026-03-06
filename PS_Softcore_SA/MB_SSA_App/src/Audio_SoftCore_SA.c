@@ -44,7 +44,6 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT); // __a
 static void errorCloseAudioFile(Type_Audio_SA *Audio_SA, Type_FFT *FFT, char *ErrorMsg);
 static int16_t convert_PCM16_ToMono(int16_t Left_PCM16_Audio, int16_t Right_PCM16_Audion);
 static uint16_t convert_PCM16_To_PWM_DutyPercent(int16_t PCM16_Sample, uint16_t PercentBase);
-// static void load_FFT_PWM_ToBuffers(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t PlaybackRate);
 static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel);
@@ -268,7 +267,7 @@ static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
         audioEnable(true);
         // Update the ISR to the audio playback frequency and enable the audio playback ISR
         update_PeriodicTimerPeriod(&AXI_SampleTimerHandle, XTC_TIMER_0, (uint32_t)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / Audio_SA->File.Header.SampleRate), false);
-        resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, AUDIO_TIMER_IRQ_ID);
+        resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
         Audio_SA->IsPreLoadComplete = true;
     }
 
@@ -362,43 +361,6 @@ static uint16_t convert_PCM16_To_PWM_DutyPercent(int16_t PCM16_Sample, uint16_t 
 
 
 /********************************************************************************************************
-* @brief Load PCM audio samples from the circular buffer into FFT and PWM playback buffers
-*
-* @author original: Hab Collector \n
-*
-* @note: This function retrieves signed 16-bit PCM samples from the audio circular buffer
-* @note: FFT samples remain signed and zero-centered for correct spectral analysis
-* @note: PWM samples are converted to a duty-cycle percentage for audio playback
-*
-* @param Audio_SA: Pointer to Audio Spectrum Analyzer structure
-* @param FFT: Pointer to the FFT structure
-*
-* STEP 1: Retrieve 16b PCM samples from the circular buffer
-* STEP 2: Load the 16b PCM sample to the FFT Buffer (FFT math assumes positive and negative values)
-* STEP 3: Load Converted PCM samples to PWM duty-cycle percentage for audio playback
-********************************************************************************************************/
-// static void load_FFT_PWM_ToBuffers(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
-// {
-//     int16_t AudioSample;
-//     bool Half_Full;
-//     bool Half_Empty;    
-//     for (uint16_t Index = 0; Index < FFT->Size; Index++)
-//     {
-//         // STEP 1: Retrieve 16b PCM samples from the circular buffer
-//         read_CB(&Audio_SA->Samples_CB, &AudioSample, &Half_Empty, &Half_Full);
-        
-//         // STEP 2: Load the 16b PCM sample to the FFT Buffer (FFT math assumes positive and negative values)
-//         FFT->Samples[Index] = (float)AudioSample;
-
-//         // STEP 3: Load Converted PCM samples to PWM duty-cycle percentage for audio playback
-//         Audio_SA->PWM.Samples[Index] = convert_PCM16_To_PWM_DutyPercent(AudioSample);
-//     }
-
-// } // END OF load_FFT_PWM_ToBuffers
-
-
-
-/********************************************************************************************************
 * @brief Apply a precomputed Hann window to the FFT input sample buffer
 *
 * @author original: Hab Collector \n
@@ -439,7 +401,7 @@ void stopAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // STEP 1: Apply safe stop of audio playback
     Audio_SA->AudioAction = AUDIO_ACTION_STOP;
     // Stop audio playback and disable audio outpput
-    pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, AUDIO_TIMER_IRQ_ID);
+    pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
     audioEnable(false);
     disable_PWM(&AXI_PWM_Handle);
     // Free resources
@@ -482,7 +444,7 @@ void stopAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 void playAudio_SA(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
 {
     // STEP 1: Siimple check
-    if (!Audio_SA->Enable)
+    if ((!Audio_SA->Enable) || (Audio_SA->AudioAction == AUDIO_ACTION_PLAY))
         return;
     
     // STEP 2: Take a reset action if comming from a state other than pause
@@ -599,7 +561,7 @@ void audioPeriodicTimer_ISR(Type_Audio_SA *Audio_SA, Type_FFT *FFT)
     // STEP 2: Check for done playing - at EOF it is the ISR that stops the playback
     if (isEmpty_I16_CB(&Audio_SA->Samples_CB) && (Audio_SA->File.Is_EOF == true))
     {
-        pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, AUDIO_TIMER_IRQ_ID);
+        pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
         audioEnable(false);
         disable_PWM(&AXI_PWM_Handle);
         return;

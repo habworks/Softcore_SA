@@ -111,9 +111,9 @@ set_property PACKAGE_PIN K15 [get_ports {USD_CD}]
 set_property IOSTANDARD LVCMOS33 [get_ports {USD_CD}]
 
 # ADC DUAL 7476A
-# ADC_CS_n PIN (JA1 on G13) = J6.1
-set_property PACKAGE_PIN G13 [get_ports {ADC_CS_n}]
-set_property IOSTANDARD LVCMOS33 [get_ports {ADC_CS_n}]
+# ADC_CSn PIN (JA1 on G13) = J6.1
+set_property PACKAGE_PIN G13 [get_ports {ADC_CSn}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_CSn}]
 # ADC_MISO_A PIN (JA2 on B11) = J6.2
 set_property PACKAGE_PIN B11 [get_ports {ADC_MISO_A}]
 set_property IOSTANDARD LVCMOS33 [get_ports {ADC_MISO_A}]
@@ -123,14 +123,17 @@ set_property IOSTANDARD LVCMOS33 [get_ports {ADC_MISO_B}]
 # ADC_SCLK PIN (JA4 on D12) = J6.4
 set_property PACKAGE_PIN D12 [get_ports {ADC_SCLK}]
 set_property IOSTANDARD LVCMOS33 [get_ports {ADC_SCLK}]
-# ADC_IP_IRQ PIN (JC7 on U14)
-#set_property PACKAGE_PIN U14 [get_ports {ADC_IP_IRQ}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {ADC_IP_IRQ}]
-# ADC_IRQ_DONE PIN (CK_IO4 on R12)
-set_property PACKAGE_PIN R12 [get_ports {ADC_IRQ_DONE}]
-set_property IOSTANDARD LVCMOS33 [get_ports {ADC_IRQ_DONE}]
+# ADC_IP_IRQ PIN (CK_IO6 on T15)
+set_property PACKAGE_PIN T15 [get_ports {ADC_IP_IRQ}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_IP_IRQ}]
+# ADC_IRQ_N_DONE PIN (CK_IO4 on R12)
+set_property PACKAGE_PIN R12 [get_ports {ADC_IRQ_N_DONE}]
+set_property IOSTANDARD LVCMOS33 [get_ports {ADC_IRQ_N_DONE}]
+# ADC_IRQ_N_DONE (SPILT ON GPIO) PIN (CK_IO7 on T16)
+set_property PACKAGE_PIN T16 [get_ports {gpio2_io_o_0[5]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[5]}]
 
-#AUDIO & TEST SIGNAL SELECT
+#AUDIO 
 # AUDIO PWM (JB10 on J15) = J3.10 FW: AUDIO_PWM
 set_property PACKAGE_PIN J15 [get_ports {AUDIO_PWM}]
 set_property IOSTANDARD LVCMOS33 [get_ports {AUDIO_PWM}]
@@ -138,21 +141,26 @@ set_property IOSTANDARD LVCMOS33 [get_ports {AUDIO_PWM}]
 set_property PACKAGE_PIN D13 [get_ports {gpio2_io_o_0[6]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[6]}]
 set_property PULLDOWN true [get_ports {gpio2_io_o_0[6]}]
+
+# INPUT SIGNAL SELECT
 # SIG_SEL (JA8 ON B18) = J6.8 FW: SIG_SEL
 set_property PACKAGE_PIN B18 [get_ports {gpio2_io_o_0[7]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[7]}]
 
 #TEST SIGNALS
-#TEST_SIG_0(JD9 ON H2) = J4.9
-set_property PACKAGE_PIN H2 [get_ports {gpio2_io_o_0[5]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[5]}]
-#MB CLK (CK_101 ON J4.3)
+#TEST_IO_0(JD9 ON H2) = J4.9
+set_property PACKAGE_PIN H2 [get_ports {gpio2_io_o_0[9]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[9]}]
+#TEST_IO_1(CK_IO0 ON J4.1)
+set_property PACKAGE_PIN V15 [get_ports {gpio2_io_o_0[10]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {gpio2_io_o_0[10]}]
+#MB_CLK (CK_1O1 ON J4.3)
 set_property PACKAGE_PIN U16 [get_ports {MB_CLK}]
 set_property IOSTANDARD LVCMOS33 [get_ports {MB_CLK}]
-# TEST IRQ (CK_IO2 ON J4.5)
+# TEST_IRQ (CK_IO2 ON J4.5)
 set_property PACKAGE_PIN P14 [get_ports {TEST_IRQ}]
 set_property IOSTANDARD LVCMOS33 [get_ports {TEST_IRQ}]
-# MB RESET (CK_IO3 ON J4.7)
+# MB_RESET (CK_IO3 ON J4.7)
 set_property PACKAGE_PIN T11 [get_ports {MB_RST}]
 set_property IOSTANDARD LVCMOS33 [get_ports {MB_RST}]
 

@@ -225,9 +225,9 @@ uint32_t FFT_ProcessFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount
     }
 
     // STEP 4: Run KissFFT real FFT on the windowed samples - this takes the longest amount of time
-XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
+// XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
     kiss_fftr(FFT->FFT_Config, WindowedSamples, OutputBins);
-XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
+// XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
 
     // STEP 5: Compute magnitude for each requested bin and store into BinMagnitudes
     for (uint32_t Bin = 0; Bin < BinCount; Bin++)

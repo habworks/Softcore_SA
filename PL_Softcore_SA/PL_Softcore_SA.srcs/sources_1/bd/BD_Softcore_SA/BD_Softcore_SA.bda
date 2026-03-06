@@ -588,6 +588,42 @@
             },
             "V25": {
                 "VT": "AC",
+                "BA": "0x44A30000",
+                "HA": "0x44A3FFFF",
+                "BP": "C_BASEADDR",
+                "HP": "C_HIGHADDR",
+                "MA": "Data",
+                "MX": "/microblaze_0",
+                "MI": "M_AXI_DP",
+                "MS": "SEG_IMR_ADC_7476A_X2_0_S00_AXI_reg",
+                "MV": "xilinx.com:ip:microblaze:11.0",
+                "SX": "/IMR_ADC_7476A_X2_0",
+                "SI": "S00_AXI",
+                "SS": "S00_AXI_reg",
+                "SV": "IMR:user:IMR_ADC_7476A_X2:1.0",
+                "TM": "data",
+                "TU": "register"
+            },
+            "V26": {
+                "VT": "AC",
+                "BA": "0x44A30000",
+                "HA": "0x44A3FFFF",
+                "BP": "C_BASEADDR",
+                "HP": "C_HIGHADDR",
+                "MA": "Instruction",
+                "MX": "/microblaze_0",
+                "MI": "M_AXI_IC",
+                "MS": "SEG_IMR_ADC_7476A_X2_0_S00_AXI_reg",
+                "MV": "xilinx.com:ip:microblaze:11.0",
+                "SX": "/IMR_ADC_7476A_X2_0",
+                "SI": "S00_AXI",
+                "SS": "S00_AXI_reg",
+                "SV": "IMR:user:IMR_ADC_7476A_X2:1.0",
+                "TM": "instruction",
+                "TU": "register"
+            },
+            "V27": {
+                "VT": "AC",
                 "BA": "0x80000000",
                 "HA": "0x8FFFFFFF",
                 "BP": "C_BASEADDR",
@@ -605,7 +641,7 @@
                 "TM": "data",
                 "TU": "memory"
             },
-            "V26": {
+            "V28": {
                 "VT": "AC",
                 "BA": "0x80000000",
                 "HA": "0x8FFFFFFF",
@@ -751,6 +787,16 @@
             },
             {
                 "src": "V26",
+                "trg": "V2",
+                "EH": "2"
+            },
+            {
+                "src": "V27",
+                "trg": "V2",
+                "EH": "2"
+            },
+            {
+                "src": "V28",
                 "trg": "V2",
                 "EH": "2"
             }

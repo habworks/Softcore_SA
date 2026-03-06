@@ -237,7 +237,7 @@ void IMR_ADC_7476A_X2_ClrIrq(Type_AXI_IMR_7476A_Handle *IP_Handle)
         Xil_Out32(IP_Handle->ADC_BaseAddress + REG_IRQ_OFFSET, IRQ_ENABLE_MASK);
         *IP_Handle->ADC_Data_A = (uint16_t)IMR_ADC_7476A_X2_GetDataAReg(IP_Handle);
         *IP_Handle->ADC_Data_B = (uint16_t)IMR_ADC_7476A_X2_GetDataBReg(IP_Handle);
-        XGpio_DiscreteSet(&AXI_GPIO_Handle, 2, 0x20);
+        // XGpio_DiscreteSet(&AXI_GPIO_Handle, 2, 0x20);
     }
 
 } // END IMR_ADC_7476A_X2_ClrIrq

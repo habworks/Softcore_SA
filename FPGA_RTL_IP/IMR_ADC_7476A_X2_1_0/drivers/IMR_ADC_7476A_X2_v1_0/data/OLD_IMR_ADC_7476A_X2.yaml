@@ -1,0 +1,32 @@
+# Copyright (C) 2025 Advanced Micro Devices, Inc.  All rights reserved.
+# Copyright (c) 2021 Xilinx, Inc.  All rights reserved.
+# SPDX-License-Identifier: MIT
+%YAML 1.2
+---
+title: Bindings for IMR_ADC_7476A_X2
+
+maintainers:
+  - Hab Collector <Hab.Collector@imrengineering.com>
+
+type: driver
+
+properties:
+  compatible:
+    OneOf:
+      - items:
+        - enum:
+          - xlnx,IMR_ADC_7476A_X2-1.0
+  reg:
+    description: Add a description here
+
+config:
+    - XIMR_ADC_7476A_X2_Config
+
+required:
+    - compatible
+    - reg
+    - interrupts
+    - interrupt-parent
+
+examples:
+...

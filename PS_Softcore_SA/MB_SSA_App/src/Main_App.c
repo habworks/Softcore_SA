@@ -53,12 +53,14 @@
 #include "Terminal_Emulator_Support.h"
 #include "AXI_QSPI_Support.h"
 #include "AXI_IMR_PL_Revision.h"
+#include "AXI_IMR_ADC_7476A_DUAL.h"
 #include "IO_Support.h"
 #include "Audio_File_API.h"
 #include "Audio_SoftCore_SA.h"
 #include "Signal_SoftCore_SA.h"
 #include "MCP23S08_Driver.h"
 #include "Water_Mark.h"
+#include "Application_Display.h"
 
 
 // STATIC FUNCTIONS
@@ -66,8 +68,11 @@ static void main_InitApplication(void);
 static void main_WhileLoop(void);
 static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleFrequency);
 static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle);
+static bool init_SoftCoreHandleSignal(Type_SoftCore_SA *Handle);
+// ISR Callbacks
 static void TimerCallbackSample_ISR(void) __attribute__((fast_interrupt));
 static void TimerCallbackMode_ISR(void) __attribute__((fast_interrupt));
+static void ADC_7476A_Primary_ISR(void) __attribute__((fast_interrupt));
 static void processUserInput(Type_SoftCore_SA *SoftCore_SA);
 static void modeSwitch(Type_SoftCore_SA *SoftCore_SA);
 static void selectSwitch(Type_SoftCore_SA *SoftCore_SA);
@@ -82,6 +87,8 @@ XUartLite __attribute__ ((section (".Hab_Fast_Data"))) AXI_UART_Handle;
 XSpi __attribute__ ((section (".Hab_Fast_Data"))) AXI_SPI_UI_Handle;
 XSpi __attribute__ ((section (".Hab_Fast_Data"))) AXI_SPI_USD_Handle;
 XIntc __attribute__ ((section (".Hab_Fast_Data"))) AXI_IRQ_ControllerHandle;
+// CUSTOM IP
+Type_AXI_IMR_7476A_Handle __attribute__ ((section (".Hab_Fast_Data"))) AXI_IMR_7476A_Handle;
 
 // NON AXI PERIPHERAL:
 Type_SoftCore_SA __attribute__ ((section (".Hab_Fast_Data"))) SoftCore_SA;
@@ -90,6 +97,9 @@ Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_1;
 Type_MCP23S08_Driver __attribute__ ((section (".Hab_Fast_Data"))) IOX_2;
 u8g2_t __attribute__ ((section (".Hab_Fast_Data"))) U8G2; 
 FATFS __attribute__ ((section (".Hab_Fast_Data"))) FatFs;
+#define ADC_SAMPLE_SIZE 3
+volatile uint16_t __attribute__ ((section (".Hab_Fast_Data"))) AnalogInputSignal[ADC_SAMPLE_SIZE];
+volatile uint16_t __attribute__ ((section (".Hab_Fast_Data"))) BatteryVoltage[ADC_SAMPLE_SIZE];
 uint32_t StackUsedWaterMark = 0;
 
 
@@ -168,17 +178,26 @@ static void main_InitApplication(void)
     if (Status != true)
         InitFailMode |= INIT_FAIL_SPI_0;
 
+    // Init Custom IP ADC7476A
+    Status = init_IMR_ADC_7476A_X2(&AXI_IMR_7476A_Handle, XPAR_IMR_ADC_7476A_X2_0_BASEADDR ,IMR_ADC_CLOCK_DIVIDER);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_ADC7476A;
+
     // Init AXI IRQ Controller (6x Steps)
     // Step 1 of 6 IRQ Controller setup: Init or IRQ Controller
     Status = init_IRQ_Controller(&AXI_IRQ_ControllerHandle, XPAR_AXI_INTC_0_BASEADDR);
     if (Status != true)
         InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
-    // Step 2A of 4 IRQ Controller setup: AXI Audio Timer 
+    // Step 2A of 6 IRQ Controller setup: AXI Audio Timer 
     Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR, TimerCallbackSample_ISR, &AXI_SampleTimerHandle);
     if (Status != true)
         InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
-    // Step 2B of 4 IRQ Controller setup: AXI Generic Timer 
+    // Step 2B of 6 IRQ Controller setup: AXI Generic Timer 
     Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, TimerCallbackMode_ISR, &AXI_ModeTimerHandle);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
+    // Step 2C of 6 Custom ADC IP: ADC7476A 2x Channel 
+    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, ADC_7476A_X2_FABRIC_ID, ADC_7476A_Primary_ISR, &AXI_IMR_7476A_Handle);
     if (Status != true)
         InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
     // Step 3 IRQ Controller setup: Start
@@ -233,8 +252,13 @@ static void main_InitApplication(void)
     if (Status != true)
         InitFailMode |= INIT_FAIL_SOFTCORE_SA;
     
-    // Init Applicaiton Audio
+    // Init Applicaiton Audio SA
     Status = init_SoftCoreHandleAudio(&SoftCore_SA);
+    if (Status != true)
+        InitFailMode |= INIT_FAIL_SOFTCORE_SA;
+
+    // Init Applicaiton Signal SA
+    Status = init_SoftCoreHandleSignal(&SoftCore_SA);
     if (Status != true)
         InitFailMode |= INIT_FAIL_SOFTCORE_SA;
 
@@ -292,9 +316,6 @@ static void main_InitApplication(void)
 ********************************************************************************************************/
 static void main_WhileLoop(void)
 {
-    static uint32_t UI_InputCheckCounter = 0;
-    char PrintBuffer[MAX_PRINT_BUFFER] = {0};
-
     if (SoftCore_SA.Audio_SA.File.uSD_Present)
     {
         countFilesInDirectory(AUDIO_DIRECTORY, &SoftCore_SA.Audio_SA.File.DirectoryFileCount);
@@ -310,9 +331,10 @@ static void main_WhileLoop(void)
         if (SoftCore_SA.Mode == MODE_AUDIO_SA)
             audioSpectrumAnalyzer(&SoftCore_SA.Audio_SA, &SoftCore_SA.FFT, SoftCore_SA.UI_LED_Status);
         else
-            signalSpectrumAnalyzer();
+            signalSpectrumAnalyzer(&SoftCore_SA.Signal_SA, &SoftCore_SA.FFT);
     }
-}
+
+} // END OF main_WhileLoop
 
 
 
@@ -389,6 +411,14 @@ static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle)
 
 
 
+bool init_SoftCoreHandleSignal(Type_SoftCore_SA *Handle)
+{
+    Handle->Signal_SA.Enable = false;
+    Handle->Signal_SA.Source = SIGNAL_ON_BOARD_OSCILLATOR;
+    signalSelect(SIGNAL_ON_BOARD_OSCILLATOR);
+    return(true);
+}
+
 // END OF PROCESSOR DEFINE FOR RUN_MAIN_APPLICATION
 #endif
 
@@ -432,6 +462,8 @@ static void TimerCallbackSample_ISR(void)
     // STEP 3: Run either the Audio or Signal Spectrum Analyzer sub-ISR routine
     if (SoftCore_SA.Mode == MODE_AUDIO_SA)
         audioPeriodicTimer_ISR(&SoftCore_SA.Audio_SA, &SoftCore_SA.FFT);
+    else 
+        signalPeriodicTimer_ISR(&SoftCore_SA.Signal_SA, &SoftCore_SA.FFT, &AnalogInputSignal, &BatteryVoltage);
 
     // STEP 4: Ack at interrupt Controller
 #ifdef ISR_USE_DIRECT_REGISTER_ACCESS
@@ -499,6 +531,32 @@ static void TimerCallbackMode_ISR(void)
 
 
 
+__attribute__((section(".Hab_Fast_Text")))
+static void ADC_7476A_Primary_ISR(void)
+{
+    // signal_ADC_7476A_ISR(&SoftCore_SA.Signal_SA, &SoftCore_SA.FFT, &AXI_IMR_7476A_Handle);
+
+    static uint32_t SampleIndex = 0;
+
+XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
+
+    IMR_ADC_7476A_X2_ClrIrq(&AXI_IMR_7476A_Handle);
+    
+    SoftCore_SA.FFT.Samples[SampleIndex] = AXI_IMR_7476A_Handle.ADC_Data_B[0];
+    SampleIndex++;
+    if (SampleIndex >= SoftCore_SA.FFT.Size)
+    {
+        SoftCore_SA.FFT.FrameReady = true;
+        SampleIndex = 0;
+    }
+
+    XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << ADC_7476A_X2_FABRIC_ID);
+
+XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
+}
+
+
+
 /********************************************************************************************************
 * @brief Process the user input - this function should be called when IO Expander 2 IRQ goes active. IO
 * Expander 2 represents all UI inputs
@@ -528,7 +586,6 @@ static void processUserInput(Type_SoftCore_SA *SoftCore_SA)
     {
         case MODE_SW:
         {
-            xil_printf("SW1 Pressed\r\n"); 
             modeSwitch(SoftCore_SA);
         }
         break;
@@ -578,30 +635,55 @@ static void processUserInput(Type_SoftCore_SA *SoftCore_SA)
 
 
 /********************************************************************************************************
-* @brief Process the user input SW1.  MODE: select a toggle function to switch between Audio and Signal specturm
+* @brief Process the user input SW1.  MODE: A toggle function to switch between Audio and Signal specturm
 * modes.  Call the appropiate display and set default start conditions for that mode
 *
 * @author original: Hab Collector \n
 *
 * @param SoftCore_SA: Pointer to the application main handle
 *
-* STEP 1: Swith the present mode and take action to be at default state of the new mode
+* STEP 1: Toggle the present mode and take action to be at default state of the new mode
 ********************************************************************************************************/
 static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
 {
-    // STEP 1: Swith the present mode and take action to be at default state of the new mode
+    bool Status = true;
+    // STEP 1: Toggle the present mode and take action to be at default state of the new mode
+    // Moving from Audio to Signal Mode
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
-        SoftCore_SA->Mode = MODE_SIGNAL_SA;
-        SoftCore_SA->Audio_SA.Enable = false;
-        displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
-        printMagenta("Audio Mode Active\r\n"); 
+        Status = initSpectrumAnalyzer(&SoftCore_SA->Signal_SA, &SoftCore_SA->FFT, &AXI_IMR_7476A_Handle,  50e3, &AnalogInputSignal, &BatteryVoltage);
+        if (Status == true)
+        {
+            // Stop Audio playback and disable audio outpput
+            stopAudio_SA(&SoftCore_SA->Audio_SA, &SoftCore_SA->FFT);
+            // Ready Singal SA
+            SoftCore_SA->Mode = MODE_SIGNAL_SA;
+            SoftCore_SA->Signal_SA.Enable = true;
+            resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
+            // Update display and debug port
+            displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
+            printYellow("Signal Mode Active\r\n"); 
+            return;
+        }
     }
-    else
+    
+    // Moving from Signal to Audio Mode
+    if (SoftCore_SA->Mode == MODE_SIGNAL_SA)
     {
-        SoftCore_SA->Mode = MODE_AUDIO_SA;
-        displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0, AUDIO_MIN_DB_DISPLAY);
-        xil_printf("Signal Mode Active\r\n"); 
+        if (Status == true)  // TODO: Hab just a place holder until you get around to an init for audio
+        {
+            // Stop signal mode
+            SoftCore_SA->Signal_SA.Enable = false;
+            pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
+            // Ready Audio Mode
+            SoftCore_SA->Mode = MODE_AUDIO_SA;
+            SoftCore_SA->Audio_SA.Enable = true;
+            stopAudio_SA(&SoftCore_SA->Audio_SA, &SoftCore_SA->FFT);
+            // Update display and debug port
+            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0, AUDIO_MIN_DB_DISPLAY);
+            printMagenta("Audio Mode Active\r\n"); 
+            return;
+        }
     }
 
 } // END OF modeSwitch
@@ -617,9 +699,12 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
 * @param SoftCore_SA: Pointer to the application main handle
 *
 * STEP 1: Audio Mode: Get the next valid file - if valid file found enable Audio SA
+* STEP 2: Signal Mode: Toggle the analog signal input between the on board osscilator and external BNC connector
 ********************************************************************************************************/
 static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
 {
+    char PrintBuffer[MAX_PRINT_BUFFER] = {0};
+
     // STEP 1: Audio Mode: Get the next valid file - if valid file found enable Audio SA
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
@@ -632,17 +717,39 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
             Status = getWavFileHeader(SoftCore_SA->Audio_SA.File.PathFileName, SoftCore_SA->Audio_SA.File.Size, &SoftCore_SA->Audio_SA.File.Header);
             FilesChecked++;
         } while((Status == false) && (FilesChecked < SoftCore_SA->Audio_SA.File.DirectoryFileCount));
+        
         if (Status == true)
         {
             SoftCore_SA->Audio_SA.Enable = true;
             displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, SoftCore_SA->Audio_SA.File.Name, DISPLAY_AUDIO_STOP, 0, AUDIO_MIN_DB_DISPLAY);
+            snprintf(PrintBuffer, sizeof(PrintBuffer), "Audio File Select: %s\r\n", SoftCore_SA->Audio_SA.File.Name);
         }
         else
         {
             SoftCore_SA->Audio_SA.Enable = false;
-            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, DISPLAY_FILE_ERROR, DISPLAY_AUDIO_ERROR, 0), AUDIO_MIN_DB_DISPLAY;
+            displayStaticHeaderAudio(&Display_SSD1309, DISPLAY_AUDIO_HEADING, DISPLAY_FILE_ERROR, DISPLAY_AUDIO_ERROR, 0, AUDIO_MIN_DB_DISPLAY);
+            snprintf(PrintBuffer, sizeof(PrintBuffer), "Audio File Select Error\r\n");
         }
-        printMagenta("Audio Select\r\n"); 
+        printMagenta(PrintBuffer); 
+        return;
+    }
+
+    // STEP 2: Signal Mode: Toggle the analog signal input between the on board osscilator and external BNC connector
+    if (SoftCore_SA->Mode == MODE_SIGNAL_SA)
+    {
+        if (SoftCore_SA->Signal_SA.Source == SIGNAL_ON_BOARD_OSCILLATOR)
+        {
+            SoftCore_SA->Signal_SA.Source = SIGNAL_OFF_BOARD_BNC;
+            signalSelect(SIGNAL_OFF_BOARD_BNC);
+            printYellow("Signal Source External BNC\r\n"); 
+        }
+        else
+        {
+            SoftCore_SA->Signal_SA.Source = SIGNAL_ON_BOARD_OSCILLATOR;
+            signalSelect(SIGNAL_ON_BOARD_OSCILLATOR);
+            printYellow("Signal Source On Board Oscillator\r\n"); 
+        }
+        return;
     }
 
 } // END OF selectSwitch

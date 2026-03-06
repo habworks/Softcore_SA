@@ -1,4 +1,4 @@
-# 2026-03-02T04:52:20.390292700
+# 2026-03-06T08:44:49.981796700
 import vitis
 
 client = vitis.create_client()
@@ -13,56 +13,6 @@ comp.build()
 status = platform.build()
 
 comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = platform.build()
-
-comp.build()
-
-status = comp.clean()
-
-client.delete_component(name="MB_SSA_Platform")
-
-platform = client.create_platform_component(name = "MB_SSA_Platform",hw_design = "$COMPONENT_LOCATION/../../PL_Softcore_SA/BD_Softcore_SA_wrapper.xsa",os = "standalone",cpu = "microblaze_0",domain_name = "standalone_microblaze_0")
 
 status = platform.build()
 

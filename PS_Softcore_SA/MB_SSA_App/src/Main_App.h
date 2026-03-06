@@ -33,9 +33,11 @@ extern"C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include "Audio_SoftCore_SA.h"
+#include "Signal_SoftCore_SA.h"
 #include "Main_Support.h"
 #include "MCP23S08_Driver.h"
 #include "SSD1309_Driver.h"
+#include "AXI_IMR_ADC_7476A_DUAL.h"
 #include "xtmrctr.h"
 #include "xgpio.h"
 #include "xintc.h"
@@ -54,6 +56,7 @@ extern"C" {
 #define INIT_FAIL_FAT_FS                ((uint16_t)(0x01 << 9))
 #define INIT_FAIL_UI_DISPLAY            ((uint16_t)(0x01 << 10))
 #define INIT_FAIL_SOFTCORE_SA           ((uint16_t)(0x01 << 11))
+#define INIT_FAIL_ADC7476A              ((uint16_t)(0x01 << 12))
 // MISC
 #define MAX_PRINT_BUFFER                255U
 #define SPLASH_SCREEN_HOLD_TIME         3000U   // Value in ms
@@ -66,6 +69,7 @@ typedef struct
     Type_Mode                   Mode;
     Type_FFT                    FFT;
     Type_Audio_SA               Audio_SA;
+    Type_Signal_SA              Signal_SA;
 }Type_SoftCore_SA;
 
 
@@ -77,6 +81,7 @@ extern XTmrCtr AXI_PWM_Handle;
 extern XIntc AXI_IRQ_ControllerHandle;
 extern Type_Display_SSD1309 Display_SSD1309;
 extern Type_MCP23S08_Driver IOX_1;
+extern Type_AXI_IMR_7476A_Handle AXI_IMR_7476A_Handle;
 extern uint32_t StackUsedWaterMark;
 
 

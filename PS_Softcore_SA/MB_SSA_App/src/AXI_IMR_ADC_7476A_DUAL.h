@@ -42,7 +42,7 @@ extern"C" {
 #define REG_DATA_B_OFFSET       0x0C        // Register 3: Data B value (read only) 12b
 #define REG_IRQ_OFFSET          0x10        // Register 4: IRQ Register
 // MISC
-#define ADC_7476A_X2_FABRIC_ID  1           // I manually created this based on the ADC IP IRQ connection to the Concat block (2 means 3rd connection counting from 0 [x:0] where x is last connection)
+#define ADC_7476A_X2_FABRIC_ID  2           // ***USER MUST EDIT*** Based on the ADC IP IRQ connection to the Concat block (2 means 3rd connection counting from 0 [x:0] where x is last connection)
 #define IMR_ADC_CLOCK_DIVIDER   4           // Max ADC Clock 20MHz. SysClk = 100MHz - ClockDivider = 3, ADC_CLK = 16.6667MHz, ClockDivider = 4, ADC_CLK = 12.5MHz, ClockDivider = 5, ADC_CLK = 10.0MHz
 //----------------------------- CTRL bitfields ---------------------------------
 #define CTRL_EN_BIT             0           // enable engine
