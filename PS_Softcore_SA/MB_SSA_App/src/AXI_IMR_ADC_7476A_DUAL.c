@@ -113,7 +113,7 @@
 * STEP 2: Set data pointers
 * STEP 3: Load IP config register for single conversion
 ********************************************************************************************************/
-bool IMR_ADC_7476A_X2_SingleConvert(Type_AXI_IMR_7476A_Handle *IP_Handle, uint16_t *BufferData_A, uint16_t *BufferData_B) 
+inline bool IMR_ADC_7476A_X2_SingleConvert(Type_AXI_IMR_7476A_Handle *IP_Handle, uint16_t *BufferData_A, uint16_t *BufferData_B) 
 {
     // STEP 1: Test for valid handle
     if (IP_Handle ==  NULL)
@@ -158,7 +158,7 @@ bool IMR_ADC_7476A_X2_SingleConvert(Type_AXI_IMR_7476A_Handle *IP_Handle, uint16
 * STEP 2: Set data pointers and handle members for multi conversion
 * STEP 3: Load IP config register for muti conversions: Total Conversions, Clock Divider, Multi Bit, Start Bit and Enable Bit
 ********************************************************************************************************/
-bool IMR_ADC_7476A_X2_MultiConvert(Type_AXI_IMR_7476A_Handle *IP_Handle, uint16_t *BufferData_A, uint16_t *BufferData_B, uint32_t TotalConversions) 
+inline bool IMR_ADC_7476A_X2_MultiConvert(Type_AXI_IMR_7476A_Handle *IP_Handle, uint16_t *BufferData_A, uint16_t *BufferData_B, uint32_t TotalConversions) 
 {
     // STEP 1: Test for valid handle
     if (IP_Handle ==  NULL)
@@ -205,7 +205,7 @@ bool IMR_ADC_7476A_X2_MultiConvert(Type_AXI_IMR_7476A_Handle *IP_Handle, uint16_
 * STEP 1: Service Multiple Conversions Interrupt
 * STEP 2: Service Single Conversions Interrupt
 ********************************************************************************************************/
-void IMR_ADC_7476A_X2_ClrIrq(Type_AXI_IMR_7476A_Handle *IP_Handle)
+inline void IMR_ADC_7476A_X2_ClrIrq(Type_AXI_IMR_7476A_Handle *IP_Handle)
 {
     // STEP 1: Service Multiple Conversions Interrupt
     if (IP_Handle->ControlRegister & CTRL_MULTI_BIT_MASK)

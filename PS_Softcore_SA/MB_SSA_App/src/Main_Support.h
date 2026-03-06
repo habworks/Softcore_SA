@@ -109,7 +109,6 @@ extern"C" {
 // FFT RELATED
 #define FFT_SAMPLES             1024U
 #define FFT_SIZE                FFT_SAMPLES
-// #define AUDIO_TIMER_IRQ_ID      XPAR_FABRIC_AXI_TIMER_1_INTR
 #ifndef FFT_MAX_BINS
 #define FFT_MAX_BINS            ((uint32_t)((FFT_SIZE / 2) + 1))
 #endif

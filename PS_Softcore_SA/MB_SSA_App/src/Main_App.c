@@ -534,25 +534,32 @@ static void TimerCallbackMode_ISR(void)
 __attribute__((section(".Hab_Fast_Text")))
 static void ADC_7476A_Primary_ISR(void)
 {
-    // signal_ADC_7476A_ISR(&SoftCore_SA.Signal_SA, &SoftCore_SA.FFT, &AXI_IMR_7476A_Handle);
+    signal_ADC_7476A_ISR(&SoftCore_SA.Signal_SA, &SoftCore_SA.FFT, &AXI_IMR_7476A_Handle);
 
-    static uint32_t SampleIndex = 0;
+    // static uint32_t SampleIndex = 0;
 
-XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
+// // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
+// uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
+// uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TEST_IO_0);
+// Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 
-    IMR_ADC_7476A_X2_ClrIrq(&AXI_IMR_7476A_Handle);
+//     IMR_ADC_7476A_X2_ClrIrq(&AXI_IMR_7476A_Handle);
     
-    SoftCore_SA.FFT.Samples[SampleIndex] = AXI_IMR_7476A_Handle.ADC_Data_B[0];
-    SampleIndex++;
-    if (SampleIndex >= SoftCore_SA.FFT.Size)
-    {
-        SoftCore_SA.FFT.FrameReady = true;
-        SampleIndex = 0;
-    }
+//     SoftCore_SA.FFT.Samples[SampleIndex] = AXI_IMR_7476A_Handle.ADC_Data_B[0];
+//     SampleIndex++;
+//     if (SampleIndex >= SoftCore_SA.FFT.Size)
+//     {
+//         SoftCore_SA.FFT.FrameReady = true;
+//         SampleIndex = 0;
+//     }
 
-    XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << ADC_7476A_X2_FABRIC_ID);
+//     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << ADC_7476A_X2_FABRIC_ID);
 
-XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
+// // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
+// Output_GPIO = (Output_GPIO ^ TEST_IO_0);
+// Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);     
+
+
 }
 
 
@@ -651,7 +658,7 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
     // Moving from Audio to Signal Mode
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
-        Status = initSpectrumAnalyzer(&SoftCore_SA->Signal_SA, &SoftCore_SA->FFT, &AXI_IMR_7476A_Handle,  50e3, &AnalogInputSignal, &BatteryVoltage);
+        Status = initSpectrumAnalyzer(&SoftCore_SA->Signal_SA, &SoftCore_SA->FFT, &AXI_IMR_7476A_Handle,  DEFAULT_SIGNAL_SAMPLE_RATE_HZ, &AnalogInputSignal, &BatteryVoltage);
         if (Status == true)
         {
             // Stop Audio playback and disable audio outpput
