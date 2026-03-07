@@ -27,6 +27,7 @@
 #include "Application_Display.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 
 /********************************************************************************************************
@@ -213,9 +214,6 @@ void displayWelcomeScreen(Type_Display_SSD1309 *Display_SSD1309, uint8_t FW_Majo
 
     // STEP 2: Draw large IMR Engineering
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x12_tr);
-    // const char *Title = "IMR Engineering";
-    // uint16_t TitleWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, Title);
-    // uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 13, "IMR Engineering");
     // Draw Ideas Made Real
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_6x10_tr);
@@ -477,17 +475,17 @@ void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Head
 
     // STEP 3: Display Center and Span
     // Format frequency string
-    char StartString[12];
-    char CenterString[12];
-    char StopString[12];
-    snprintf(StartString, sizeof(StartString), "%dKHz", (StartFrequency / 1000));
+    char StartString[12] = {0};
+    char CenterString[12] = {0};
+    char StopString[12] = {0};
+    snprintf(StartString, sizeof(StartString), "%dKHz", ((int)StartFrequency / 1000));
     snprintf(CenterString, sizeof(CenterString), "%.1fKHz", (CenterFrequency / 1000.0f));
-    snprintf(StopString, sizeof(StopString), "%dKHz", (StopFrequency / 1000));
+    snprintf(StopString, sizeof(StopString), "%dKHz", ((int)StopFrequency / 1000));
     // Calculate X location
     uint16_t CenterWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, CenterString);
     uint16_t StopWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, StopString);
-    uint8_t X_Center = (uint8_t)((DISPLAY_WIDTH_PIXEL - CenterWidth) / 2U);
-    uint8_t X_Stop = (uint8_t)(DISPLAY_WIDTH_PIXEL - StopWidth);
+    uint8_t X_Center = (uint8_t)((((DISPLAY_WIDTH_PIXEL - CenterWidth)) / 2U) + strlen(CenterString) + 1U);
+    uint8_t X_Stop = (uint8_t)((DISPLAY_WIDTH_PIXEL - StopWidth) + strlen(StopString) + 1U); 
     // Display
     u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 20U, StartString);
@@ -608,5 +606,7 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
         PreviousY = CurrentY;
         IsFirstPoint = false;
     }
+
+   u8g2_SendBuffer(Display_SSD1309->U8G2_Handle); 
 
 } // END OF displaySignalSpecturm

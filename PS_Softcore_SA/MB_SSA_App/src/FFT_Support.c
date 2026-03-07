@@ -700,6 +700,13 @@ bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin
     memcpy(WindowedSamples, (const void *)FFT->Samples, (size_t)(FFT_SIZE * sizeof(float)));
     FFT->FrameReady = false;
 
+    // STEP 3: Convert to ADC signed and bias the signal around its center value
+    // Since the input signal can only be positive centering the signal will remove DC offset that is inherent to how it is being fed
+    for (uint16_t Index = 0; Index < FFT_SIZE; Index++)
+    {
+        WindowedSamples[Index] -= ADC_MID_SCALE_COUNT;
+    }
+
     // STEP 3: Apply Hann window to the snapshot samples
     for (uint16_t Index = 0; Index < FFT_SIZE; Index++)
     {
@@ -727,8 +734,8 @@ bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin
 /******************************************************************************************************
  * @brief           Calculates the FFT bin limits corresponding to a requested frequency span
  *
- * @param LowSpan       Lower frequency limit of the requested span in Hz
- * @param HighSpan      Upper frequency limit of the requested span in Hz
+ * @param LowSpan       Lower frequency limit of the requested span in Hz aka Start Frequency
+ * @param HighSpan      Upper frequency limit of the requested span in Hz aka Stop Frequency
  * @param MaxBinCount   Total number of valid FFT bins covering the 0 Hz to Nyquist range
  *                      Typically FFT_SIZE / 2 for a real FFT
  * @param RBW           Resolution Bandwidth (Hz per bin)
@@ -739,28 +746,28 @@ bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin
  * @note                The returned bin indices are clamped to the valid FFT bin range
  *                      [0, MaxBinCount - 1]
  ******************************************************************************************************/
-// void calculateBinMinMaxFromSpan(float LowSpan, float HighSpan, uint16_t MaxBinCount, float RBW, uint16_t *LowBin, uint16_t *HighBin)
-// {
-//     float LowBinFloat;
-//     float HighBinFloat;
+bool calculateBinMinMaxFromSpan(float LowSpan, float HighSpan, uint16_t MaxBinCount, float RBW, uint16_t *LowBin, uint16_t *HighBin)
+{
+    float LowBinFloat;
+    float HighBinFloat;
 
-//     // STEP 1: Convert span frequencies to floating-point bin numbers
-//     LowBinFloat  = LowSpan  / RBW;
-//     HighBinFloat = HighSpan / RBW;
+    // STEP 1: Validate
+    if (LowSpan == HighSpan)
+        return(false);
 
-//     // STEP 2: Convert to integer bin indices
-//     *LowBin  = (uint16_t)LowBinFloat;
-//     *HighBin = (uint16_t)HighBinFloat;
+    // STEP 2: Convert span frequencies to bin numbers
+    *LowBin  = (uint16_t)(LowSpan  / RBW);
+    *HighBin = (uint16_t)(HighSpan / RBW);
 
-//     // STEP 3: Clamp bin indices to valid range
-//     if (*LowBin >= MaxBinCount)
-//     {
-//         *LowBin = MaxBinCount - 1U;
-//     }
+    // STEP 3: Clamp bin indices to valid range
+    if (*LowBin == 0)
+        *LowBin = 1U;
 
-//     if (*HighBin >= MaxBinCount)
-//     {
-//         *HighBin = MaxBinCount - 1U;
-//     }
-// }
+    if (*LowBin >= MaxBinCount)
+        *LowBin = MaxBinCount - 1U;
+
+    if (*HighBin >= MaxBinCount)
+        *HighBin = MaxBinCount - 1U;
+    
+}
 

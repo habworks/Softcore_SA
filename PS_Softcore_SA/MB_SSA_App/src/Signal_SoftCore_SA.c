@@ -38,19 +38,31 @@ float __attribute__ ((section (".Hab_Fast_Data"))) BinAmplitudes[(FFT_SIZE / 2) 
 float CenterFrequency[5] = {5e3, 10e3, 12.5e3, 15e3, 20e3};
 
 
-bool initSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint32_t SignalSampleRate, uint16_t *ADC_BufferDatum_A, uint32_t *ADC_BufferDatum_B)
+bool initSignal_SA(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint32_t SignalSampleRate)
 {
     // STEP 1: Set member init conditions
+    // FFT
     FFT->Size = FFT_SIZE;
     FFT->SampleRate_Hz = SignalSampleRate;
     FFT->FrameReady = false;
     FFT->RBW = (float)SignalSampleRate / FFT_SIZE;
+    // Signal SA
+    Signal_SA->StartFrequency = 0;
+    Signal_SA->CenterFrequency = (float)(SignalSampleRate / 4.0);
+    Signal_SA->StopFrequency = (float)(SignalSampleRate / 2.0);
+    
+    // STEP 2: Calculate bins
+    calculateBinMinMaxFromSpan(Signal_SA->StartFrequency, Signal_SA->StopFrequency, (FFT_SIZE / 2), FFT->RBW, &Signal_SA->LowBin, &Signal_SA->HighBin);
 
-    // STEP 2: Ready Timer 1 - sample rate
+    // STEP 3: Init FFT
+    deinit_FFT(FFT);
+    bool FFT_InitStatus = init_FFT(FFT, DEFAULT_SIGNAL_SAMPLE_RATE_HZ);
+
+    // STEP 4: Ready Timer 1 - sample rate
     pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
     bool FrequencyStatus = update_PeriodicTimerPeriod(&AXI_SampleTimerHandle, XTC_TIMER_0, (uint32_t)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / SignalSampleRate), false);    
 
-    return(FrequencyStatus);
+    return(FrequencyStatus && FFT_InitStatus);
 
 }
 
@@ -60,9 +72,16 @@ void signalSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT)
 
     if (FFT->FrameReady)
     {
+        // STEP 1: Pause ADC acquistion while this frame is processed
         pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
+
+        // STEP 2: Process the current FFT Sample Window
         FFT_ProcessSignalFrame(FFT, BinAmplitudes, Signal_SA->LowBin, Signal_SA->HighBin);
+
+        // STEP 3: Display the results
         displaySignalSpectrum(&Display_SSD1309, BinAmplitudes, Signal_SA->LowBin, Signal_SA->HighBin, 1000.0f);
+        
+        // STEP 4: Resume acquistion
         resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
     }
 }
@@ -101,7 +120,7 @@ Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 
     IMR_ADC_7476A_X2_ClrIrq(ADC_Handle);
     
-    FFT->Samples[SampleIndex] = AXI_IMR_7476A_Handle.ADC_Data_B[0];
+    FFT->Samples[SampleIndex] = AXI_IMR_7476A_Handle.ADC_Data_A[0];
     SampleIndex++;
     if (SampleIndex >= FFT->Size)
     {

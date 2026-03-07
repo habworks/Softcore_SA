@@ -60,7 +60,7 @@ typedef struct
 
 
 // FUNCTION PROTOTYPES
-bool initSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint32_t SignalSampleRate, uint16_t *ADC_BufferDatum_A, uint32_t *ADC_BufferDatum_B);
+bool initSignal_SA(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint32_t SignalSampleRate);
 void signalSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT);
 void signalSelect(Type_SignalSelect Signal);
 void signalPeriodicTimer_ISR(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint16_t *ADC_BufferDatum_A, uint16_t *ADC_BufferDatum_B);

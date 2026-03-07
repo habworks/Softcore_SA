@@ -1,0 +1,28 @@
+* C:\IMR_Projects\IMR\Softcore_SA\Simulation\SPICE\Sallen & Key LPF_Transient.asc
+V1 VCC 0 3.3V
+V2 VIN 0 SINE(1.5 1.5 50e3 0 0 0 1000) AC 1
+R3 VOUT N004 3K
+R2 N005 N001 1.5K
+R1 N001 N003 1.5K
+C1 N005 0 220e-12
+C2 VOUT N001 470e-12
+R4 N003 N002 1K
+R5 N007 N006 1K
+XU3 N007 N002 VCC 0 N003 AD8606
+XU1 N005 N004 VCC 0 VOUT AD8606
+D2 N007 VCC 1N4148
+D1 0 N007 1N4148
+C3 N006 VIN 1e-6
+V3 V1.65 0 1.65V
+R6 V1.65 N006 10K
+.model D D
+.lib C:\Users\habco\Documents\LTspiceXVII\lib\cmp\standard.dio
+.tran .1
+;ac dec 1000 10 2e6
+* R3 can be 2K or 0.  When 2K it forms a balance of the input impedance to both + / - terminals.\nOtherwise it does not play into circuit calculation
+* w = 2piF = 1 / SQRT(R1*R2*C1*C2)\nQ = SQRT(R1*R2*C1*C2) / (C2(R1 + R2)
+* Reference: https://circuitcellar.com/resources/quickbits/sallen-n-key-filter/
+* Gain at frequency f\nG(f) = 1 / SQRT(1 + f/fc)^2n)\nfc = cutoff frequency\nn = number of poles (Sallen & Key has 2 poles)
+.lib ADI.lib
+.backanno
+.end

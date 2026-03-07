@@ -86,7 +86,7 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
                             Type_AudioSpectrum *Spectrum);
 // Signal Related Functions
 bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin);
-// void calculateBinMinMaxFromSpan(float LowSpan, float HighSpan, uint16_t MaxBinCount, float RBW, uint16_t *LowBin, uint16_t *HighBin);
+bool calculateBinMinMaxFromSpan(float LowSpan, float HighSpan, uint16_t MaxBinCount, float RBW, uint16_t *LowBin, uint16_t *HighBin);
 
 
 

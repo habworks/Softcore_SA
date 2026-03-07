@@ -69,14 +69,15 @@ static void main_WhileLoop(void);
 static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleFrequency);
 static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle);
 static bool init_SoftCoreHandleSignal(Type_SoftCore_SA *Handle);
-// ISR Callbacks
-static void TimerCallbackSample_ISR(void) __attribute__((fast_interrupt));
-static void TimerCallbackMode_ISR(void) __attribute__((fast_interrupt));
-static void ADC_7476A_Primary_ISR(void) __attribute__((fast_interrupt));
 static void processUserInput(Type_SoftCore_SA *SoftCore_SA);
 static void modeSwitch(Type_SoftCore_SA *SoftCore_SA);
 static void selectSwitch(Type_SoftCore_SA *SoftCore_SA);
-static void updateMode_LED(void);
+static void updateModeStatus_LED(void);
+// ISR Callbacks
+static void TimerCallbackSampleRate_ISR(void) __attribute__((fast_interrupt));
+static void TimerCallbackModeStatus_ISR(void) __attribute__((fast_interrupt));
+static void ADC_7476A_Primary_ISR(void) __attribute__((fast_interrupt));
+
 
 // AXI SUPPORT:
 XGpio __attribute__ ((section (".Hab_Fast_Data"))) AXI_GPIO_Handle;
@@ -159,12 +160,12 @@ static void main_InitApplication(void)
     XGpio_SetDataDirection(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, 0x0000);  
 
     // Init AXI Timer 1 as periodic
-    Status = init_PeriodicTimer(&AXI_SampleTimerHandle, XPAR_AXI_TIMER_1_BASEADDR, XTC_TIMER_0, (u32)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / DEFAULT_AUDIO_FREQUENCY), TimerCallbackSample_ISR);
+    Status = init_PeriodicTimer(&AXI_SampleTimerHandle, XPAR_AXI_TIMER_1_BASEADDR, XTC_TIMER_0, (u32)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / DEFAULT_AUDIO_FREQUENCY), TimerCallbackSampleRate_ISR);
     if (Status != true)
         InitFailMode |= INIT_FAIL_TIMER_1;
 
     // Init AXI Timer 2 as periodic
-    Status = init_PeriodicTimer(&AXI_ModeTimerHandle, XPAR_AXI_TIMER_2_BASEADDR, XTC_TIMER_0, MODE_TIMER_COUNT, TimerCallbackMode_ISR);
+    Status = init_PeriodicTimer(&AXI_ModeTimerHandle, XPAR_AXI_TIMER_2_BASEADDR, XTC_TIMER_0, MODE_TIMER_COUNT, TimerCallbackModeStatus_ISR);
     if (Status != true)
         InitFailMode |= INIT_FAIL_TIMER_2;
 
@@ -189,11 +190,11 @@ static void main_InitApplication(void)
     if (Status != true)
         InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
     // Step 2A of 6 IRQ Controller setup: AXI Audio Timer 
-    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR, TimerCallbackSample_ISR, &AXI_SampleTimerHandle);
+    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR, TimerCallbackSampleRate_ISR, &AXI_SampleTimerHandle);
     if (Status != true)
         InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
     // Step 2B of 6 IRQ Controller setup: AXI Generic Timer 
-    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, TimerCallbackMode_ISR, &AXI_ModeTimerHandle);
+    Status = connectPeripheralFast_IRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR, TimerCallbackModeStatus_ISR, &AXI_ModeTimerHandle);
     if (Status != true)
         InitFailMode |= INIT_FAIL_IRQ_CONTROLLER;
     // Step 2C of 6 Custom ADC IP: ADC7476A 2x Channel 
@@ -326,7 +327,7 @@ static void main_WhileLoop(void)
     while(1)
     {
         processUserInput(&SoftCore_SA);
-        updateMode_LED();
+        updateModeStatus_LED();
 
         if (SoftCore_SA.Mode == MODE_AUDIO_SA)
             audioSpectrumAnalyzer(&SoftCore_SA.Audio_SA, &SoftCore_SA.FFT, SoftCore_SA.UI_LED_Status);
@@ -443,7 +444,7 @@ bool init_SoftCoreHandleSignal(Type_SoftCore_SA *Handle)
 ********************************************************************************************************/
 #define ISR_USE_DIRECT_REGISTER_ACCESS
 __attribute__((section(".Hab_Fast_Text")))
-static void TimerCallbackSample_ISR(void)
+static void TimerCallbackSampleRate_ISR(void)
 {
     // STEP 1: Mark the start of the ISR with IO toggle for testing only
     uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
@@ -476,7 +477,7 @@ static void TimerCallbackSample_ISR(void)
     Output_GPIO = (Output_GPIO ^ TIMER_1_OUTPUT);
     Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
 
-} // END OF TimerCallbackSample_ISR
+} // END OF TimerCallbackSampleRate_ISR
 
 
 
@@ -498,7 +499,7 @@ static void TimerCallbackSample_ISR(void)
 * STEP 4: Ack at interrupt Controller
 ********************************************************************************************************/
 __attribute__((section(".Hab_Fast_Text")))
-static void TimerCallbackMode_ISR(void)
+static void TimerCallbackModeStatus_ISR(void)
 {
     // STEP 1: Clear the interrupt
     uint32_t ControlStatusReg = XTmrCtr_ReadReg(XPAR_AXI_TIMER_2_BASEADDR, 0, XTC_TCSR_OFFSET);
@@ -527,39 +528,25 @@ static void TimerCallbackMode_ISR(void)
     // STEP 4: Ack at interrupt Controller
     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << XPAR_FABRIC_AXI_TIMER_2_INTR);
 
-} // END OF TimerCallbackMode_ISR
+} // END OF TimerCallbackModeStatus_ISR
 
 
 
+/********************************************************************************************************
+* @brief This is the ISR from the for the ADC 7476A x2 PL IRQ.  It signals that a convervsion is complete.
+* The ISR is made active on every conversion (single and multi-conversion moodes).  In other words in multi-
+* conversion for a 3 conversion set it would be active 3 times.
+*
+* @author original: Hab Collector \n
+*
+* @note: ISR for low latency (fast) interrupt
+* @note: This is a low latency (fast) Microblaze ISR and is registered as such and placed in LBM - see attributes
+* @note: For debug testing it is recommend to disable this interrupt
+********************************************************************************************************/
 __attribute__((section(".Hab_Fast_Text")))
 static void ADC_7476A_Primary_ISR(void)
 {
     signal_ADC_7476A_ISR(&SoftCore_SA.Signal_SA, &SoftCore_SA.FFT, &AXI_IMR_7476A_Handle);
-
-    // static uint32_t SampleIndex = 0;
-
-// // XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
-// uint32_t CurrentOutput_GPIO = Xil_In32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET);
-// uint32_t Output_GPIO = (CurrentOutput_GPIO ^ TEST_IO_0);
-// Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);
-
-//     IMR_ADC_7476A_X2_ClrIrq(&AXI_IMR_7476A_Handle);
-    
-//     SoftCore_SA.FFT.Samples[SampleIndex] = AXI_IMR_7476A_Handle.ADC_Data_B[0];
-//     SampleIndex++;
-//     if (SampleIndex >= SoftCore_SA.FFT.Size)
-//     {
-//         SoftCore_SA.FFT.FrameReady = true;
-//         SampleIndex = 0;
-//     }
-
-//     XIntc_AckIntr(XPAR_AXI_INTC_0_BASEADDR, 1 << ADC_7476A_X2_FABRIC_ID);
-
-// // XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);
-// Output_GPIO = (Output_GPIO ^ TEST_IO_0);
-// Xil_Out32(XPAR_AXI_GPIO_0_BASEADDR + XGPIO_DATA2_OFFSET, Output_GPIO);     
-
-
 }
 
 
@@ -658,18 +645,25 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
     // Moving from Audio to Signal Mode
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
-        Status = initSpectrumAnalyzer(&SoftCore_SA->Signal_SA, &SoftCore_SA->FFT, DEFAULT_SIGNAL_SAMPLE_RATE_HZ, &AnalogInputSignal, &BatteryVoltage);
+        // Stop Audio playback and disable audio outpput
+        stopAudio_SA(&SoftCore_SA->Audio_SA, &SoftCore_SA->FFT);
+        // Init for Signal SA
+        Status = initSignal_SA(&SoftCore_SA->Signal_SA, &SoftCore_SA->FFT, DEFAULT_SIGNAL_SAMPLE_RATE_HZ);
         if (Status == true)
         {
-            // Stop Audio playback and disable audio outpput
-            stopAudio_SA(&SoftCore_SA->Audio_SA, &SoftCore_SA->FFT);
             // Ready Singal SA
             SoftCore_SA->Mode = MODE_SIGNAL_SA;
             SoftCore_SA->Signal_SA.Enable = true;
+            // Re-start timer
             resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
             // Update display and debug port
             displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING, 0, (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 4.0), (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 2.0));
             printYellow("Signal Mode Active\r\n"); 
+            return;
+        }
+        else
+        {
+            printBrightRed("Error Starting Signal Mode\r\n");
             return;
         }
     }
@@ -762,13 +756,25 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
 } // END OF selectSwitch
 
 
-static void updateMode_LED(void)
+/********************************************************************************************************
+* @brief Blinks the status LED associated with the mode - LED 7 or LED 8.  This function is called contineiously
+* but only has something to do based on the tick rate of Timer 2 - The mode status LED interval tick.  The 
+* ISR toggles the state of LED 7 or LED 8 depending on the present mode setting Audio SA or Signal SA respectively.
+*
+* @author original: Hab Collector \n
+*
+* STEP 1: Update IOX LED output if there has been a change 
+********************************************************************************************************/
+static void updateModeStatus_LED(void)
 {
     static uint8_t PreviousModeState = 0;
+
+    // STEP 1: Update IOX LED output if there has been a change 
     uint8_t PresentModeState = (SoftCore_SA.UI_LED_Status | SoftCore_SA.Audio_SA.LED_BarGraph);
     if (PreviousModeState != PresentModeState)
     {
         MCP23S08_WriteOutput(&IOX_1, PresentModeState);
         PreviousModeState = PresentModeState;
     }
-}
+
+} // END OF updateModeStatus_LED

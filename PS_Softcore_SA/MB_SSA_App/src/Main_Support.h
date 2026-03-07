@@ -113,6 +113,11 @@ extern"C" {
 #define FFT_MAX_BINS            ((uint32_t)((FFT_SIZE / 2) + 1))
 #endif
 #define BIN_COUNT               FFT_MAX_BINS
+// ADC RELATED
+#define ADC_RESOLUTION_BITS     12U
+#define ADC_FULL_SCALE_COUNT    ((1U << ADC_RESOLUTION_BITS) - 1U)   // 4095
+#define ADC_MID_SCALE_COUNT     (1U << (ADC_RESOLUTION_BITS - 1U))   // 2048
+#define ADC_REF_VOLTAGE         3.3f        
 
 
 // TYPEDEFS AND ENUMS
