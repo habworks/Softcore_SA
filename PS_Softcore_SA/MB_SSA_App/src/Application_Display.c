@@ -463,7 +463,7 @@ void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *Displa
 * STEP 3: ...
 * STEP 4: Push to display
 ********************************************************************************************************/
-void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading)
+void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading, float StartFrequency, float CenterFrequency, float StopFrequency)
 {
     // STEP 1: Clear buffer
     u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
@@ -475,9 +475,138 @@ void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Head
     uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Title, 10, Title); 
 
-    // STEP 3: ...
+    // STEP 3: Display Center and Span
+    // Format frequency string
+    char StartString[12];
+    char CenterString[12];
+    char StopString[12];
+    snprintf(StartString, sizeof(StartString), "%dKHz", (StartFrequency / 1000));
+    snprintf(CenterString, sizeof(CenterString), "%.1fKHz", (CenterFrequency / 1000.0f));
+    snprintf(StopString, sizeof(StopString), "%dKHz", (StopFrequency / 1000));
+    // Calculate X location
+    uint16_t CenterWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, CenterString);
+    uint16_t StopWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, StopString);
+    uint8_t X_Center = (uint8_t)((DISPLAY_WIDTH_PIXEL - CenterWidth) / 2U);
+    uint8_t X_Stop = (uint8_t)(DISPLAY_WIDTH_PIXEL - StopWidth);
+    // Display
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 20U, StartString);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Center, 20U, CenterString);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Stop, 20U, StopString);
 
     // STEP 4: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
 } // END OF displayStaticHeaderSignal
+
+
+
+
+
+/******************************************************************************************************
+ * @brief           Draws the signal spectrum trace inside a boxed display area below the header
+ *
+ * @param Display_SSD1309     Pointer to display handle
+ * @param BinMagnitudes       FFT magnitude array indexed directly by FFT bin number
+ * @param LowBin              First FFT bin to display (inclusive)
+ * @param HighBin             Last FFT bin boundary (exclusive)
+ * @param FullScaleMagnitude  Magnitude value that maps to the top of the trace area
+ *
+ * @note            The trace area is boxed and cleared before drawing
+ *                  DC is suppressed by forcing the first plotted bin to at least bin 1
+ *                  When multiple bins map to one x-pixel column, the maximum magnitude is used
+ *                  Y = 0 is top of display and increases downward
+ ******************************************************************************************************/
+void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float FullScaleMagnitude)
+{
+    #define SIGNAL_BOX_X0            (0U)
+    #define SIGNAL_BOX_Y0            (28U)
+    #define SIGNAL_BOX_WIDTH         (DISPLAY_WIDTH_PIXEL)
+    #define SIGNAL_BOX_HEIGHT        (DISPLAY_HEIGH_PIXEL - SIGNAL_BOX_Y0)
+    #define SIGNAL_TRACE_X0          (1U)
+    #define SIGNAL_TRACE_X1          (DISPLAY_WIDTH_PIXEL - 2U)
+    #define SIGNAL_TRACE_Y0          (SIGNAL_BOX_Y0 + 1U)
+    #define SIGNAL_TRACE_Y1          (DISPLAY_HEIGH_PIXEL - 2U)
+
+    uint16_t StartBin;
+    uint16_t BinCount;
+    uint16_t TraceWidth;
+    uint8_t PreviousY = 0U;
+    bool IsFirstPoint = true;
+
+    // STEP 1: Validate inputs
+    if (Display_SSD1309 == NULL)
+        return;
+
+    if (BinMagnitudes == NULL)
+        return;
+
+    if (LowBin >= HighBin)
+        return;
+
+    if (FullScaleMagnitude <= 0.0f)
+        return;
+
+    // STEP 2: Suppress DC by forcing the first plotted bin to at least bin 1
+    StartBin = LowBin;
+    if (StartBin == 0U)
+        StartBin = 1U;
+
+    if (StartBin >= HighBin)
+        return;
+
+    BinCount = (uint16_t)(HighBin - StartBin);
+    TraceWidth = (uint16_t)(SIGNAL_TRACE_X1 - SIGNAL_TRACE_X0 + 1U);
+
+    // STEP 3: Clear and box the signal trace area
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0U);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, SIGNAL_BOX_X0, SIGNAL_BOX_Y0, SIGNAL_BOX_WIDTH, SIGNAL_BOX_HEIGHT);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1U);
+    u8g2_DrawFrame(Display_SSD1309->U8G2_Handle, SIGNAL_BOX_X0, SIGNAL_BOX_Y0, SIGNAL_BOX_WIDTH, SIGNAL_BOX_HEIGHT);
+
+    // STEP 4: Map bins to x-pixel columns and draw the spectrum trace
+    for (uint16_t X = SIGNAL_TRACE_X0; X <= SIGNAL_TRACE_X1; X++)
+    {
+        uint16_t PixelIndex = (uint16_t)(X - SIGNAL_TRACE_X0);
+        uint16_t BinStart = (uint16_t)(StartBin + (((uint32_t)PixelIndex * BinCount) / TraceWidth));
+        uint16_t BinStop  = (uint16_t)(StartBin + ((((uint32_t)PixelIndex + 1U) * BinCount) / TraceWidth));
+        float ColumnMaxMagnitude = 0.0f;
+        uint8_t CurrentY;
+
+        if (BinStop <= BinStart)
+            BinStop = (uint16_t)(BinStart + 1U);
+
+        if (BinStop > HighBin)
+            BinStop = HighBin;
+
+        for (uint16_t Bin = BinStart; Bin < BinStop; Bin++)
+        {
+            if (BinMagnitudes[Bin] > ColumnMaxMagnitude)
+                ColumnMaxMagnitude = BinMagnitudes[Bin];
+        }
+
+        if (ColumnMaxMagnitude > FullScaleMagnitude)
+            ColumnMaxMagnitude = FullScaleMagnitude;
+
+        {
+            float NormalizedMagnitude = (ColumnMaxMagnitude / FullScaleMagnitude);
+            float TraceHeightFloat = NormalizedMagnitude * (float)(SIGNAL_TRACE_Y1 - SIGNAL_TRACE_Y0);
+            uint8_t TraceHeight = (uint8_t)(TraceHeightFloat + 0.5f);
+
+            CurrentY = (uint8_t)(SIGNAL_TRACE_Y1 - TraceHeight);
+
+            if (CurrentY < SIGNAL_TRACE_Y0)
+                CurrentY = SIGNAL_TRACE_Y0;
+
+            if (CurrentY > SIGNAL_TRACE_Y1)
+                CurrentY = SIGNAL_TRACE_Y1;
+        }
+
+        if (IsFirstPoint == false)
+            u8g2_DrawLine(Display_SSD1309->U8G2_Handle, (X - 1U), PreviousY, X, CurrentY);
+
+        PreviousY = CurrentY;
+        IsFirstPoint = false;
+    }
+
+} // END OF displaySignalSpecturm

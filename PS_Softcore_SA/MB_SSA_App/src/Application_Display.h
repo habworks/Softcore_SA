@@ -68,7 +68,8 @@ void displayUpdateAudioPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint3
 void displayUpdateAudioPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction);
 void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *DisplayMagnitude, uint8_t FrequencySlots, uint8_t VerticalBarCount, bool ClearOnly);
 // SIGNAL SA RELATED
-void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading);
+void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading, float StartFrequency, float CenterFrequency, float StopFrequency);
+void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float FullScaleMagnitude);
 
 #ifdef __cplusplus
 }

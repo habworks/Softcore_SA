@@ -51,11 +51,16 @@ typedef struct
 {
     bool                Enable;
     Type_SignalSelect   Source;    
+    float               CenterFrequency;
+    float               StartFrequency;
+    float               StopFrequency;
+    uint16_t            LowBin;
+    uint16_t            HighBin;
 } Type_Signal_SA;
 
 
 // FUNCTION PROTOTYPES
-bool initSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT, Type_AXI_IMR_7476A_Handle *ADC_Handle, uint32_t SignalSampleRate, uint16_t *ADC_BufferDatum_A, uint32_t *ADC_BufferDatum_B);
+bool initSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint32_t SignalSampleRate, uint16_t *ADC_BufferDatum_A, uint32_t *ADC_BufferDatum_B);
 void signalSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT);
 void signalSelect(Type_SignalSelect Signal);
 void signalPeriodicTimer_ISR(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint16_t *ADC_BufferDatum_A, uint16_t *ADC_BufferDatum_B);

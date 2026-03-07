@@ -658,7 +658,7 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
     // Moving from Audio to Signal Mode
     if (SoftCore_SA->Mode == MODE_AUDIO_SA)
     {
-        Status = initSpectrumAnalyzer(&SoftCore_SA->Signal_SA, &SoftCore_SA->FFT, &AXI_IMR_7476A_Handle,  DEFAULT_SIGNAL_SAMPLE_RATE_HZ, &AnalogInputSignal, &BatteryVoltage);
+        Status = initSpectrumAnalyzer(&SoftCore_SA->Signal_SA, &SoftCore_SA->FFT, DEFAULT_SIGNAL_SAMPLE_RATE_HZ, &AnalogInputSignal, &BatteryVoltage);
         if (Status == true)
         {
             // Stop Audio playback and disable audio outpput
@@ -668,7 +668,7 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
             SoftCore_SA->Signal_SA.Enable = true;
             resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
             // Update display and debug port
-            displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING);
+            displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING, 0, (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 4.0), (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 2.0));
             printYellow("Signal Mode Active\r\n"); 
             return;
         }

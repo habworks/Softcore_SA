@@ -95,7 +95,7 @@ void audioSpectrumAnalyzer(Type_Audio_SA *Audio_SA, Type_FFT *FFT, uint8_t LED_M
     if (FFT->FrameReady)
     {            
         // Process the FFT frame data
-        FFT_ProcessFrame(FFT, BinMagnitudes, BIN_COUNT);
+        FFT_ProcessAudioFrame(FFT, BinMagnitudes, BIN_COUNT);
 
         // Update the display playback time
         updateDisplayPlaybackTimer(Audio_SA->PlaybackTickCounter, Audio_SA->File.Header.SampleRate);

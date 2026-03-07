@@ -28,25 +28,28 @@
 #include "Main_App.h"
 #include "AXI_IRQ_Controller_Support.h"
 #include "AXI_Timer_PWM_Support.h"
+#include "Application_Display.h"
+#include "FFT_Support.h"
 #include "IO_Support.h"
 
 
-bool initSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT, Type_AXI_IMR_7476A_Handle *ADC_Handle, uint32_t SignalSampleRate, uint16_t *ADC_BufferDatum_A, uint32_t *ADC_BufferDatum_B)
+// GLOBAL SIGNAL SPECTRUM
+float __attribute__ ((section (".Hab_Fast_Data"))) BinAmplitudes[(FFT_SIZE / 2) + 1];
+float CenterFrequency[5] = {5e3, 10e3, 12.5e3, 15e3, 20e3};
+
+
+bool initSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT, uint32_t SignalSampleRate, uint16_t *ADC_BufferDatum_A, uint32_t *ADC_BufferDatum_B)
 {
     // STEP 1: Set member init conditions
     FFT->Size = FFT_SIZE;
     FFT->SampleRate_Hz = SignalSampleRate;
     FFT->FrameReady = false;
-    FFT->RBW = FFT->SampleRate_Hz / FFT->Size;
+    FFT->RBW = (float)SignalSampleRate / FFT_SIZE;
 
     // STEP 2: Ready Timer 1 - sample rate
     pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
     bool FrequencyStatus = update_PeriodicTimerPeriod(&AXI_SampleTimerHandle, XTC_TIMER_0, (uint32_t)(XPAR_CPU_CORE_CLOCK_FREQ_HZ / SignalSampleRate), false);    
 
-
-    // STEP 3: Start first acquistion
-    // bool ConversionStatus = IMR_ADC_7476A_X2_SingleConvert(ADC_Handle, ADC_BufferDatum_A, ADC_BufferDatum_B);
-    
     return(FrequencyStatus);
 
 }
@@ -54,12 +57,13 @@ bool initSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT, Type_AXI_IMR
 
 void signalSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT)
 {
-    static uint32_t Test = 0;
 
     if (FFT->FrameReady)
     {
-        Test++;
-        FFT->FrameReady = false;
+        pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
+        FFT_ProcessSignalFrame(FFT, BinAmplitudes, Signal_SA->LowBin, Signal_SA->HighBin);
+        displaySignalSpectrum(&Display_SSD1309, BinAmplitudes, Signal_SA->LowBin, Signal_SA->HighBin, 1000.0f);
+        resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
     }
 }
 

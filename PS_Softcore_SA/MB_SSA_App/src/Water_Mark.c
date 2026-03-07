@@ -56,8 +56,8 @@
 
 
 /********************************************************************************************************
-* @brief For use when debugging potential stack blown issues.  With a bare metal app the stack execution 
-* information:
+* @brief For use when debugging potential stack blown issues.  With a bare metal app the stack holds the  
+* the following information:
 *   Local Vars (not global)
 *   static Vars (within functions)
 *   Where functions return to after it has finished execution
@@ -77,16 +77,35 @@
 * @note: To use: place this function as the very first thing you execute in main.  Call the sister function
 * getStackHighWaterMarkBytes where needed or allow the applciation to run for a while and in different use 
 * cases (espically when IRQs are known to have been serviced and where functions call functions call functions.
-* Compare this value returned from getStackHighWaterMarkBytes to the size of your stack.  
+* Compare this value returned from getStackHighWaterMarkBytes to the size of your stack. 
+*
+* IMPORTANT NOTES FOR PORTABILITY:
+* @note: This function fills the stack memory with a seed value (0xA5) so stack usage
+*        can later be measured. Because the function writes through the stack region,
+*        care must be taken that variables controlling the loop are not placed on the
+*        stack itself. Otherwise the seedStackForWaterMark operation could overwrite them.
+*
+* @note: The variables Pointer and EndPointer are therefore declared static so they
+*        are placed in static storage (.bss) instead of the stack. This prevents the
+*        watermark loop from corrupting its own control variables.
+*
+* @note: The function is placed in the .Hab_Fast_Text section so its code resides in
+*        a deterministic memory region (LMB). While not strictly required for
+*        correctness, keeping this routine out of the default code section avoids
+*        unintended placement changes as the application grows.
+*
+* @note: Creating a dedicated linker section for routines such as this can help keep
+*        memory placement explicit and easier to reason about.
 * 
 * STEP 1: Assign the pointers
 * STEP 2: Fill the stack area with seed value 0xA5
 ********************************************************************************************************/
+__attribute__((section(".Hab_Fast_Text")))
 void seedStackForWaterMark(void)
 {
     // STEP 1: Assign the pointers
-    volatile uint8_t *Pointer = (volatile uint8_t *)&STACK_LOW_ADDRESS;
-    volatile uint8_t *EndPointer = (volatile uint8_t *)&STACK_HIGH_ADDRESS;
+    static volatile uint8_t *Pointer = (volatile uint8_t *)&STACK_LOW_ADDRESS;
+    static volatile uint8_t *EndPointer = (volatile uint8_t *)&STACK_HIGH_ADDRESS;
 
     // STEP 2: Fill the stack area with seed value 0xA5
     while (Pointer < EndPointer)
@@ -118,8 +137,8 @@ void seedStackForWaterMark(void)
 uint32_t getStackHighWaterMarkBytes(void)
 {
     // STEP 1: Assign the pointers
-    uint8_t *Pointer = &STACK_LOW_ADDRESS;
-    uint8_t *EndPointer = &STACK_HIGH_ADDRESS;
+    static volatile uint8_t *Pointer = &STACK_LOW_ADDRESS;
+    static volatile uint8_t *EndPointer = &STACK_HIGH_ADDRESS;
 
     // STEP 2: Scan upward until first non-0xA5
     while ((Pointer < EndPointer) && (*Pointer == 0xA5))

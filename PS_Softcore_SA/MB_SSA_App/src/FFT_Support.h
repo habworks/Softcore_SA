@@ -71,7 +71,8 @@ extern Type_AudioSpectrum AudioSpectrum;
 // FUNCTION PROTOTYPES
 bool init_FFT(Type_FFT *FFT, uint32_t SampleRate_Hz);
 void deinit_FFT(Type_FFT *FFT);
-uint32_t FFT_ProcessFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount);
+// Audio Related Functions
+uint32_t FFT_ProcessAudioFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount);
 bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
                             uint16_t FFT_Size,
                             const float *BinMagnitudes,
@@ -83,6 +84,10 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
                             uint8_t FrequencyBarCount,
                             uint8_t MagnitudeBarCount,
                             Type_AudioSpectrum *Spectrum);
+// Signal Related Functions
+bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin);
+// void calculateBinMinMaxFromSpan(float LowSpan, float HighSpan, uint16_t MaxBinCount, float RBW, uint16_t *LowBin, uint16_t *HighBin);
+
 
 
 #ifdef __cplusplus
