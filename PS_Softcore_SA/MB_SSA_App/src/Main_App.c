@@ -376,7 +376,7 @@ static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleF
 
 
 /********************************************************************************************************
-* @brief Init of Soft Core Spectrum Analyzer Handle members specific to the Audio function
+* @brief Init of Soft Core Spectrum Analyzer Handle members specific to the Audio Mode function
 *
 * @author original: Hab Collector \n
 *
@@ -412,16 +412,29 @@ static bool init_SoftCoreHandleAudio(Type_SoftCore_SA *Handle)
 
 
 
+/********************************************************************************************************
+* @brief Init of Soft Core Spectrum Analyzer Handle members specific to the Signal Mode function
+*
+* @author original: Hab Collector \n
+*
+* @note: Must be init before main application can be called
+* 
+* @param Handle: Pointer to Soft Core SA structure
+*
+* @return True if init OK
+*
+* STEP 1: Set audio handle defaults
+********************************************************************************************************/
 bool init_SoftCoreHandleSignal(Type_SoftCore_SA *Handle)
 {
     Handle->Signal_SA.Enable = false;
     Handle->Signal_SA.Source = SIGNAL_ON_BOARD_OSCILLATOR;
     signalSelect(SIGNAL_ON_BOARD_OSCILLATOR);
     return(true);
-}
 
-// END OF PROCESSOR DEFINE FOR RUN_MAIN_APPLICATION
-#endif
+} // END OF init_SoftCoreHandleSignal
+
+
 
 
 /********************************************************************************************************
@@ -657,7 +670,7 @@ static void modeSwitch(Type_SoftCore_SA *SoftCore_SA)
             // Re-start timer
             resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);
             // Update display and debug port
-            displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING, 0, (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 4.0), (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 2.0));
+            displayStaticHeaderSignal(&Display_SSD1309, DISPLAY_SIGNAL_HEADING, 0, (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 4.0), (DEFAULT_SIGNAL_SAMPLE_RATE_HZ / 2.0), SoftCore_SA->Signal_SA.Source);
             printYellow("Signal Mode Active\r\n"); 
             return;
         }
@@ -742,12 +755,14 @@ static void selectSwitch(Type_SoftCore_SA *SoftCore_SA)
         {
             SoftCore_SA->Signal_SA.Source = SIGNAL_OFF_BOARD_BNC;
             signalSelect(SIGNAL_OFF_BOARD_BNC);
+            displayUpdateSignalSource(&Display_SSD1309, SIGNAL_OFF_BOARD_BNC);
             printYellow("Signal Source External BNC\r\n"); 
         }
         else
         {
             SoftCore_SA->Signal_SA.Source = SIGNAL_ON_BOARD_OSCILLATOR;
             signalSelect(SIGNAL_ON_BOARD_OSCILLATOR);
+            displayUpdateSignalSource(&Display_SSD1309, SIGNAL_ON_BOARD_OSCILLATOR);
             printYellow("Signal Source On Board Oscillator\r\n"); 
         }
         return;
@@ -778,3 +793,9 @@ static void updateModeStatus_LED(void)
     }
 
 } // END OF updateModeStatus_LED
+
+
+
+
+// END OF PROCESSOR DEFINE FOR RUN_MAIN_APPLICATION
+#endif

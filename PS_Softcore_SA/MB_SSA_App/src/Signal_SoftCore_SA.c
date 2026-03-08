@@ -79,7 +79,7 @@ void signalSpectrumAnalyzer(Type_Signal_SA *Signal_SA, Type_FFT *FFT)
         FFT_ProcessSignalFrame(FFT, BinAmplitudes, Signal_SA->LowBin, Signal_SA->HighBin);
 
         // STEP 3: Display the results
-        displaySignalSpectrum(&Display_SSD1309, BinAmplitudes, Signal_SA->LowBin, Signal_SA->HighBin, 1000.0f);
+        displaySignalSpectrum(&Display_SSD1309, BinAmplitudes, Signal_SA->LowBin, Signal_SA->HighBin, -60.0f, 0.0f);
         
         // STEP 4: Resume acquistion
         resumeSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_1_INTR);

@@ -33,22 +33,31 @@ extern"C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include "SSD1309_Driver.h"
+#include "Signal_SoftCore_SA.h"
 
 // DEFINES
 // FOR USE WITH THE AUDIO SPECTRUM TIME
+// TIME:
 #define TIME_X                  0U
 #define TIME_BASELINE_Y         37U
 #define TIME_FONT_H             8U          // 5x8 font height
 #define TIME_BOX_W              (5U * 6U)   // conservative for 5x8 font width - 6 chars long
 #define TIME_BOX_H              9U
-// FOR USE WITH THE AUDIO SPECTRUM ACTION 
+// ACTION:
 #define ACTION_X                0U
 #define ACTION_BASELINE_Y       28U
 #define ACTION_FONT_H           8U          // 5x8 font height
-#define ACTION_BOX_W            (5U * 8U)   // conservative for 5x8 font width - 10 chars long
+#define ACTION_BOX_W            (5U * 8U)   // conservative for 5x8 font width - 8 chars long
 #define ACTION_BOX_H            9U          // 1px margin
-// FOR USE WITH CLEARING THE SPECTRUM
-#define SPECTRUM_ERASE_WIDTH    111U      
+// SPECTRUM:
+#define SPECTRUM_ERASE_WIDTH    111U  
+// FOR USE WITH THE SIGNAL SPECTRUM
+// SIGNAL SOURCE    
+#define SOURCE_X                0U
+#define SOURCE_BASELINE_Y       19U
+#define SOURCE_FONT_H           8U          // 5x8 font height
+#define SOURCE_BOX_W            (5U * 13U)  // conservative for 5x8 font width - 10 chars long
+#define SOURCE_BOX_H            9U          // 1px margin
 
 
 // TYPEDEFS AND ENUMS
@@ -68,8 +77,10 @@ void displayUpdateAudioPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint3
 void displayUpdateAudioPlaybackAction(Type_Display_SSD1309 *Display_SSD1309, char *PlaybackAction);
 void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *DisplayMagnitude, uint8_t FrequencySlots, uint8_t VerticalBarCount, bool ClearOnly);
 // SIGNAL SA RELATED
-void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading, float StartFrequency, float CenterFrequency, float StopFrequency);
-void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float FullScaleMagnitude);
+void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading, float StartFrequency, float CenterFrequency, float StopFrequency, Type_SignalSelect SignalSource);
+void displayUpdateSignalSource(Type_Display_SSD1309 *Display_SSD1309, Type_SignalSelect SignalSource);
+// void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float FullScaleMagnitude);
+void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float MinDisplay_dB, float MaxDisplay_dB);
 
 #ifdef __cplusplus
 }

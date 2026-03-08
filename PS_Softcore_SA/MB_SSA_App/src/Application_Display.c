@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 
 /********************************************************************************************************
@@ -320,7 +321,7 @@ void displayStaticHeaderAudio(Type_Display_SSD1309 *Display_SSD1309, char *Headi
 *
 * @note: Display must be init before use
 * @note: This function does not in of itself refresh the screen.  It must be called prior to a function that
-* does (like: drawSpectrumMock, drawSpectrum, or displayUpdateBuffer)
+* does (like: drawSpectrumMock, drawAudioSpectrum, or displayUpdateBuffer)
 * 
 * @param Display_SSD1309: Pointer to display handle
 * @param TimeInSeconds: Playback audio time in seconds elapsed
@@ -358,7 +359,7 @@ void displayUpdateAudioPlaybackTime(Type_Display_SSD1309 *Display_SSD1309, uint3
 *
 * @note: Display must be init before use
 * @note: This function does not in of itself refresh the screen.  It must be called prior to a function that
-* does (like: drawSpectrumMock, drawSpectrum, or displayUpdateBuffer)
+* does (like: drawSpectrumMock, drawAudioSpectrum, or displayUpdateBuffer)
 * 
 * @param Display_SSD1309: Pointer to display handle
 * @param PlaybackAction: String that descriptes the playback action: play, pause, stop, error
@@ -448,7 +449,7 @@ void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *Displa
 
 /********************************************************************************************************
 * @brief Displays the static Signal Header.  This is the base information present when the user is in Audio
-* SA mode: Title, ...
+* SA mode: Title, Signal Source and Span
 *
 * @author original: Hab Collector \n
 *
@@ -458,10 +459,11 @@ void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *Displa
 *
 * STEP 1: Clear buffer
 * STEP 2: Draw centered title (6x10)
-* STEP 3: ...
-* STEP 4: Push to display
+* STEP 3: Display Source
+* STEP 4: Display Center and Span
+* STEP 5: Push to display
 ********************************************************************************************************/
-void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading, float StartFrequency, float CenterFrequency, float StopFrequency)
+void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Heading, float StartFrequency, float CenterFrequency, float StopFrequency, Type_SignalSelect SignalSource)
 {
     // STEP 1: Clear buffer
     u8g2_ClearBuffer(Display_SSD1309->U8G2_Handle);
@@ -473,7 +475,14 @@ void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Head
     uint8_t X_Title = (uint8_t)((DISPLAY_WIDTH_PIXEL - TitleWidth) / 2);
     u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Title, 10, Title); 
 
-    // STEP 3: Display Center and Span
+    // STEP 3: Display Source
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    if (SignalSource == SIGNAL_ON_BOARD_OSCILLATOR)
+        u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 19U, SOURCE_LOCAL_OSSCILATOR);
+    else
+        u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 19U, SOURCE_EXTERNAL_BNC);
+
+    // STEP 4: Display Center and Span
     // Format frequency string
     char StartString[12] = {0};
     char CenterString[12] = {0};
@@ -484,18 +493,53 @@ void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Head
     // Calculate X location
     uint16_t CenterWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, CenterString);
     uint16_t StopWidth = u8g2_GetStrWidth(Display_SSD1309->U8G2_Handle, StopString);
-    uint8_t X_Center = (uint8_t)((((DISPLAY_WIDTH_PIXEL - CenterWidth)) / 2U) + strlen(CenterString) + 1U);
-    uint8_t X_Stop = (uint8_t)((DISPLAY_WIDTH_PIXEL - StopWidth) + strlen(StopString) + 1U); 
+    uint8_t X_Center = (uint8_t)(((DISPLAY_WIDTH_PIXEL - CenterWidth)) / 2U); // + strlen(CenterString) + 1U);
+    uint8_t X_Stop = (uint8_t)(DISPLAY_WIDTH_PIXEL - StopWidth); // + strlen(StopString) + 1U); 
     // Display
-    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 20U, StartString);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Center, 20U, CenterString);
-    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Stop, 20U, StopString);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, 0, 28U, StartString);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Center, 28U, CenterString);
+    u8g2_DrawStr(Display_SSD1309->U8G2_Handle, X_Stop, 28U, StopString);
 
-    // STEP 4: Push to display
+    // STEP 5: Push to display
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
 } // END OF displayStaticHeaderSignal
+
+
+
+/********************************************************************************************************
+* @brief: Erases and updates the signal source (Local Osscilator or External BNC)
+*
+* @author original: Hab Collector \n
+*
+* @note: Display must be init before use
+* @note: This function does not in of itself refresh the screen.  It must be called prior to a function that
+* does (like: drawSpectrumMock, drawSignalSpectrum, or displayUpdateBuffer)
+* 
+* @param Display_SSD1309: Pointer to display handle
+* @param PlaybackAction: String that descriptes the playback action: play, pause, stop, error
+*
+* STEP 1: Clear only the playback action area
+* STEP 2: Print the updated signal source to screen - note: requires another function call that will push to display
+********************************************************************************************************/
+void displayUpdateSignalSource(Type_Display_SSD1309 *Display_SSD1309, Type_SignalSelect SignalSource)
+{
+    // STEP 1: Clear only the playback action area
+    uint8_t Y_Top = (uint8_t)(SOURCE_BASELINE_Y - SOURCE_FONT_H);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0);
+    u8g2_DrawBox(Display_SSD1309->U8G2_Handle, SOURCE_X, Y_Top, SOURCE_BOX_W, SOURCE_BOX_H);
+    u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1);
+
+    // STEP 2: Print the updated signal source to screen - note: requires another function call that will push to display
+    u8g2_SetFont(Display_SSD1309->U8G2_Handle, u8g2_font_5x8_tr);
+    if (SignalSource == SIGNAL_ON_BOARD_OSCILLATOR)
+        u8g2_DrawStr(Display_SSD1309->U8G2_Handle, SOURCE_X, SOURCE_BASELINE_Y, SOURCE_LOCAL_OSSCILATOR);
+    else
+        u8g2_DrawStr(Display_SSD1309->U8G2_Handle, SOURCE_X, SOURCE_BASELINE_Y, SOURCE_EXTERNAL_BNC);        
+
+} // END OF displayUpdateSignalSource
+
+
 
 
 
@@ -504,27 +548,29 @@ void displayStaticHeaderSignal(Type_Display_SSD1309 *Display_SSD1309, char *Head
 /******************************************************************************************************
  * @brief           Draws the signal spectrum trace inside a boxed display area below the header
  *
- * @param Display_SSD1309     Pointer to display handle
- * @param BinMagnitudes       FFT magnitude array indexed directly by FFT bin number
- * @param LowBin              First FFT bin to display (inclusive)
- * @param HighBin             Last FFT bin boundary (exclusive)
- * @param FullScaleMagnitude  Magnitude value that maps to the top of the trace area
+ * @param Display_SSD1309 Pointer to display handle
+ * @param BinMagnitudes   FFT magnitude array indexed directly by FFT bin number
+ * @param LowBin          First FFT bin to display (inclusive)
+ * @param HighBin         Last FFT bin boundary (exclusive)
+ * @param MinDisplay_dB   Minimum display level in dB shown at the bottom of the trace area
+ * @param MaxDisplay_dB   Maximum display level in dB shown at the top of the trace area
  *
- * @note            The trace area is boxed and cleared before drawing
- *                  DC is suppressed by forcing the first plotted bin to at least bin 1
+ * @note            DC is suppressed by forcing the first plotted bin to at least bin 1
  *                  When multiple bins map to one x-pixel column, the maximum magnitude is used
- *                  Y = 0 is top of display and increases downward
+ *                  A small magnitude floor is applied to avoid log10f(0)
  ******************************************************************************************************/
-void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float FullScaleMagnitude)
+void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float MinDisplay_dB, float MaxDisplay_dB)
 {
-    #define SIGNAL_BOX_X0            (0U)
-    #define SIGNAL_BOX_Y0            (28U)
-    #define SIGNAL_BOX_WIDTH         (DISPLAY_WIDTH_PIXEL)
-    #define SIGNAL_BOX_HEIGHT        (DISPLAY_HEIGH_PIXEL - SIGNAL_BOX_Y0)
-    #define SIGNAL_TRACE_X0          (1U)
-    #define SIGNAL_TRACE_X1          (DISPLAY_WIDTH_PIXEL - 2U)
-    #define SIGNAL_TRACE_Y0          (SIGNAL_BOX_Y0 + 1U)
-    #define SIGNAL_TRACE_Y1          (DISPLAY_HEIGH_PIXEL - 2U)
+    #define SIGNAL_BOX_X0                    (0U)
+    #define SIGNAL_BOX_Y0                    (28U)
+    #define SIGNAL_BOX_WIDTH                 (DISPLAY_WIDTH_PIXEL)
+    #define SIGNAL_BOX_HEIGHT                (DISPLAY_HEIGH_PIXEL - SIGNAL_BOX_Y0)
+    #define SIGNAL_TRACE_X0                  (1U)
+    #define SIGNAL_TRACE_X1                  (DISPLAY_WIDTH_PIXEL - 2U)
+    #define SIGNAL_TRACE_Y0                  (SIGNAL_BOX_Y0 + 1U)
+    #define SIGNAL_TRACE_Y1                  (DISPLAY_HEIGH_PIXEL - 2U)
+    #define SIGNAL_MAGNITUDE_FLOOR           (0.001f)
+    #define SIGNAL_DB_REFERENCE_MAGNITUDE    (10000.0f)
 
     uint16_t StartBin;
     uint16_t BinCount;
@@ -532,7 +578,6 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
     uint8_t PreviousY = 0U;
     bool IsFirstPoint = true;
 
-    // STEP 1: Validate inputs
     if (Display_SSD1309 == NULL)
         return;
 
@@ -542,10 +587,9 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
     if (LowBin >= HighBin)
         return;
 
-    if (FullScaleMagnitude <= 0.0f)
+    if (MinDisplay_dB >= MaxDisplay_dB)
         return;
 
-    // STEP 2: Suppress DC by forcing the first plotted bin to at least bin 1
     StartBin = LowBin;
     if (StartBin == 0U)
         StartBin = 1U;
@@ -556,19 +600,24 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
     BinCount = (uint16_t)(HighBin - StartBin);
     TraceWidth = (uint16_t)(SIGNAL_TRACE_X1 - SIGNAL_TRACE_X0 + 1U);
 
-    // STEP 3: Clear and box the signal trace area
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0U);
     u8g2_DrawBox(Display_SSD1309->U8G2_Handle, SIGNAL_BOX_X0, SIGNAL_BOX_Y0, SIGNAL_BOX_WIDTH, SIGNAL_BOX_HEIGHT);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1U);
     u8g2_DrawFrame(Display_SSD1309->U8G2_Handle, SIGNAL_BOX_X0, SIGNAL_BOX_Y0, SIGNAL_BOX_WIDTH, SIGNAL_BOX_HEIGHT);
 
-    // STEP 4: Map bins to x-pixel columns and draw the spectrum trace
+    u8g2_DrawVLine(Display_SSD1309->U8G2_Handle, (DISPLAY_WIDTH_PIXEL / 2U), SIGNAL_TRACE_Y0, (SIGNAL_TRACE_Y1 - SIGNAL_TRACE_Y0 + 1U));
+
     for (uint16_t X = SIGNAL_TRACE_X0; X <= SIGNAL_TRACE_X1; X++)
     {
         uint16_t PixelIndex = (uint16_t)(X - SIGNAL_TRACE_X0);
         uint16_t BinStart = (uint16_t)(StartBin + (((uint32_t)PixelIndex * BinCount) / TraceWidth));
         uint16_t BinStop  = (uint16_t)(StartBin + ((((uint32_t)PixelIndex + 1U) * BinCount) / TraceWidth));
-        float ColumnMaxMagnitude = 0.0f;
+        float ColumnAverageMagnitude = 0.0f;
+        float Magnitude_dB;
+        float NormalizedMagnitude;
+        float TraceHeightFloat;
+        uint16_t BinCounter = 0U;
+        uint8_t TraceHeight;
         uint8_t CurrentY;
 
         if (BinStop <= BinStart)
@@ -579,26 +628,36 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
 
         for (uint16_t Bin = BinStart; Bin < BinStop; Bin++)
         {
-            if (BinMagnitudes[Bin] > ColumnMaxMagnitude)
-                ColumnMaxMagnitude = BinMagnitudes[Bin];
+            ColumnAverageMagnitude += BinMagnitudes[Bin];
+            BinCounter++;
         }
 
-        if (ColumnMaxMagnitude > FullScaleMagnitude)
-            ColumnMaxMagnitude = FullScaleMagnitude;
+        if (BinCounter > 0U)
+            ColumnAverageMagnitude /= (float)BinCounter;
 
-        {
-            float NormalizedMagnitude = (ColumnMaxMagnitude / FullScaleMagnitude);
-            float TraceHeightFloat = NormalizedMagnitude * (float)(SIGNAL_TRACE_Y1 - SIGNAL_TRACE_Y0);
-            uint8_t TraceHeight = (uint8_t)(TraceHeightFloat + 0.5f);
+        if (ColumnAverageMagnitude < SIGNAL_MAGNITUDE_FLOOR)
+            ColumnAverageMagnitude = SIGNAL_MAGNITUDE_FLOOR;
 
-            CurrentY = (uint8_t)(SIGNAL_TRACE_Y1 - TraceHeight);
+        Magnitude_dB = 20.0f * log10f(ColumnAverageMagnitude / SIGNAL_DB_REFERENCE_MAGNITUDE);
 
-            if (CurrentY < SIGNAL_TRACE_Y0)
-                CurrentY = SIGNAL_TRACE_Y0;
+        if (Magnitude_dB < MinDisplay_dB)
+            Magnitude_dB = MinDisplay_dB;
 
-            if (CurrentY > SIGNAL_TRACE_Y1)
-                CurrentY = SIGNAL_TRACE_Y1;
-        }
+        if (Magnitude_dB > MaxDisplay_dB)
+            Magnitude_dB = MaxDisplay_dB;
+
+        NormalizedMagnitude = (Magnitude_dB - MinDisplay_dB) / (MaxDisplay_dB - MinDisplay_dB);
+
+        TraceHeightFloat = NormalizedMagnitude * (float)(SIGNAL_TRACE_Y1 - SIGNAL_TRACE_Y0);
+        TraceHeight = (uint8_t)(TraceHeightFloat + 0.5f);
+
+        CurrentY = (uint8_t)(SIGNAL_TRACE_Y1 - TraceHeight);
+
+        if (CurrentY < SIGNAL_TRACE_Y0)
+            CurrentY = SIGNAL_TRACE_Y0;
+
+        if (CurrentY > SIGNAL_TRACE_Y1)
+            CurrentY = SIGNAL_TRACE_Y1;
 
         if (IsFirstPoint == false)
             u8g2_DrawLine(Display_SSD1309->U8G2_Handle, (X - 1U), PreviousY, X, CurrentY);
@@ -607,6 +666,6 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
         IsFirstPoint = false;
     }
 
-   u8g2_SendBuffer(Display_SSD1309->U8G2_Handle); 
+    u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
-} // END OF displaySignalSpecturm
+} // END OF displaySignalSpectrum
