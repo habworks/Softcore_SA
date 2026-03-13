@@ -335,11 +335,12 @@ static int16_t convert_PCM16_ToMono(int16_t Left_PCM16_AudioSample, int16_t Righ
 * @note: For use with PWM play back
 *
 * @param PCM16_Sample: Signed 16-bit PCM audio sample (-32768 to +32767)
+* @param PercentBase: Calculations are done based on this number 100, 1024, etc - this value would represent 100%
 *
 * @return PWM duty-cycle percentage (0.0 to 100.0)
 *
 * STEP 1: Offset signed PCM sample to an unsigned 16-bit range
-* STEP 2: Clamp the value to the maximum 16-bit range
+* STEP 2: Clamp the value to the maximum 16-bit range (possibly redundant and unnecessary as the math in step 1 suggest)
 * STEP 3: Convert to a percentage of full-scale PWM 0 - 100%
 ********************************************************************************************************/
 static uint16_t convert_PCM16_To_PWM_DutyPercent(int16_t PCM16_Sample, uint16_t PercentBase)
@@ -347,7 +348,7 @@ static uint16_t convert_PCM16_To_PWM_DutyPercent(int16_t PCM16_Sample, uint16_t 
     // STEP 1: Offset signed PCM sample to an unsigned 16-bit range
     uint32_t PWM_Duty = (uint32_t)((int32_t)PCM16_Sample + 32768U);
 
-    // STEP 2: Clamp the value to the maximum 16-bit range
+    // STEP 2: Clamp the value to the maximum 16-bit range (possibly redundant and unnecessary as the math in step 1 suggest)
     // if (PWM_Duty > 65535U)
     //     PWM_Duty = 65535U;
 

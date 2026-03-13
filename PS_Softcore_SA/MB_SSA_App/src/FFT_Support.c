@@ -148,12 +148,8 @@ bool init_FFT(Type_FFT *FFT, uint32_t SampleRate_Hz)
 * @author original: Hab Collector \n
 *
 * @note: Uses KissFFT library
-* @note: Sample rate only needs to meet Nquist (2x frequency of signal)
 * 
 * @param FFT: Pointer to FFT structure
-* @param SampleRate_Hz: Sample rate of the signal (can be any signal)
-*
-* @return: True if OK
 *
 * STEP 1: Free memory that was allocated for the FFT
 ********************************************************************************************************/
@@ -180,6 +176,7 @@ void deinit_FFT(Type_FFT *FFT)
 *
 * @note: Uses KissFFT library
 * @note: Sample rate only needs to meet Nquist (2x frequency of signal)
+* @note: Audio PCM data is already centered about the 0 since PCM is int16_t (both positive and negative)
 * 
 * @param FFT: Pointer to FFT structure
 * @param BinMagnitudes: Buffer in which to fill the Bin Amplitudes
@@ -187,15 +184,20 @@ void deinit_FFT(Type_FFT *FFT)
 *
 * @return: True if OK
 *
-* STEP 1: Free memory that was allocated for the FFT
+* STEP 1: Place in fast memory to speed things up
+* STEP 2: Validate inputs and confirm a frame is ready
+* STEP 3: Snapshot the FFT sample buffer and clear FrameReady
+* STEP 4: Apply Hann window to the snapshot samples
+* STEP 5: Run KissFFT real FFT on the windowed samples - this takes the longest amount of time
+* STEP 6: Compute magnitude for each requested bin and store into BinMagnitudes
 ********************************************************************************************************/
 uint32_t FFT_ProcessAudioFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t BinCount)
 {
-    // Place in fast memory to speed things up
+    // STEP 1: Place in fast memory to speed things up
     static float __attribute__ ((section (".Hab_Fast_Data"))) WindowedSamples[FFT_SIZE];
     static kiss_fft_cpx __attribute__ ((section (".Hab_Fast_Data"))) OutputBins[FFT_MAX_BINS];
 
-    // STEP 1: Validate inputs and confirm a frame is ready
+    // STEP 2: Validate inputs and confirm a frame is ready
     if (FFT == NULL)
         return(false);
 
@@ -214,22 +216,20 @@ uint32_t FFT_ProcessAudioFrame(Type_FFT *FFT, float *BinMagnitudes, uint32_t Bin
     if (FFT->FrameReady == false)
         return(false);
 
-    // STEP 2: Snapshot the FFT sample buffer and clear FrameReady
+    // STEP 3: Snapshot the FFT sample buffer and clear FrameReady
     memcpy(WindowedSamples, (const void *)FFT->Samples, (size_t)(FFT_SIZE * sizeof(float)));
     FFT->FrameReady = false;
 
-    // STEP 3: Apply Hann window to the snapshot samples
+    // STEP 4: Apply Hann window to the snapshot samples
     for (uint16_t Index = 0; Index < FFT_SIZE; Index++)
     {
         WindowedSamples[Index] = (WindowedSamples[Index] * FFT->HannWindow[Index]);
     }
 
-    // STEP 4: Run KissFFT real FFT on the windowed samples - this takes the longest amount of time
-// XGpio_DiscreteSet(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0); 
+    // STEP 5: Run KissFFT real FFT on the windowed samples - this takes the longest amount of time
     kiss_fftr(FFT->FFT_Config, WindowedSamples, OutputBins);
-// XGpio_DiscreteClear(&AXI_GPIO_Handle, GPIO_OUTPUT_CHANNEL, TEST_IO_0);  
 
-    // STEP 5: Compute magnitude for each requested bin and store into BinMagnitudes
+    // STEP 6: Compute magnitude for each requested bin and store into BinMagnitudes
     for (uint32_t Bin = 0; Bin < BinCount; Bin++)
     {
         float Real = (float)OutputBins[Bin].r;
@@ -288,6 +288,8 @@ static float clamp_f32(float Value, float Minimum, float Maximum)
 * smaller values so that low-level content remains visible.  Different compression methods may be
 * selected depending on desired visual response characteristics.
 *
+* @note: Never really tested - so IDK - I got the idea from AI
+*
 * @author original: Hab Collector \n
 *
 * @param Value:               Input magnitude value (must be >= 0)
@@ -326,7 +328,7 @@ static float applyLinearCompression(float Value, Type_LinearCompression LinearCo
 
 
 
- /********************************************************************************************************
+/********************************************************************************************************
 * @brief Build a display-ready audio spectrum frame from raw FFT bin magnitudes.  This function exists
 * to translate the high-resolution FFT output (hundreds of bins) into a small, stable, and readable set
 * of display bars (example: 18 bars by 8 vertical segments).  The FFT produces data in the frequency
@@ -393,9 +395,11 @@ static float applyLinearCompression(float Value, Type_LinearCompression LinearCo
 * the OLED rendering code can draw quickly and consistently.  This separation also allows the UI to use
 * the analysis data for future features, while keeping the draw path simple and deterministic.
 *
-* @author original: Hab Collector \n
+* @author original: Vector \n
+* @author modified by: Hab Collector \n
 *
 * @note: Designed to work with displayAudioSpectrum
+* @note: This function was orignally designed by my AI assistant
 *
 * @param SampleRate_Hz:        Audio sample rate in Hz (example: 16000)
 * @param FFT_Size:             FFT size in samples (example: 1024)
@@ -483,7 +487,6 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
     // STEP 3: Build slot bin ranges using linear or log-like frequency spacing
     uint32_t TotalBins = (LastBin - FirstBin + 1U);
     uint32_t PreviousEndBin = (FirstBin - 1U);
-
     for (uint32_t Slot = 0; Slot < (uint32_t)FrequencyBarCount; Slot++)
     {
         float StartFraction = ((float)Slot / (float)FrequencyBarCount);
@@ -522,10 +525,8 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
 
         // STEP 4: Compute slot Frequency[] (center frequency) and slot Magnitude[] (average or RMS)
         uint32_t BinCountInSlot = (EndBin - StartBin + 1U);
-
         float Sum = 0.0f;
         float SumSq = 0.0f;
-
         for (uint32_t Bin = StartBin; Bin <= EndBin; Bin++)
         {
             float Value = BinMagnitudes[Bin];
@@ -536,16 +537,13 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
             Sum += Value;
             SumSq += (Value * Value);
         }
-
         float SlotMagnitudeLinear;
-
         if (SlotMagnitudeMethod == SLOT_MAGNITUDE_RMS)
             SlotMagnitudeLinear = sqrtf(SumSq / (float)BinCountInSlot);
         else
             SlotMagnitudeLinear = (Sum / (float)BinCountInSlot);
 
         float CenterBin = ((float)StartBin + (float)EndBin) * 0.5f;
-
         Spectrum->Frequency[Slot] = (CenterBin * RBW_Hz);
         Spectrum->Magnitude[Slot] = SlotMagnitudeLinear;
     }
@@ -557,26 +555,20 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
         // If your FFT input is normalized to +/-1.0, start with 1.0f.
         // If your FFT input is PCM16 scale (~32768), start with 32768.0f.
         float Reference = 32768.0f;
-
         if (Reference < 1e-12f)
             Reference = 1e-12f;
-
         for (uint32_t Slot = 0; Slot < (uint32_t)FrequencyBarCount; Slot++)
         {
             float Value = Spectrum->Magnitude[Slot];
 
             if (Value < 1e-12f)
                 Value = 1e-12f;
-
             float Relative = (Value / Reference);
             float Mag_dB = (20.0f * log10f(Relative));
-
             if (Mag_dB < MinDB)
                 Mag_dB = MinDB;
-
             if (Mag_dB > 0.0f)
                 Mag_dB = 0.0f;
-
             Spectrum->Magnitude[Slot] = Mag_dB;
         }
     }
@@ -591,29 +583,24 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
             float Normalized = ((Mag_dB - MinDB) / (-MinDB));
             Normalized = clamp_f32(Normalized, 0.0f, 1.0f);
             uint32_t Height = (uint32_t)(Normalized * (float)MagnitudeBarCount + 0.5f);
-
             if (Height > MagnitudeBarCount)
                 Height = MagnitudeBarCount;
-
             DisplayMagnitudeBars[Slot] = (uint8_t)Height;
         }
     }
     else
     {
         float MaxValue = 0.0f;
-
         for (uint32_t Slot = 0; Slot < (uint32_t)FrequencyBarCount; Slot++)
         {
             float Value = Spectrum->Magnitude[Slot];
             Value = applyLinearCompression(Value, LinearCompression);
-
             if (Value > MaxValue)
                 MaxValue = Value;
         }
 
         if (MaxValue < 1e-12f)
             MaxValue = 1e-12f;
-
         for (uint32_t Slot = 0; Slot < (uint32_t)FrequencyBarCount; Slot++)
         {
             float Value = Spectrum->Magnitude[Slot];
@@ -621,10 +608,8 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
             float Normalized = (Value / MaxValue);
             Normalized = clamp_f32(Normalized, 0.0f, 1.0f);
             uint32_t Height = (uint32_t)(Normalized * (float)MagnitudeBarCount + 0.5f);
-
             if (Height > MagnitudeBarCount)
                 Height = MagnitudeBarCount;
-
             DisplayMagnitudeBars[Slot] = (uint8_t)Height;
         }
     }
@@ -644,40 +629,45 @@ bool buildAudioSpectrumFrame(uint32_t SampleRate_Hz,
 
 
 /******************************************************************************************************
- * @brief           Processes one completed FFT frame and populates magnitude values for selected bins
+ * @brief Processes one completed FFT frame and populates magnitude values for selected bins in Signal Mode
+ * this function takes the applied signal, applies the necessary offset (to center about the 0), applies 
+ * the window function then computes the FFT magtitude results.
  *
- * @param FFT           Pointer to FFT control structure containing:
- *                      - Sample buffer
- *                      - Hann window coefficients
- *                      - KissFFT configuration
- *                      - FrameReady flag
+ * @author original: Hab Collector \n
  *
- * @param BinMagnitudes Pointer to an array that stores magnitude results for FFT bins.
- *                      The array must be sized to at least (FFT_SIZE / 2) + 1 elements.
- *                      Each index corresponds directly to the FFT bin number.
+ * @note: This function assumes a real FFT where the usable bins are 0 through (FFT_SIZE/2).  Only the bins 
+ * in the requested range are converted to magnitude.
+ * @note: WindowedSamples and OutputBins are placed in fast memory to reduce processing time for the FFT operation.
+ * @note: Low Bin, High Bin allows the calling function to limit the frequency span of interest and with it limit either
+ * the pure DC content (offset in bin 0) and or the total amount of calculations that must be performed
+ * @note: The input signal is purely positive - it is NOT centered about 0V, but instead offset so 0V is the lowest
+ * peak value.  The signal must be offset such that it is centered about the 0V.  This step is conceptually important.  
+ * An FFT of the raw biased data would contain a large DC term at bin 0 and nearby low-frequency contamination.  
+ * By recentring the samples first, the code focuses the FFT on the AC content that actually represents the signal 
+ * shape and harmonics of interest.
  *
- * @param LowBin        First FFT bin to compute (inclusive).
+ * @param FFT: Pointer to FFT control structure containing:
+ * @param BinMagnitudes: Pointer to an array that stores magnitude results for FFT bins.  The array must be sized to at least (FFT_SIZE / 2) + 1 elements. Each index corresponds directly to the FFT bin number.
+ * @param LowBin: First FFT bin to compute (inclusive).
+ * @param HighBin: Last FFT bin boundary (exclusive).  Valid bins processed are: LowBin ≤ Bin < HighBin.
  *
- * @param HighBin       Last FFT bin boundary (exclusive).  Valid bins processed are:
- *                      LowBin ≤ Bin < HighBin.
+ * @return True if OK  
  *
- * @note                This function assumes a real FFT where the usable bins are
- *                      0 through (FFT_SIZE/2).  Only the bins in the requested range
- *                      are converted to magnitude.
- *
- * @note                WindowedSamples and OutputBins are placed in fast memory to
- *                      reduce processing time for the FFT operation.
- *
- * @return              true  = FFT frame processed successfully
- *                      false = invalid input or frame not ready
+ * STEP 1: Place in fast memory to speed things up
+ * STEP 2: Validate inputs and confirm a frame is ready
+ * STEP 3: Snapshot the FFT sample buffer and clear FrameReady
+ * STEP 4: Convert to ADC signed and bias the signal around its center value
+ * STEP 5: Apply Hann window to the snapshot samples
+ * STEP 6: Run KissFFT real FFT on the windowed samples
+ * STEP 7: Compute magnitude for requested bins
  ******************************************************************************************************/
 bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin)
 {
-    // Place in fast memory to speed things up
+    // STEP 1: Place in fast memory to speed things up
     static float __attribute__ ((section (".Hab_Fast_Data"))) WindowedSamples[FFT_SIZE];
     static kiss_fft_cpx __attribute__ ((section (".Hab_Fast_Data"))) OutputBins[(FFT_SIZE/2) + 1];
 
-    // STEP 1: Validate inputs and confirm a frame is ready
+    // STEP 2: Validate inputs and confirm a frame is ready
     if (FFT == NULL)
         return(false);
 
@@ -696,27 +686,27 @@ bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin
     if (FFT->FrameReady == false)
         return(false);
 
-    // STEP 2: Snapshot the FFT sample buffer and clear FrameReady
+    // STEP 3: Snapshot the FFT sample buffer and clear FrameReady
     memcpy(WindowedSamples, (const void *)FFT->Samples, (size_t)(FFT_SIZE * sizeof(float)));
     FFT->FrameReady = false;
 
-    // STEP 3: Convert to ADC signed and bias the signal around its center value
+    // STEP 4: Convert to ADC signed and bias the signal around its center value
     // Since the input signal can only be positive centering the signal will remove DC offset that is inherent to how it is being fed
     for (uint16_t Index = 0; Index < FFT_SIZE; Index++)
     {
         WindowedSamples[Index] -= ADC_MID_SCALE_COUNT;
     }
 
-    // STEP 3: Apply Hann window to the snapshot samples
+    // STEP 5: Apply Hann window to the snapshot samples
     for (uint16_t Index = 0; Index < FFT_SIZE; Index++)
     {
         WindowedSamples[Index] = (WindowedSamples[Index] * FFT->HannWindow[Index]);
     }
 
-    // STEP 4: Run KissFFT real FFT on the windowed samples
+    // STEP 6: Run KissFFT real FFT on the windowed samples
     kiss_fftr(FFT->FFT_Config, WindowedSamples, OutputBins);
 
-    // STEP 5: Compute magnitude for requested bins
+    // STEP 7: Compute magnitude for requested bins
     for (uint16_t Bin = LowBin; Bin < HighBin; Bin++)
     {
         float Real = (float)OutputBins[Bin].r;
@@ -727,24 +717,28 @@ bool FFT_ProcessSignalFrame(Type_FFT *FFT, float *BinMagnitudes, uint16_t LowBin
     }
 
     return(true);
-}
+
+} // END OF FFT_ProcessSignalFrame
 
 
 
 /******************************************************************************************************
- * @brief           Calculates the FFT bin limits corresponding to a requested frequency span
+ * @brief Calculates the FFT bin limits corresponding to a requested frequency span
  *
- * @param LowSpan       Lower frequency limit of the requested span in Hz aka Start Frequency
- * @param HighSpan      Upper frequency limit of the requested span in Hz aka Stop Frequency
- * @param MaxBinCount   Total number of valid FFT bins covering the 0 Hz to Nyquist range
- *                      Typically FFT_SIZE / 2 for a real FFT
- * @param RBW           Resolution Bandwidth (Hz per bin)
- *                      RBW = Fs / FFT_SIZE
- * @param LowBin        Pointer to returned lower FFT bin index corresponding to LowSpan
- * @param HighBin       Pointer to returned upper FFT bin index corresponding to HighSpan
+ * @author original: Hab Collector \n
  *
- * @note                The returned bin indices are clamped to the valid FFT bin range
- *                      [0, MaxBinCount - 1]
+ * @note: The returned bin indices are clamped to the valid FFT bin range [0, MaxBinCount - 1]
+ *
+ * @param LowSpan: Lower frequency limit of the requested span in Hz aka Start Frequency
+ * @param HighSpan: Upper frequency limit of the requested span in Hz aka Stop Frequency
+ * @param MaxBinCount: Total number of valid FFT bins covering the 0 Hz to Nyquist range.  Typically FFT_SIZE / 2 for a real FFT
+ * @param RBW: Resolution Bandwidth (Hz per bin) RBW = Fs / FFT_SIZE
+ * @param LowBin: Pointer to returned lower FFT bin index corresponding to LowSpan
+ * @param HighBin: Pointer to returned upper FFT bin index corresponding to HighSpan
+ *
+ * STEP 1: Validate
+ * STEP 2: Convert span frequencies to bin numbers
+ * STEP 3: Clamp bin indices to valid range
  ******************************************************************************************************/
 bool calculateBinMinMaxFromSpan(float LowSpan, float HighSpan, uint16_t MaxBinCount, float RBW, uint16_t *LowBin, uint16_t *HighBin)
 {
@@ -769,5 +763,5 @@ bool calculateBinMinMaxFromSpan(float LowSpan, float HighSpan, uint16_t MaxBinCo
     if (*HighBin >= MaxBinCount)
         *HighBin = MaxBinCount - 1U;
     
-}
+} // END OF calculateBinMinMaxFromSpan
 

@@ -541,24 +541,51 @@ void displayUpdateSignalSource(Type_Display_SSD1309 *Display_SSD1309, Type_Signa
 
 
 
-
-
-
-
-/******************************************************************************************************
- * @brief           Draws the signal spectrum trace inside a boxed display area below the header
- *
- * @param Display_SSD1309 Pointer to display handle
- * @param BinMagnitudes   FFT magnitude array indexed directly by FFT bin number
- * @param LowBin          First FFT bin to display (inclusive)
- * @param HighBin         Last FFT bin boundary (exclusive)
- * @param MinDisplay_dB   Minimum display level in dB shown at the bottom of the trace area
- * @param MaxDisplay_dB   Maximum display level in dB shown at the top of the trace area
- *
- * @note            DC is suppressed by forcing the first plotted bin to at least bin 1
- *                  When multiple bins map to one x-pixel column, the maximum magnitude is used
- *                  A small magnitude floor is applied to avoid log10f(0)
- ******************************************************************************************************/
+/********************************************************************************************************
+* @brief Renders the Signal SA FFT data to the SSD1309 OLED as a continuous spectrum trace.  The function
+* uses a selected range of FFT bins and maps that bin range across the horizontal trace width of the signal
+* display window.  Since the number of FFT bins is typically larger than the number of available X pixels,
+* multiple bins are grouped together for each displayed pixel column.  The function averages the magnitudes
+* of all bins assigned to a given pixel column so the displayed trace is more stable and less sensitive to a
+* single noisy bin.  The averaged column magnitude is then converted to dB using a fixed magnitude reference
+* so the display behaves more like a traditional spectrum analyzer and uses the vertical space more
+* effectively than a linear magnitude display.  The resulting dB value is clamped to the requested display
+* range so anything below the minimum display range is forced to the bottom of the trace area and anything
+* above the maximum display range is forced to the top.  After clamping, the dB value is normalized to a
+* 0.0 to 1.0 range and then converted into a vertical pixel height inside the defined spectrum box.  Each
+* point is connected to the previous point with a line segment so the result is a continuous trace rather
+* than a disconnected set of points.  Bin 0 is intentionally skipped if requested so the DC term does not
+* dominate the display.  This routine only handles rendering and assumes the FFT magnitudes were already
+* computed elsewhere.  The visual result is therefore a practical display layer that converts processed FFT
+* output into a usable on-screen frequency-domain view for the Signal SA mode.
+*
+* @author original: Vector \n
+* @author modified: Hab Collector \n
+*
+* @note: This function was orignally designed by my AI assistant
+* @note: The function expects BinMagnitudes[] to already contain valid FFT magnitude data for the requested bin range
+* @note: The function uses a fixed dB reference magnitude.  This is a display calibration choice and not an absolute measurement standard
+* @note: Bin 0 is suppressed to avoid displaying the DC component when LowBin is 0
+* @note: Multiple FFT bins may map into one display column.  This is required because the display width is limited
+* @note: Column averaging reduces sensitivity to isolated noisy bins but does not remove aliasing or front-end analog issues
+* @note: The displayed result is only as accurate as the FFT data and the analog signal chain feeding the ADC
+* 
+* @param Display_SSD1309: Pointer to the SSD1309 display handle structure
+* @param BinMagnitudes: Pointer to the FFT magnitude array indexed by FFT bin number
+* @param LowBin: Lowest FFT bin requested for display
+* @param HighBin: One past the highest FFT bin requested for display
+* @param MinDisplay_dB: Minimum dB value mapped to the bottom of the trace region
+* @param MaxDisplay_dB: Maximum dB value mapped to the top of the trace region
+*
+* @return None
+*
+* STEP 1: Validate input pointers and display range limits
+* STEP 2: Determine the actual FFT bin range to display and suppress DC if needed
+* STEP 3: Calculate the displayed bin span and trace width in pixels
+* STEP 4: Clear the signal trace region and draw the spectrum frame
+* STEP 5: Map FFT bins into display columns, average magnitudes, convert to dB, convert to Y pixels, and draw the trace
+* STEP 6: Send the completed buffer to the OLED
+********************************************************************************************************/
 void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagnitudes, uint16_t LowBin, uint16_t HighBin, float MinDisplay_dB, float MaxDisplay_dB)
 {
     #define SIGNAL_BOX_X0                    (0U)
@@ -578,6 +605,7 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
     uint8_t PreviousY = 0U;
     bool IsFirstPoint = true;
 
+    // STEP 1: Validate input pointers and display range limits
     if (Display_SSD1309 == NULL)
         return;
 
@@ -590,23 +618,27 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
     if (MinDisplay_dB >= MaxDisplay_dB)
         return;
 
+    // STEP 2: Determine the actual FFT bin range to display and suppress DC if needed
+    StartBin = LowBin;
     StartBin = LowBin;
     if (StartBin == 0U)
         StartBin = 1U;
-
     if (StartBin >= HighBin)
         return;
 
+    // STEP 3: Calculate the displayed bin span and trace width in pixels
     BinCount = (uint16_t)(HighBin - StartBin);
     TraceWidth = (uint16_t)(SIGNAL_TRACE_X1 - SIGNAL_TRACE_X0 + 1U);
 
+    // STEP 4: Clear the signal trace region and draw the spectrum frame
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 0U);
     u8g2_DrawBox(Display_SSD1309->U8G2_Handle, SIGNAL_BOX_X0, SIGNAL_BOX_Y0, SIGNAL_BOX_WIDTH, SIGNAL_BOX_HEIGHT);
     u8g2_SetDrawColor(Display_SSD1309->U8G2_Handle, 1U);
     u8g2_DrawFrame(Display_SSD1309->U8G2_Handle, SIGNAL_BOX_X0, SIGNAL_BOX_Y0, SIGNAL_BOX_WIDTH, SIGNAL_BOX_HEIGHT);
-
+    // Draw the vertical center reference line
     u8g2_DrawVLine(Display_SSD1309->U8G2_Handle, (DISPLAY_WIDTH_PIXEL / 2U), SIGNAL_TRACE_Y0, (SIGNAL_TRACE_Y1 - SIGNAL_TRACE_Y0 + 1U));
 
+    // STEP 5: Map FFT bins into display columns, average magnitudes, convert to dB, convert to Y pixels, and draw the trace
     for (uint16_t X = SIGNAL_TRACE_X0; X <= SIGNAL_TRACE_X1; X++)
     {
         uint16_t PixelIndex = (uint16_t)(X - SIGNAL_TRACE_X0);
@@ -666,6 +698,7 @@ void displaySignalSpectrum(Type_Display_SSD1309 *Display_SSD1309, float *BinMagn
         IsFirstPoint = false;
     }
 
+    // STEP 6: Send the completed buffer to the OLED
     u8g2_SendBuffer(Display_SSD1309->U8G2_Handle);
 
 } // END OF displaySignalSpectrum
