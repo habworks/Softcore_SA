@@ -177,3 +177,27 @@ set_property IOSTANDARD LVCMOS33 [get_ports {LED_4}]
 ## GENERIC LED USE (LED_7 on T10)
 #set_property PACKAGE_PIN T10 [get_ports {gpio_io_o_0[2]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {gpio_io_o_0[2]}]
+
+# QUAD SPI FLASH USED BY BOOTLOADER ONLY - LOCATED ON ARTY AS IC3 / IC4
+# DQ 0
+set_property PACKAGE_PIN K17 [get_ports {QSPI_FLASH_BOOT_io0_io}]
+set_property IOSTANDARD LVCMOS33 [get_ports {QSPI_FLASH_BOOT_io0_io}]
+# DQ 1
+set_property PACKAGE_PIN K18 [get_ports {QSPI_FLASH_BOOT_io1_io}]
+set_property IOSTANDARD LVCMOS33 [get_ports {QSPI_FLASH_BOOT_io1_io}]
+# DQ 2
+set_property PACKAGE_PIN L14 [get_ports {QSPI_FLASH_BOOT_io2_io}]
+set_property IOSTANDARD LVCMOS33 [get_ports {QSPI_FLASH_BOOT_io2_io}]
+# DQ 3
+set_property PACKAGE_PIN M14 [get_ports {QSPI_FLASH_BOOT_io3_io}]
+set_property IOSTANDARD LVCMOS33 [get_ports {QSPI_FLASH_BOOT_io3_io}]
+# CS
+set_property PACKAGE_PIN L13 [get_ports {QSPI_FLASH_BOOT_ss_io[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {QSPI_FLASH_BOOT_ss_io[0]}]
+# NEEDED BITSTREAM SETTINGS FOR USING QUAD SPI FLASH (IC3 /IC4) AS STORAGE
+# Enable Quad Mode
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+# Sets stable boot speed
+set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
+# Makes the image smaller for faster loading
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]

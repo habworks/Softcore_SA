@@ -376,7 +376,7 @@
         "C_DCACHE_HIGHADDR": [ { "value": "0x000000008fffffff", "resolve_type": "generated", "format": "bitString", "usage": "all" } ],
         "C_USE_DCACHE": [ { "value": "1", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_ALLOW_DCACHE_WR": [ { "value": "1", "resolve_type": "generated", "format": "long", "usage": "all" } ],
-        "C_DCACHE_ADDR_TAG": [ { "value": "13", "resolve_type": "generated", "format": "long", "usage": "all" } ],
+        "C_DCACHE_ADDR_TAG": [ { "value": "12", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_DCACHE_BYTE_SIZE": [ { "value": "32768", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_DCACHE_LINE_LEN": [ { "value": "4", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_DCACHE_ALWAYS_USED": [ { "value": "0", "resolve_type": "generated", "format": "long", "usage": "all" } ],

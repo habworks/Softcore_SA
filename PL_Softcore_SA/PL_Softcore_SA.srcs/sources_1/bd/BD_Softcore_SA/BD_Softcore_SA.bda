@@ -624,6 +624,42 @@
             },
             "V27": {
                 "VT": "AC",
+                "BA": "0x44A40000",
+                "HA": "0x44A4FFFF",
+                "BP": "C_BASEADDR",
+                "HP": "C_HIGHADDR",
+                "MA": "Data",
+                "MX": "/microblaze_0",
+                "MI": "M_AXI_DP",
+                "MS": "SEG_axi_quad_spi_2_Reg",
+                "MV": "xilinx.com:ip:microblaze:11.0",
+                "SX": "/axi_quad_spi_2",
+                "SI": "AXI_LITE",
+                "SS": "Reg",
+                "SV": "xilinx.com:ip:axi_quad_spi:3.2",
+                "TM": "data",
+                "TU": "register"
+            },
+            "V28": {
+                "VT": "AC",
+                "BA": "0x44A40000",
+                "HA": "0x44A4FFFF",
+                "BP": "C_BASEADDR",
+                "HP": "C_HIGHADDR",
+                "MA": "Instruction",
+                "MX": "/microblaze_0",
+                "MI": "M_AXI_IC",
+                "MS": "SEG_axi_quad_spi_2_Reg",
+                "MV": "xilinx.com:ip:microblaze:11.0",
+                "SX": "/axi_quad_spi_2",
+                "SI": "AXI_LITE",
+                "SS": "Reg",
+                "SV": "xilinx.com:ip:axi_quad_spi:3.2",
+                "TM": "instruction",
+                "TU": "register"
+            },
+            "V29": {
+                "VT": "AC",
                 "BA": "0x80000000",
                 "HA": "0x8FFFFFFF",
                 "BP": "C_BASEADDR",
@@ -641,7 +677,7 @@
                 "TM": "data",
                 "TU": "memory"
             },
-            "V28": {
+            "V30": {
                 "VT": "AC",
                 "BA": "0x80000000",
                 "HA": "0x8FFFFFFF",
@@ -797,6 +833,16 @@
             },
             {
                 "src": "V28",
+                "trg": "V2",
+                "EH": "2"
+            },
+            {
+                "src": "V29",
+                "trg": "V2",
+                "EH": "2"
+            },
+            {
+                "src": "V30",
                 "trg": "V2",
                 "EH": "2"
             }

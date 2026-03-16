@@ -171,6 +171,10 @@ drv_info:
     driver: spi
     ip_name: axi_quad_spi
     path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\spi_v4_13
+  axi_quad_spi_2:
+    driver: spi
+    ip_name: axi_quad_spi
+    path: C:\Xilinx_Embedded_2024.2\Vitis\2024.2\data\embeddedsw\XilinxProcessorIPLib\drivers\spi_v4_13
   axi_timer_0:
     driver: tmrctr
     ip_name: axi_timer

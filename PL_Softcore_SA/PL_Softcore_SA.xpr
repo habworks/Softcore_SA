@@ -69,13 +69,13 @@
     <Option Name="WTVcsLaunchSim" Val="0"/>
     <Option Name="WTRivieraLaunchSim" Val="0"/>
     <Option Name="WTActivehdlLaunchSim" Val="0"/>
-    <Option Name="WTXSimExportSim" Val="112"/>
-    <Option Name="WTModelSimExportSim" Val="112"/>
-    <Option Name="WTQuestaExportSim" Val="112"/>
+    <Option Name="WTXSimExportSim" Val="113"/>
+    <Option Name="WTModelSimExportSim" Val="113"/>
+    <Option Name="WTQuestaExportSim" Val="113"/>
     <Option Name="WTIesExportSim" Val="0"/>
     <Option Name="WTVcsExportSim" Val="0"/>
-    <Option Name="WTRivieraExportSim" Val="112"/>
-    <Option Name="WTActivehdlExportSim" Val="112"/>
+    <Option Name="WTRivieraExportSim" Val="113"/>
+    <Option Name="WTActivehdlExportSim" Val="113"/>
     <Option Name="GenerateIPUpgradeLog" Val="TRUE"/>
     <Option Name="XSimRadix" Val="hex"/>
     <Option Name="XSimTimeUnit" Val="ns"/>
@@ -102,8 +102,17 @@
         <CompFileExtendedInfo CompFileName="BD_Softcore_SA.bd" FileRelPathName="ip/BD_Softcore_SA_IMR_PL_Revision_0_0/BD_Softcore_SA_IMR_PL_Revision_0_0.xci">
           <Proxy FileSetName="BD_Softcore_SA_IMR_PL_Revision_0_0"/>
         </CompFileExtendedInfo>
+        <CompFileExtendedInfo CompFileName="BD_Softcore_SA.bd" FileRelPathName="ip/BD_Softcore_SA_axi_quad_spi_2_0/BD_Softcore_SA_axi_quad_spi_2_0.xci">
+          <Proxy FileSetName="BD_Softcore_SA_axi_quad_spi_2_0"/>
+        </CompFileExtendedInfo>
         <CompFileExtendedInfo CompFileName="BD_Softcore_SA.bd" FileRelPathName="ip/BD_Softcore_SA_mig_7series_0_0/BD_Softcore_SA_mig_7series_0_0.xci">
           <Proxy FileSetName="BD_Softcore_SA_mig_7series_0_0"/>
+        </CompFileExtendedInfo>
+        <CompFileExtendedInfo CompFileName="BD_Softcore_SA.bd" FileRelPathName="ip/BD_Softcore_SA_smartconnect_0_0/BD_Softcore_SA_smartconnect_0_0.xci">
+          <Proxy FileSetName="BD_Softcore_SA_smartconnect_0_0"/>
+        </CompFileExtendedInfo>
+        <CompFileExtendedInfo CompFileName="BD_Softcore_SA.bd" FileRelPathName="ip/BD_Softcore_SA_smartconnect_0_1/BD_Softcore_SA_smartconnect_0_1.xci">
+          <Proxy FileSetName="BD_Softcore_SA_smartconnect_0_1"/>
         </CompFileExtendedInfo>
       </File>
       <File Path="$PGENDIR/sources_1/bd/BD_Softcore_SA/hdl/BD_Softcore_SA_wrapper.v">
@@ -133,6 +142,16 @@
           <Attr Name="ScopedToCell" Val="BD_Softcore_SA_mig_7series_0_0"/>
         </FileInfo>
       </File>
+      <File Path="$PSRCDIR/sources_1/imports/build/MB_SSA_BL_App.elf">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../Bootloader_Softcore_SA/MB_SSA_BL_App/build/MB_SSA_BL_App.elf"/>
+          <Attr Name="ImportTime" Val="1773502486"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="ScopedToRef" Val="BD_Softcore_SA"/>
+          <Attr Name="ScopedToCell" Val="microblaze_0"/>
+          <Attr Name="IsVisible" Val="1"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="BD_Softcore_SA_wrapper"/>
@@ -153,6 +172,14 @@
     </FileSet>
     <FileSet Name="sim_1" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_1" RelGenDir="$PGENDIR/sim_1">
       <Filter Type="Srcs"/>
+      <File Path="$PPRDIR/../Bootloader_Softcore_SA/MB_SSA_BL_App/build/MB_SSA_BL_App.elf">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="simulation"/>
+          <Attr Name="ScopedToRef" Val="BD_Softcore_SA"/>
+          <Attr Name="ScopedToCell" Val="microblaze_0"/>
+          <Attr Name="IsVisible" Val="1"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="BD_Softcore_SA_wrapper"/>
@@ -185,6 +212,18 @@
         <Option Name="TopAutoSet" Val="TRUE"/>
       </Config>
     </FileSet>
+    <FileSet Name="BD_Softcore_SA_smartconnect_0_1" Type="BlockSrcs" RelSrcDir="$PSRCDIR/BD_Softcore_SA_smartconnect_0_1" RelGenDir="$PGENDIR/BD_Softcore_SA_smartconnect_0_1">
+      <Config>
+        <Option Name="TopModule" Val="BD_Softcore_SA_smartconnect_0_1"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="BD_Softcore_SA_smartconnect_0_0" Type="BlockSrcs" RelSrcDir="$PSRCDIR/BD_Softcore_SA_smartconnect_0_0" RelGenDir="$PGENDIR/BD_Softcore_SA_smartconnect_0_0">
+      <Config>
+        <Option Name="TopModule" Val="BD_Softcore_SA_smartconnect_0_0"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
     <FileSet Name="BD_Softcore_SA_mig_7series_0_0" Type="BlockSrcs" RelSrcDir="$PSRCDIR/BD_Softcore_SA_mig_7series_0_0" RelGenDir="$PGENDIR/BD_Softcore_SA_mig_7series_0_0">
       <Config>
         <Option Name="TopModule" Val="BD_Softcore_SA_mig_7series_0_0"/>
@@ -194,6 +233,12 @@
     <FileSet Name="BD_Softcore_SA_IMR_PL_Revision_0_0" Type="BlockSrcs" RelSrcDir="$PSRCDIR/BD_Softcore_SA_IMR_PL_Revision_0_0" RelGenDir="$PGENDIR/BD_Softcore_SA_IMR_PL_Revision_0_0">
       <Config>
         <Option Name="TopModule" Val="BD_Softcore_SA_IMR_PL_Revision_0_0"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="BD_Softcore_SA_axi_quad_spi_2_0" Type="BlockSrcs" RelSrcDir="$PSRCDIR/BD_Softcore_SA_axi_quad_spi_2_0" RelGenDir="$PGENDIR/BD_Softcore_SA_axi_quad_spi_2_0">
+      <Config>
+        <Option Name="TopModule" Val="BD_Softcore_SA_axi_quad_spi_2_0"/>
         <Option Name="UseBlackboxStub" Val="1"/>
       </Config>
     </FileSet>
@@ -227,6 +272,30 @@
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
+    <Run Id="BD_Softcore_SA_smartconnect_0_1_synth_1" Type="Ft3:Synth" SrcSet="BD_Softcore_SA_smartconnect_0_1" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_smartconnect_0_1" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/BD_Softcore_SA_smartconnect_0_1_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_1_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_1_synth_1" ParallelReportGen="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024">
+          <Desc>Vivado Synthesis Defaults</Desc>
+        </StratHandle>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+      <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2024"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="BD_Softcore_SA_smartconnect_0_0_synth_1" Type="Ft3:Synth" SrcSet="BD_Softcore_SA_smartconnect_0_0" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_smartconnect_0_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/BD_Softcore_SA_smartconnect_0_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_0_synth_1" ParallelReportGen="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024">
+          <Desc>Vivado Synthesis Defaults</Desc>
+        </StratHandle>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+      <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2024"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
     <Run Id="BD_Softcore_SA_mig_7series_0_0_synth_1" Type="Ft3:Synth" SrcSet="BD_Softcore_SA_mig_7series_0_0" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_mig_7series_0_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/BD_Softcore_SA_mig_7series_0_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_mig_7series_0_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_mig_7series_0_0_synth_1" ParallelReportGen="true">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024">
@@ -240,6 +309,18 @@
       <RQSFiles/>
     </Run>
     <Run Id="BD_Softcore_SA_IMR_PL_Revision_0_0_synth_1" Type="Ft3:Synth" SrcSet="BD_Softcore_SA_IMR_PL_Revision_0_0" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_IMR_PL_Revision_0_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/BD_Softcore_SA_IMR_PL_Revision_0_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_IMR_PL_Revision_0_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_IMR_PL_Revision_0_0_synth_1" ParallelReportGen="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024">
+          <Desc>Vivado Synthesis Defaults</Desc>
+        </StratHandle>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+      <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2024"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="BD_Softcore_SA_axi_quad_spi_2_0_synth_1" Type="Ft3:Synth" SrcSet="BD_Softcore_SA_axi_quad_spi_2_0" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_axi_quad_spi_2_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/BD_Softcore_SA_axi_quad_spi_2_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_axi_quad_spi_2_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_axi_quad_spi_2_0_synth_1" ParallelReportGen="true">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024">
           <Desc>Vivado Synthesis Defaults</Desc>
@@ -269,6 +350,44 @@
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
+    <Run Id="BD_Softcore_SA_smartconnect_0_1_impl_1" Type="Ft2:EntireDesign" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_smartconnect_0_1" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="BD_Softcore_SA_smartconnect_0_1_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_1_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_1_impl_1" ParallelReportGen="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2024">
+          <Desc>Default settings for Implementation.</Desc>
+        </StratHandle>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+      <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2024"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="BD_Softcore_SA_smartconnect_0_0_impl_1" Type="Ft2:EntireDesign" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_smartconnect_0_0" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="BD_Softcore_SA_smartconnect_0_0_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_0_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_smartconnect_0_0_impl_1" ParallelReportGen="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2024">
+          <Desc>Default settings for Implementation.</Desc>
+        </StratHandle>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+      <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2024"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
     <Run Id="BD_Softcore_SA_mig_7series_0_0_impl_1" Type="Ft2:EntireDesign" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_mig_7series_0_0" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="BD_Softcore_SA_mig_7series_0_0_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_mig_7series_0_0_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_mig_7series_0_0_impl_1" ParallelReportGen="true">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2024">
@@ -289,6 +408,25 @@
       <RQSFiles/>
     </Run>
     <Run Id="BD_Softcore_SA_IMR_PL_Revision_0_0_impl_1" Type="Ft2:EntireDesign" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_IMR_PL_Revision_0_0" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="BD_Softcore_SA_IMR_PL_Revision_0_0_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_IMR_PL_Revision_0_0_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_IMR_PL_Revision_0_0_impl_1" ParallelReportGen="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2024">
+          <Desc>Default settings for Implementation.</Desc>
+        </StratHandle>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+      <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2024"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="BD_Softcore_SA_axi_quad_spi_2_0_impl_1" Type="Ft2:EntireDesign" Part="xc7a100tcsg324-1" ConstrsSet="BD_Softcore_SA_axi_quad_spi_2_0" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="BD_Softcore_SA_axi_quad_spi_2_0_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_axi_quad_spi_2_0_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/BD_Softcore_SA_axi_quad_spi_2_0_impl_1" ParallelReportGen="true">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2024">
           <Desc>Default settings for Implementation.</Desc>

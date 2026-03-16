@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x4B84B20664EDF89F",
+      "boundary_crc": "0xC210B799ADCAF684",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../PL_Softcore_SA.gen/sources_1/bd/BD_Softcore_SA",
       "name": "BD_Softcore_SA",
@@ -45,7 +45,8 @@
       "axi_timer_2": "",
       "axi_timer_3": "",
       "IMR_PL_Revision_0": "",
-      "IMR_ADC_7476A_X2_0": ""
+      "IMR_ADC_7476A_X2_0": "",
+      "axi_quad_spi_2": ""
     },
     "interface_ports": {
       "DDR3_0": {
@@ -184,6 +185,77 @@
             "direction": "O",
             "left": "0",
             "right": "0"
+          }
+        }
+      },
+      "QSPI_FLASH_BOOT": {
+        "mode": "Master",
+        "vlnv_bus_definition": "xilinx.com:interface:spi:1.0",
+        "vlnv": "xilinx.com:interface:spi_rtl:1.0",
+        "port_maps": {
+          "IO0_I": {
+            "physical_name": "QSPI_FLASH_BOOT_io0_i",
+            "direction": "I"
+          },
+          "IO0_O": {
+            "physical_name": "QSPI_FLASH_BOOT_io0_o",
+            "direction": "O"
+          },
+          "IO0_T": {
+            "physical_name": "QSPI_FLASH_BOOT_io0_t",
+            "direction": "O"
+          },
+          "IO1_I": {
+            "physical_name": "QSPI_FLASH_BOOT_io1_i",
+            "direction": "I"
+          },
+          "IO1_O": {
+            "physical_name": "QSPI_FLASH_BOOT_io1_o",
+            "direction": "O"
+          },
+          "IO1_T": {
+            "physical_name": "QSPI_FLASH_BOOT_io1_t",
+            "direction": "O"
+          },
+          "IO2_I": {
+            "physical_name": "QSPI_FLASH_BOOT_io2_i",
+            "direction": "I"
+          },
+          "IO2_O": {
+            "physical_name": "QSPI_FLASH_BOOT_io2_o",
+            "direction": "O"
+          },
+          "IO2_T": {
+            "physical_name": "QSPI_FLASH_BOOT_io2_t",
+            "direction": "O"
+          },
+          "IO3_I": {
+            "physical_name": "QSPI_FLASH_BOOT_io3_i",
+            "direction": "I"
+          },
+          "IO3_O": {
+            "physical_name": "QSPI_FLASH_BOOT_io3_o",
+            "direction": "O"
+          },
+          "IO3_T": {
+            "physical_name": "QSPI_FLASH_BOOT_io3_t",
+            "direction": "O"
+          },
+          "SS_I": {
+            "physical_name": "QSPI_FLASH_BOOT_ss_i",
+            "direction": "I",
+            "left": "0",
+            "right": "0"
+          },
+          "SS_O": {
+            "physical_name": "QSPI_FLASH_BOOT_ss_o",
+            "direction": "O",
+            "left": "0",
+            "right": "0"
+          },
+          "SS_T": {
+            "physical_name": "QSPI_FLASH_BOOT_ss_t",
+            "direction": "O"
           }
         }
       }
@@ -879,7 +951,7 @@
         "inst_hier_path": "smartconnect_CPU",
         "parameters": {
           "NUM_MI": {
-            "value": "12"
+            "value": "13"
           },
           "NUM_SI": {
             "value": "3"
@@ -910,7 +982,8 @@
               "M08_AXI",
               "M09_AXI",
               "M10_AXI",
-              "M11_AXI"
+              "M11_AXI",
+              "M12_AXI"
             ]
           },
           "S01_AXI": {
@@ -937,7 +1010,8 @@
               "M08_AXI",
               "M09_AXI",
               "M10_AXI",
-              "M11_AXI"
+              "M11_AXI",
+              "M12_AXI"
             ]
           },
           "S02_AXI": {
@@ -964,7 +1038,8 @@
               "M08_AXI",
               "M09_AXI",
               "M10_AXI",
-              "M11_AXI"
+              "M11_AXI",
+              "M12_AXI"
             ]
           },
           "M00_AXI": {
@@ -1338,6 +1413,37 @@
                 "value": "0"
               }
             }
+          },
+          "M12_AXI": {
+            "mode": "Master",
+            "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "parameters": {
+              "MAX_BURST_LENGTH": {
+                "value": "1"
+              },
+              "NUM_READ_OUTSTANDING": {
+                "value": "8"
+              },
+              "NUM_READ_THREADS": {
+                "value": "1"
+              },
+              "NUM_WRITE_OUTSTANDING": {
+                "value": "32"
+              },
+              "NUM_WRITE_THREADS": {
+                "value": "1"
+              },
+              "RUSER_BITS_PER_BYTE": {
+                "value": "0"
+              },
+              "SUPPORTS_NARROW_BURST": {
+                "value": "0"
+              },
+              "WUSER_BITS_PER_BYTE": {
+                "value": "0"
+              }
+            }
           }
         }
       },
@@ -1449,7 +1555,7 @@
         "inst_hier_path": "xlconstant_3",
         "parameters": {
           "CONST_VAL": {
-            "value": "4"
+            "value": "5"
           },
           "CONST_WIDTH": {
             "value": "4"
@@ -1529,7 +1635,7 @@
             "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
             "parameters": {
               "MAX_BURST_LENGTH": {
-                "value": "8"
+                "value": "256"
               },
               "NUM_READ_OUTSTANDING": {
                 "value": "8"
@@ -1672,7 +1778,7 @@
         "inst_hier_path": "IMR_PL_Revision_0",
         "parameters": {
           "C_REVISION_TEST": {
-            "value": "4"
+            "value": "5"
           }
         }
       },
@@ -1682,6 +1788,21 @@
         "xci_name": "BD_Softcore_SA_IMR_ADC_7476A_X2_0_0",
         "xci_path": "ip\\BD_Softcore_SA_IMR_ADC_7476A_X2_0_0\\BD_Softcore_SA_IMR_ADC_7476A_X2_0_0.xci",
         "inst_hier_path": "IMR_ADC_7476A_X2_0"
+      },
+      "axi_quad_spi_2": {
+        "vlnv": "xilinx.com:ip:axi_quad_spi:3.2",
+        "ip_revision": "32",
+        "xci_name": "BD_Softcore_SA_axi_quad_spi_2_0",
+        "xci_path": "ip\\BD_Softcore_SA_axi_quad_spi_2_0\\BD_Softcore_SA_axi_quad_spi_2_0.xci",
+        "inst_hier_path": "axi_quad_spi_2",
+        "parameters": {
+          "C_SPI_MEMORY": {
+            "value": "3"
+          },
+          "C_SPI_MODE": {
+            "value": "2"
+          }
+        }
       }
     },
     "interface_nets": {
@@ -1689,6 +1810,12 @@
         "interface_ports": [
           "axi_clock_converter_0/M_AXI",
           "smartconnect_DDR3/S00_AXI"
+        ]
+      },
+      "axi_quad_spi_2_SPI_0": {
+        "interface_ports": [
+          "QSPI_FLASH_BOOT",
+          "axi_quad_spi_2/SPI_0"
         ]
       },
       "microblaze_0_M_AXI_DC": {
@@ -1809,6 +1936,12 @@
         "interface_ports": [
           "smartconnect_CPU/M11_AXI",
           "IMR_ADC_7476A_X2_0/S00_AXI"
+        ]
+      },
+      "smartconnect_CPU_M12_AXI": {
+        "interface_ports": [
+          "smartconnect_CPU/M12_AXI",
+          "axi_quad_spi_2/AXI_LITE"
         ]
       }
     },
@@ -2008,7 +2141,8 @@
       "clk_wiz_1_clk_out5": {
         "ports": [
           "clk_wiz_1/clk_out5",
-          "axi_quad_spi_1/ext_spi_clk"
+          "axi_quad_spi_1/ext_spi_clk",
+          "axi_quad_spi_2/ext_spi_clk"
         ]
       },
       "clk_wiz_1_locked": {
@@ -2049,7 +2183,8 @@
           "microblaze_0/Clk",
           "smartconnect_CPU/aclk",
           "IMR_PL_Revision_0/s00_axi_aclk",
-          "IMR_ADC_7476A_X2_0/s00_axi_aclk"
+          "IMR_ADC_7476A_X2_0/s00_axi_aclk",
+          "axi_quad_spi_2/s_axi_aclk"
         ]
       },
       "microblaze_0_Interrupt_Ack": {
@@ -2109,7 +2244,8 @@
           "axi_timer_3/s_axi_aresetn",
           "smartconnect_CPU/aresetn",
           "IMR_PL_Revision_0/s00_axi_aresetn",
-          "IMR_ADC_7476A_X2_0/s00_axi_aresetn"
+          "IMR_ADC_7476A_X2_0/s00_axi_aresetn",
+          "axi_quad_spi_2/s_axi_aresetn"
         ]
       },
       "rst_clk_wiz_1_100M_bus_struct_reset": {
@@ -2184,6 +2320,13 @@
         ]
       }
     },
+    "comments": {
+      "/": {
+        "comment_0": "This interface used ONLY \nby bootloader",
+        "comment_1": "Custom IP\nPL Revision RTL",
+        "comment_2": "Custom IP\nPL Dual ADC 7476A"
+      }
+    },
     "addressing": {
       "/microblaze_0": {
         "address_spaces": {
@@ -2220,6 +2363,12 @@
               "SEG_axi_quad_spi_1_Reg": {
                 "address_block": "/axi_quad_spi_1/AXI_LITE/Reg",
                 "offset": "0x44A00000",
+                "range": "64K",
+                "offset_high_param": "C_HIGHADDR"
+              },
+              "SEG_axi_quad_spi_2_Reg": {
+                "address_block": "/axi_quad_spi_2/AXI_LITE/Reg",
+                "offset": "0x44A40000",
                 "range": "64K",
                 "offset_high_param": "C_HIGHADDR"
               },
@@ -2297,6 +2446,12 @@
                 "range": "64K",
                 "offset_high_param": "C_HIGHADDR"
               },
+              "SEG_axi_quad_spi_2_Reg": {
+                "address_block": "/axi_quad_spi_2/AXI_LITE/Reg",
+                "offset": "0x44A40000",
+                "range": "64K",
+                "offset_high_param": "C_HIGHADDR"
+              },
               "SEG_axi_timer_0_Reg": {
                 "address_block": "/axi_timer_0/S_AXI/Reg",
                 "offset": "0x41C00000",
@@ -2336,6 +2491,34 @@
             }
           }
         }
+      }
+    },
+    "elf_association": {
+      "file": {
+        "name": "..\\..\\imports\\build\\MB_SSA_BL_App.elf",
+        "type": "ELF",
+        "checksum": "3720888199",
+        "IsVisible": "1",
+        "ScopedToRef": "BD_Softcore_SA",
+        "ScopedToCell": [
+          "microblaze_0"
+        ],
+        "UsedIn": [
+          "implementation"
+        ]
+      },
+      "file": {
+        "name": "..\\..\\..\\..\\..\\Bootloader_Softcore_SA\\MB_SSA_BL_App\\build\\MB_SSA_BL_App.elf",
+        "type": "ELF",
+        "checksum": "29748204",
+        "IsVisible": "1",
+        "ScopedToRef": "BD_Softcore_SA",
+        "ScopedToCell": [
+          "microblaze_0"
+        ],
+        "UsedIn": [
+          "simulation"
+        ]
       }
     }
   }
