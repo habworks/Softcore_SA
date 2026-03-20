@@ -47,6 +47,7 @@
 #include "u8g2.h"
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "AXI_Timer_PWM_Support.h"
 #include "AXI_UART_Lite_Support.h"
 #include "AXI_IRQ_Controller_Support.h"
@@ -91,6 +92,7 @@ XIntc __attribute__ ((section (".Hab_Fast_Data"))) AXI_IRQ_ControllerHandle;
 // CUSTOM IP
 Type_AXI_IMR_7476A_Handle __attribute__ ((section (".Hab_Fast_Data"))) AXI_IMR_7476A_Handle;
 
+
 // NON AXI PERIPHERAL:
 Type_SoftCore_SA __attribute__ ((section (".Hab_Fast_Data"))) SoftCore_SA;
 Type_Display_SSD1309 __attribute__ ((section (".Hab_Fast_Data"))) Display_SSD1309; 
@@ -104,16 +106,36 @@ volatile uint16_t __attribute__ ((section (".Hab_Fast_Data"))) BatteryVoltage[AD
 uint32_t StackUsedWaterMark = 0;
 
 
+extern uint8_t __Hab_Fast_Text_start;
+extern uint8_t __Hab_Fast_Text_end;
+extern uint8_t __Hab_Fast_Text_load;
+
+
 
 /********************************************************************************************************
 * @brief This is the mian application - it is broken up into two parts - the main init and the main never
-* ending loop
+* ending loop.  Before the appliction starts Hab_Fast_Text is loaded from DDR to LBM.  To faciliate the .mcs
+* image all loadable sections must be placed within DDR.  The watermark for debug purposes only is also seeded
 *
 * @author original: Hab Collector \n
+*
+* STEP 1: Load from DDR to LBM linker section .Hab_Fast_Text
+* STEP 2: Seed the watermark for testing of stack overflow only - used in conjunction with getStackHighWaterMarkBytes
+* STEP 3: Init the application
+* STEP 4: Applicaiton Endless Loop 
 ********************************************************************************************************/
 void mainApplication(void)
 {
+    // STEP 1: Load from DDR to LBM linker section .Hab_Fast_Text
+    memcpy(&__Hab_Fast_Text_start, &__Hab_Fast_Text_load, (size_t)(&__Hab_Fast_Text_end - &__Hab_Fast_Text_start));
+    
+    // STEP 2: Seed the watermark for testing of stack overflow only - used in conjunction with getStackHighWaterMarkBytes
+    seedStackForWaterMark();
+
+    // STEP 3: Init the application
     main_InitApplication();
+
+    // STEP 4: Applicaiton Endless Loop 
     main_WhileLoop();
 }
 // END OF the Main Application

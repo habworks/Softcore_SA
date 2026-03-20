@@ -10,7 +10,7 @@ MEMORY
 {
 	mig_0 : ORIGIN = 0x80000000, LENGTH = 0x10000000
     vectors_bram : ORIGIN = 0x00000000, LENGTH = 0x00000050 /* Hab added this to move vectors to LBM */
-	lmb_bram_0 : ORIGIN = 0x50, LENGTH = 0x1ffb0
+	lmb_bram_0 : ORIGIN = 0x6000, LENGTH = 0x1A000
 }
 
 /* Specify the default entry point to the program */
@@ -21,21 +21,21 @@ ENTRY(_start)
 
 SECTIONS
 {
-.vectors.reset 0x00000000 : {
+.vectors.reset 0x80000000 : {
    KEEP (*(.vectors.reset))
-} > vectors_bram
+} > mig_0
 
-.vectors.sw_exception 0x00000008 : {
+.vectors.sw_exception 0x80000008 : {
    KEEP (*(.vectors.sw_exception))
-} > vectors_bram
+} > mig_0
 
-.vectors.interrupt 0x00000010 : {
+.vectors.interrupt 0x80000010 : {
    KEEP (*(.vectors.interrupt))
-} > vectors_bram
+} > mig_0
 
-.vectors.hw_exception 0x00000020 : {
+.vectors.hw_exception 0x80000020 : {
    KEEP (*(.vectors.hw_exception))
-} > vectors_bram
+} > mig_0
 
 .text : {
    *(.text)
@@ -46,11 +46,11 @@ SECTIONS
 
 .init : {
    KEEP (*(.init))
-} > lmb_bram_0
+} > mig_0
 
 .fini : {
    KEEP (*(.fini))
-} > lmb_bram_0
+} > mig_0
 
 .ctors : {
    __CTOR_LIST__ = .;
@@ -61,7 +61,7 @@ SECTIONS
    KEEP (*(.ctors))
    __CTOR_END__ = .;
    ___CTORS_END___ = .;
-} > lmb_bram_0
+} > mig_0
 
 .dtors : {
    __DTOR_LIST__ = .;
@@ -72,7 +72,7 @@ SECTIONS
    KEEP (*(.dtors))
    PROVIDE(__DTOR_END__ = .);
    PROVIDE(___DTORS_END___ = .);
-} > lmb_bram_0
+} > mig_0
 
 .drvcfg_sec : {
     . = ALIGN(8);
@@ -80,7 +80,7 @@ SECTIONS
     KEEP (*(.drvcfg_sec))
     __drvcfgsecdata_end = .;
     __drvcfgsecdata_size = __drvcfgsecdata_end - __drvcfgsecdata_start;
-} > lmb_bram_0
+} > mig_0
 
 .rodata : {
    __rodata_start = .;
@@ -98,7 +98,7 @@ SECTIONS
    *(.gnu.linkonce.s2.*)
    . = ALIGN(8);
    __sdata2_end = .;
-} > lmb_bram_0
+} > mig_0
 
 .sbss2 : {
    __sbss2_start = .;
@@ -106,7 +106,7 @@ SECTIONS
    *(.sbss2.*)
    *(.gnu.linkonce.sb2.*)
    __sbss2_end = .;
-} > lmb_bram_0
+} > mig_0
 
 .data : {
    . = ALIGN(4);
@@ -119,27 +119,27 @@ SECTIONS
 
 .got : {
    *(.got)
-} > lmb_bram_0
+} > mig_0
 
 .got1 : {
    *(.got1)
-} > lmb_bram_0
+} > mig_0
 
 .got2 : {
    *(.got2)
-} > lmb_bram_0
+} > mig_0
 
 .eh_frame : {
    *(.eh_frame)
-} > lmb_bram_0
+} > mig_0
 
 .jcr : {
    *(.jcr)
-} > lmb_bram_0
+} > mig_0
 
 .gcc_except_table : {
    *(.gcc_except_table)
-} > lmb_bram_0
+} > mig_0
 
 .sdata : {
    . = ALIGN(8);
@@ -148,7 +148,7 @@ SECTIONS
    *(.sdata.*)
    *(.gnu.linkonce.s.*)
    __sdata_end = .;
-} > lmb_bram_0
+} > mig_0
 
 .sbss (NOLOAD) : {
    . = ALIGN(4);
@@ -158,7 +158,7 @@ SECTIONS
    *(.gnu.linkonce.sb.*)
    . = ALIGN(8);
    __sbss_end = .;
-} > lmb_bram_0
+} > mig_0
 
 .tdata : {
    __tdata_start = .;
@@ -166,7 +166,7 @@ SECTIONS
    *(.tdata.*)
    *(.gnu.linkonce.td.*)
    __tdata_end = .;
-} > lmb_bram_0
+} > mig_0
 
 .tbss : {
    __tbss_start = .;
@@ -174,7 +174,7 @@ SECTIONS
    *(.tbss.*)
    *(.gnu.linkonce.tb.*)
    __tbss_end = .;
-} > lmb_bram_0
+} > mig_0
 
 .bss (NOLOAD) : {
    . = ALIGN(4);
@@ -187,7 +187,7 @@ SECTIONS
    __bss_end = .;
 } > mig_0
 
-.Hab_Fast_Data : {
+.Hab_Fast_Data (NOLOAD) : {
     . = ALIGN(4); /* Align the start of the section to a 4-byte boundary */
     __Hab_Fast_Data_start = .;
     KEEP(*(.Hab_Fast_Data))
@@ -203,7 +203,9 @@ SECTIONS
     KEEP(*(.Hab_Fast_Text*))
     . = ALIGN(4); /* Crucial: Align the end to the largest natural alignment needed */
     __Hab_Fast_Text_end = .;
-  } > lmb_bram_0
+  } > lmb_bram_0 AT > mig_0
+  
+__Hab_Fast_Text_load = LOADADDR(.Hab_Fast_Text);
 
 _SDA_BASE_ = __sdata_start + ((__sbss_end - __sdata_start) / 2 );
 

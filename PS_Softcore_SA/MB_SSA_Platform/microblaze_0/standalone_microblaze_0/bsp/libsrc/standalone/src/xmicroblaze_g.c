@@ -79,6 +79,6 @@ XMicroblaze_Config XMicroblaze_ConfigTable[] __attribute__ ((section (".drvcfg_s
 		 0,  /* microblaze_ddr_reserve_sa */
 		 0,  /* microblaze_ddr_reserve_ea */
 		0x0,  /* reg */
-		0x0  /* xlnx,base-vectors */
+		0x80000000  /* xlnx,base-vectors */
 	}
 };

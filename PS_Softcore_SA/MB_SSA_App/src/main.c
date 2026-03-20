@@ -32,7 +32,7 @@
 
 int main()
 {
-    seedStackForWaterMark();
+    // seedStackForWaterMark();
 #ifdef RUN_MAIN_APPLICATION
     mainApplication();
 #else

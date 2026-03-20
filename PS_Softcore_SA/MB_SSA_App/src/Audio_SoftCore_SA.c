@@ -53,7 +53,7 @@ uint8_t __attribute__ ((section (".Hab_Fast_Data"))) RawLinearBuffer[MAX_RAW_BUF
 float __attribute__ ((section (".Hab_Fast_Data"))) BinMagnitudes[(FFT_SIZE/2) + 1];
 uint8_t __attribute__ ((section (".Hab_Fast_Data"))) DisplayMagnitude[FREQUENCY_SLOTS];
 // For testing only
-uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR = 0;
+uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR;
 
 
 

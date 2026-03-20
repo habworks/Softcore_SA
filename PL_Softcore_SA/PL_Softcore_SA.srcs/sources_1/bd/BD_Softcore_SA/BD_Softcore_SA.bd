@@ -466,6 +466,9 @@
           "C_AREA_OPTIMIZED": {
             "value": "0"
           },
+          "C_BASE_VECTORS": {
+            "value": "0x0000000080000000"
+          },
           "C_CACHE_BYTE_SIZE": {
             "value": "65536"
           },
@@ -1555,7 +1558,7 @@
         "inst_hier_path": "xlconstant_3",
         "parameters": {
           "CONST_VAL": {
-            "value": "5"
+            "value": "6"
           },
           "CONST_WIDTH": {
             "value": "4"
@@ -1635,7 +1638,7 @@
             "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
             "parameters": {
               "MAX_BURST_LENGTH": {
-                "value": "256"
+                "value": "8"
               },
               "NUM_READ_OUTSTANDING": {
                 "value": "8"
@@ -1778,7 +1781,7 @@
         "inst_hier_path": "IMR_PL_Revision_0",
         "parameters": {
           "C_REVISION_TEST": {
-            "value": "5"
+            "value": "6"
           }
         }
       },
@@ -2510,7 +2513,7 @@
       "file": {
         "name": "..\\..\\..\\..\\..\\Bootloader_Softcore_SA\\MB_SSA_BL_App\\build\\MB_SSA_BL_App.elf",
         "type": "ELF",
-        "checksum": "29748204",
+        "checksum": "3720888199",
         "IsVisible": "1",
         "ScopedToRef": "BD_Softcore_SA",
         "ScopedToCell": [

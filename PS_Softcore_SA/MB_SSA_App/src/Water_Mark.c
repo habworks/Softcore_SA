@@ -126,7 +126,7 @@ void seedStackForWaterMark(void)
 * @author original: Hab Collector \n
 *
 * @note: See seedStackForWaterMark
-* @note: Remember is almost all cases a stack is filled from the its high address to its low address
+* @note: Remember in almost all cases a stack is filled from the its high address to its low address
 *
 * @return: How much of the stack has been used - the higher the number the more of the stack has been used
 * 

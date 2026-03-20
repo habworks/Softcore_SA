@@ -1,27 +1,17 @@
-# 2026-03-13T14:24:28.544347200
+# 2026-03-19T05:44:27.778592800
 import vitis
 
 client = vitis.create_client()
 client.set_workspace(path="Bootloader_Softcore_SA")
 
-platform = client.get_component(name="MB_SSA_BL_Platform")
-status = platform.build()
-
-comp = client.get_component(name="MB_SSA_BL_App")
-comp.build()
+vitis.dispose()
 
 vitis.dispose()
 
-platform = client.get_component(name="MB_SSA_BL_Platform")
-status = platform.build()
-
 comp = client.get_component(name="MB_SSA_BL_App")
-comp.build()
+status = comp.clean()
 
-status = platform.update_hw(hw_design = "$COMPONENT_LOCATION/../../PL_Softcore_SA/BD_Softcore_SA_wrapper.xsa")
-
-status = platform.build()
-
+platform = client.get_component(name="MB_SSA_BL_Platform")
 status = platform.build()
 
 comp.build()

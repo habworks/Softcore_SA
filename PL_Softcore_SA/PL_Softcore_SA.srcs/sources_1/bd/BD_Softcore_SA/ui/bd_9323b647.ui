@@ -1,7 +1,7 @@
 {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.824692",
-   "Default View_TopLeft":"1808,1453",
+   "Default View_ScaleFactor":"0.709983",
+   "Default View_TopLeft":"-73,-418",
    "ExpandedHierarchyInLayout":"",
    "HierExpandStatus_comment_0":"false",
    "HierExpandStatus_comment_1":"false",
@@ -138,6 +138,7 @@ preplace netloc xlconstant_0_dout 1 2 1 120 950n
 preplace netloc xlconstant_3_dout 1 9 1 N -480
 preplace netloc xlslice_0_Dout 1 7 4 2970 -370 NJ -370 3750 -310 N
 preplace netloc axi_clock_converter_0_M_AXI 1 2 5 210 -80 N -80 N -80 N -80 1900
+preplace netloc axi_quad_spi_2_SPI_0 1 7 4 NJ 1930 NJ 1930 NJ 1930 NJ
 preplace netloc microblaze_0_M_AXI_DC 1 3 3 800J -570 N -570 1540
 preplace netloc microblaze_0_M_AXI_DP 1 3 3 780J -580 N -580 1530
 preplace netloc microblaze_0_M_AXI_IC 1 3 3 820J -560 N -560 1550
@@ -159,7 +160,6 @@ preplace netloc smartconnect_CPU_M09_AXI 1 6 1 2140 -560n
 preplace netloc smartconnect_CPU_M10_AXI 1 6 1 2130 -540n
 preplace netloc smartconnect_CPU_M11_AXI 1 6 1 2120 -520n
 preplace netloc smartconnect_CPU_M12_AXI 1 6 1 2110 -500n
-preplace netloc axi_quad_spi_2_SPI_0 1 7 4 NJ 1930 NJ 1930 NJ 1930 NJ
 preplace cgraphic comment_2 place bot 2556 -500 textcolor 4 linecolor 3 linewidth 2
 preplace cgraphic comment_1 place bot 2514 -641 textcolor 4 linecolor 3 linewidth 2
 preplace cgraphic comment_0 place bot 2308 -219 textcolor 4 linecolor 3 linewidth 2
@@ -168,11 +168,11 @@ pagesize -pg 1 -db -bbox -sgen -690 -2490 4300 2040
 "
 }
 {
-   """""""""""""""da_mb_cnt""""""""""""""":"2",
-   """""""""""""da_axi4_cnt""""""""""""":"1",
-   """""""""""""da_clkrst_cnt""""""""""""":"1",
-   """""""""""da_clkrst_cnt""""""""""":"2",
-   """""""da_clkrst_cnt""""""":"1"
+   """"""""""""""""da_mb_cnt"""""""""""""""":"2",
+   """"""""""""""da_axi4_cnt"""""""""""""":"1",
+   """"""""""""""da_clkrst_cnt"""""""""""""":"1",
+   """"""""""""da_clkrst_cnt"""""""""""":"2",
+   """"""""da_clkrst_cnt"""""""":"1"
 }
 {
    "/comment_0":"comment_0",
