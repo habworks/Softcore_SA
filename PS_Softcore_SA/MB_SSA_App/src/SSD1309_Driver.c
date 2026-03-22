@@ -28,6 +28,16 @@
  *                  This implementation worked for this particual SSD1309 2.42" OLED display - another SSD1309 maybe different
  *                  I purchased the display from Amazon here: https://www.amazon.com/dp/B0CFF2QW5V?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1&th=1
  *
+ ****************** VERY IMPORTANT:
+ ****************** VERY IMPORTANT:
+ ****************** VERY IMPORTANT:
+ ****************** VERY IMPORTANT:
+ *                  The file SoftCore_SA_Used_Fonts.c was created from u8g2_fonts.c as u8g2_fonts.c contants every font supported by the library
+ *                  that complied list of fonts is far too large to fit this applicaiton.  SoftCore_SA_Used_Fonts.c is just a copy and paste of the used fonts
+ *                  For similar reasons u8x8_fonts.c was also deleted from the library - none of those fonts are used here
+ *                  There are other drivers that can be ommitted from the library and the library is a catch all for everything - but the juice is not worth the squeeze
+ *                  That is unless you applicaiton gets really large and you need to reduce its size
+ *
  * @copyright       IMR Engineering, LLC
  ********************************************************************************************************/
 
@@ -72,7 +82,7 @@ bool init_Display_SSD1309(Type_Display_SSD1309 *Display_SSD1309, XSpi *QSPI_Hand
 {
     // STEP 1: Basic test
     if ((Display_SSD1309 == NULL) || (QSPI_Handle == NULL) || (displayResetRunFunction == NULL) || (displayCommandDataFunction == NULL) || (ChipSelect_N == 0))
-    return(false);
+        return(false);
     
     // STEP 2: Load struct members
     Display_SSD1309->SPI_Handle = QSPI_Handle;

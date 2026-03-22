@@ -54,7 +54,6 @@ set(USER_COMPILE_SOURCES
 "main.c"
 "Main_App.c"
 "Main_Support.c"
-"Main_Test.c"
 "MCP23S08_Driver.c"
 "Signal_SoftCore_SA.c"
 "SSD1309_Driver.c"

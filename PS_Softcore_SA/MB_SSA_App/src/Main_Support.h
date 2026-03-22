@@ -39,12 +39,10 @@ extern"C" {
 
 
 // DEFINES
-// PRE-PROCESSOR
-#define                         RUN_MAIN_APPLICATION    // ****Comment out this line if running testing app****
 // PS FW REVSION
 #define FW_MAJOR_REV            1
-#define FW_MINOR_REV            0
-#define FW_TEST_REV             5
+#define FW_MINOR_REV            1
+#define FW_TEST_REV             0
 #define HW_REV                  1
 // USED IN IO ACCESS
 #define GPIO_INPUT_CHANNEL      1          
@@ -156,7 +154,7 @@ void sleep_ms_Wrapper(uint32_t WaitTime);
 void displayResetOrRun(Type_DisplayResetRun ResetRunAction);
 void displayCommandOrData(Type_DisplayCommandData CommandDataAction);
 void displayChipSelect(Type_Display_CS DisplaySelect);
-bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer);
+bool userInterfaceTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer);
 bool is_MicroSD_Inserted(void);
 void IOX_Reset(bool Status);
 void IOX_ChipSelect(bool ChipSelect);

@@ -9,6 +9,11 @@ extern "C" {
 #warning "Please provide the correct address value for the definition FLASH_IMAGE_BASEADDR. Please give the flash offset @ which SREC application is programmed"
 
 #define FLASH_IMAGE_BASEADDR  0x00500000
+// PS FW REVSION
+#define FW_MAJOR_REV            1
+#define FW_MINOR_REV            1
+#define FW_TEST_REV             0
+#define HW_REV                  1
 
 #ifdef __cplusplus
 }

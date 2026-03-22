@@ -29,16 +29,10 @@
 #include "xgpio.h"
 #include "xuartlite.h"
 #include "xtmrctr.h"
-// #include "xiltimer.h"
 #include "sleep.h"
 
-#ifdef RUN_MAIN_APPLICATION
-    extern XGpio AXI_GPIO_Handle;
-    #define GPIO_Handle AXI_GPIO_Handle
-#else    
-    extern XGpio AXI_GPIO_Handle;
-    #define GPIO_Handle AXI_GPIO_Handle
-#endif
+extern XGpio AXI_GPIO_Handle;
+#define GPIO_Handle AXI_GPIO_Handle
 
 
 volatile uint32_t __attribute__ ((section (".Hab_Mixed_Data"))) ReceivedBytes = 0;
@@ -140,14 +134,15 @@ void displayChipSelect(Type_Display_CS DisplaySelect)
 
 
 /********************************************************************************************************
-* @brief This is the communication function for use with the QSPI interface.  As this is SPI it is full 
-* duplex transmit and receive.  
+* @brief This is the communication function for use with the QSPI interface that interfaces to both the display
+* and the IO expanders (1 and 2).  As this is SPI it is full duplex transmit and receive.  It is passed by 
+* reference for use with the display and IO drivers.  This will generally be referred to as the UI SPI Tx Rx.
 *
 * @author original: Hab Collector \n
 *
 * @note: SPI must be configured in polling mode
 *
-* @param SPI_DisplayHandle: Pointer to QSPI handle
+* @param SPI_UI_Handle: Pointer to QSPI handle
 * @param ChipSelect_N: Chip Select associate with device first device is 1
 * @param TxBuffer: The transmit buffer - information to send
 * @param RxBuffer: The receive buffer - information to receive
@@ -160,14 +155,14 @@ void displayChipSelect(Type_Display_CS DisplaySelect)
 * STEP 3: Transfer the data
 * STEP 4: Deselect all slave devices
 ********************************************************************************************************/
-bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer)
+bool userInterfaceTrasmitReceive(XSpi *SPI_UI_Handle, uint8_t ChipSelect_N, uint8_t *TxBuffer, uint8_t *RxBuffer, uint32_t BytesToTransfer)
 {
     // STEP 1: Simple test
-    if ((SPI_DisplayHandle == NULL) || (ChipSelect_N == 0))
+    if ((SPI_UI_Handle == NULL) || (ChipSelect_N == 0))
         return(false);
 
     // STEP 2: Select the correct slave device
-    XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
+    XSpi_SetSlaveSelect(SPI_UI_Handle, ChipSelect_N);
 
     // STEP 3: Transfer the data
     int AXI_Status;
@@ -177,23 +172,23 @@ bool displayTrasmitReceive(XSpi *SPI_DisplayHandle, uint8_t ChipSelect_N, uint8_
         RxBufferPtr = DummyRxBuffer;
     else
         RxBufferPtr = RxBuffer;
-    AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, RxBufferPtr, BytesToTransfer);    
+    AXI_Status = XSpi_Transfer(SPI_UI_Handle, TxBuffer, RxBufferPtr, BytesToTransfer);    
     if (AXI_Status != XST_SUCCESS)
     {
-        XSpi_Reset(SPI_DisplayHandle);
-        XSpi_SetOptions(SPI_DisplayHandle,XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION);
-        XSpi_Start(SPI_DisplayHandle);
-        XSpi_IntrGlobalDisable(SPI_DisplayHandle);
-        XSpi_SetSlaveSelect(SPI_DisplayHandle, ChipSelect_N);
-        AXI_Status = XSpi_Transfer(SPI_DisplayHandle, TxBuffer, DummyRxBuffer, BytesToTransfer);        
+        XSpi_Reset(SPI_UI_Handle);
+        XSpi_SetOptions(SPI_UI_Handle,XSP_MASTER_OPTION | XSP_MANUAL_SSELECT_OPTION);
+        XSpi_Start(SPI_UI_Handle);
+        XSpi_IntrGlobalDisable(SPI_UI_Handle);
+        XSpi_SetSlaveSelect(SPI_UI_Handle, ChipSelect_N);
+        AXI_Status = XSpi_Transfer(SPI_UI_Handle, TxBuffer, DummyRxBuffer, BytesToTransfer);        
     }
 
     // STEP 4: Deselect all slave devices
-    XSpi_SetSlaveSelect(SPI_DisplayHandle, 0x00);
+    XSpi_SetSlaveSelect(SPI_UI_Handle, 0x00);
 
     return(AXI_Status == XST_SUCCESS);
 
-} // END OF displayTrasmitReceive
+} // END OF userInterfaceTrasmitReceive
 
 
 
@@ -216,34 +211,4 @@ void IOX_ChipSelect(bool ChipSelect)
     NOT_USED(ChipSelect);
     DO_NOTHING();
 }
-
-
-
-
-
-// // ISR FUNCTIONS:
-// // ISR Callback function for UART Receive
-// void UART_RxCallback_ISR(void *CallBackRef, unsigned int EventData) 
-// {
-//     // Unused 
-//     (void)EventData;
-
-//     // Note: In a real application, you would want to process the received data and potentially clear the buffer or manage a circular buffer.
-//     XUartLite *UartLitePtr = (XUartLite *)CallBackRef;
-
-//     // Check for received data
-//     // Read data into the buffer - read until BytesReceived is zero - necessary to clear the IRQ
-//     uint16_t NotUsedBytesReceived;
-//     receive_UART(UartLitePtr, (RxDataBuffer + ReceivedBytes), 1, &NotUsedBytesReceived);
-//     ReceivedBytes++;
-
-//     // Avoid buffer overflow - just wrap
-//     if (ReceivedBytes > RX_BUFFER_SIZE)
-//         ReceivedBytes = 0;
-
-
-
-
-
-
 

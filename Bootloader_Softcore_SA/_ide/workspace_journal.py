@@ -18,3 +18,67 @@ comp.build()
 
 vitis.dispose()
 
+platform = client.get_component(name="MB_SSA_BL_Platform")
+status = platform.build()
+
+comp = client.get_component(name="MB_SSA_BL_App")
+comp.build()
+
+vitis.dispose()
+
+platform = client.get_component(name="MB_SSA_BL_Platform")
+status = platform.build()
+
+comp = client.get_component(name="MB_SSA_BL_App")
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+status = platform.build()
+
+comp.build()
+
+vitis.dispose()
+

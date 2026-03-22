@@ -15,14 +15,14 @@
         "Component_Name": [ { "value": "BD_Softcore_SA_IMR_PL_Revision_0_0", "resolve_type": "user", "usage": "all" } ],
         "C_REVISION_MAJOR": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "C_REVISION_MINOR": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
-        "C_REVISION_TEST": [ { "value": "8", "value_src": "user", "resolve_type": "user", "format": "long", "usage": "all" } ]
+        "C_REVISION_TEST": [ { "value": "22", "value_src": "user", "resolve_type": "user", "format": "long", "usage": "all" } ]
       },
       "model_parameters": {
         "C_S00_AXI_DATA_WIDTH": [ { "value": "32", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_S00_AXI_ADDR_WIDTH": [ { "value": "4", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_REVISION_MAJOR": [ { "value": "1", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_REVISION_MINOR": [ { "value": "0", "resolve_type": "generated", "format": "long", "usage": "all" } ],
-        "C_REVISION_TEST": [ { "value": "8", "resolve_type": "generated", "format": "long", "usage": "all" } ]
+        "C_REVISION_TEST": [ { "value": "22", "resolve_type": "generated", "format": "long", "usage": "all" } ]
       },
       "project_parameters": {
         "ARCHITECTURE": [ { "value": "artix7" } ],

@@ -69,13 +69,13 @@
     <Option Name="WTVcsLaunchSim" Val="0"/>
     <Option Name="WTRivieraLaunchSim" Val="0"/>
     <Option Name="WTActivehdlLaunchSim" Val="0"/>
-    <Option Name="WTXSimExportSim" Val="119"/>
-    <Option Name="WTModelSimExportSim" Val="119"/>
-    <Option Name="WTQuestaExportSim" Val="119"/>
+    <Option Name="WTXSimExportSim" Val="121"/>
+    <Option Name="WTModelSimExportSim" Val="121"/>
+    <Option Name="WTQuestaExportSim" Val="121"/>
     <Option Name="WTIesExportSim" Val="0"/>
     <Option Name="WTVcsExportSim" Val="0"/>
-    <Option Name="WTRivieraExportSim" Val="119"/>
-    <Option Name="WTActivehdlExportSim" Val="119"/>
+    <Option Name="WTRivieraExportSim" Val="121"/>
+    <Option Name="WTActivehdlExportSim" Val="121"/>
     <Option Name="GenerateIPUpgradeLog" Val="TRUE"/>
     <Option Name="XSimRadix" Val="hex"/>
     <Option Name="XSimTimeUnit" Val="ns"/>
@@ -136,7 +136,7 @@
       <File Path="$PSRCDIR/sources_1/imports/build/MB_SSA_BL_App.elf">
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../Bootloader_Softcore_SA/MB_SSA_BL_App/build/MB_SSA_BL_App.elf"/>
-          <Attr Name="ImportTime" Val="1773502486"/>
+          <Attr Name="ImportTime" Val="1774178142"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="ScopedToRef" Val="BD_Softcore_SA"/>
           <Attr Name="ScopedToCell" Val="microblaze_0"/>

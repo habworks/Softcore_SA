@@ -174,7 +174,13 @@ Xil_ICacheEnable();
 Xil_DCacheEnable();
 
 #ifdef VERBOSE
-	print ("\r\nSREC SPI Bootloader\r\n");
+    print("IMR Engineering, LLC\r\n");
+    print("  Hab Collector, Principal Engineer\r\n");
+    print("  http://www.imrengineering.com\r\n\n");
+    print("Softcore Spectrum Analyzer Bootloader\r\n");
+    print("FW REV: 01.01.00\r\n");
+    print("HW: 1\r\n\n");
+	print ("SREC SPI Bootloader\r\n");
 #endif
 
 	/*

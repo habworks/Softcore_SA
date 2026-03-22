@@ -273,7 +273,7 @@
 
                 IMR_PL_Revision_0: IMR_PL_Revision@44a20000 {
                         compatible = "xlnx,IMR-PL-Revision-1.0";
-                        xlnx,revision-test = <0x8>;
+                        xlnx,revision-test = <0x16>;
                         xlnx,revision-major = <0x1>;
                         xlnx,s00-axi-data-width = <0x20>;
                         xlnx,rable = <0x0>;

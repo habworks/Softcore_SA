@@ -262,6 +262,11 @@ void displayUpdateBuffer(Type_Display_SSD1309 *Display_SSD1309)
 * @note: Display must be init before use
 * 
 * @param Display_SSD1309: Pointer to display handle
+* @param Heading: Heading text to display
+* @param FileName: Audio filename that will be played
+* @param AudioAction: Play, Stop, Pause, or Error as text
+* @param TimeInSeconds: Play time of current WAV audio file in seconds
+* @param MinValue_dB: Min dB value of audio the max will be 0
 *
 * STEP 1: Format time string
 * STEP 2: Clear the display buffer entirely 
@@ -456,6 +461,11 @@ void displayAudioSpectrum(Type_Display_SSD1309 *Display_SSD1309, uint8_t *Displa
 * @note: Display must be init before use
 * 
 * @param Display_SSD1309: Pointer to display handle
+* @param Heading: Heading text to be displayed
+* @param StartFrequency: Start (far left side) frequency
+* @param CenterFrequency: Center (middle of display) frequency
+* @param StopFrequency: Stop (far right side) frequency
+* @param SignalSource: Signal source either local ossiclator or external BNC
 *
 * STEP 1: Clear buffer
 * STEP 2: Draw centered title (6x10)

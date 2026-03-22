@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 // STATIC FUNCTIONS
 static bool feedStream_PCM16_WAV(Type_Audio_SA *Audio_SA, Type_FFT *FFT); // __attribute__((fast_interrupt));
 static void errorCloseAudioFile(Type_Audio_SA *Audio_SA, Type_FFT *FFT, char *ErrorMsg);
@@ -48,13 +49,13 @@ static bool updateDisplayPlaybackTimer(uint32_t ISR_PlayBackTicks, uint32_t Play
 static void apply_FFT_Window(Type_Audio_SA *Audio_SA, Type_FFT *FFT);
 static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel);
 
+
 // GLOBAL AUDIO PLAYBACK
 uint8_t __attribute__ ((section (".Hab_Fast_Data"))) RawLinearBuffer[MAX_RAW_BUFFER];
 float __attribute__ ((section (".Hab_Fast_Data"))) BinMagnitudes[(FFT_SIZE/2) + 1];
 uint8_t __attribute__ ((section (".Hab_Fast_Data"))) DisplayMagnitude[FREQUENCY_SLOTS];
 // For testing only
 uint32_t __attribute__ ((section (".Hab_Fast_Data"))) CB_EmptyIn_ISR;
-
 
 
 /********************************************************************************************************
@@ -621,19 +622,19 @@ static uint8_t LED_AudioBarGraphCalculate(int16_t PCM_AudioLevel)
     if (AbsoluteMagnitude == 0U)
         return((uint8_t)0U);
 
-    else if (AbsoluteMagnitude <= LEVEL_30DB) //5461U)
+    else if (AbsoluteMagnitude <= LEVEL_30DB)   // 5461U
         return(LED_BAR_1);
 
-    else if (AbsoluteMagnitude <= LEVEL_26DB)   //10922U)
+    else if (AbsoluteMagnitude <= LEVEL_26DB)   // 10922U
         return(LED_BAR_2);
 
-    else if (AbsoluteMagnitude <= LEVEL_22DB)   //16384U)
+    else if (AbsoluteMagnitude <= LEVEL_22DB)   // 16384U
         return(LED_BAR_3);
 
-    else if (AbsoluteMagnitude <= LEVEL_18DB)   //21845U)
+    else if (AbsoluteMagnitude <= LEVEL_18DB)   // 21845U
         return(LED_BAR_4);
 
-    else if (AbsoluteMagnitude <= LEVEL_14DB)   //27306U)
+    else if (AbsoluteMagnitude <= LEVEL_14DB)   // 27306U
         return(LED_BAR_5);
     else
         return(LED_BAR_6);

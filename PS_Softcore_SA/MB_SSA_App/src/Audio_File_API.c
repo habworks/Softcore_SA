@@ -174,7 +174,6 @@ FRESULT countFilesInDirectory(const char *DirectoryPath, uint16_t *FileCount)
 * @note: Requires prior init of FAT FS
 * 
 * @param FileName: Path of directory to count - relative from root
-* @param FileCount: Number of total files returned by reference 
 *
 * @return True if file is WAV file
 *

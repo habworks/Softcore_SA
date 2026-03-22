@@ -31,8 +31,6 @@
 
 #include "Main_App.h"
 #include <stdbool.h>
-#ifdef RUN_MAIN_APPLICATION
-// START OF the Main Applicaiton
 #include "xparameters.h"
 #include "xtmrctr.h"
 #include "xgpio.h"
@@ -89,7 +87,6 @@ XUartLite __attribute__ ((section (".Hab_Fast_Data"))) AXI_UART_Handle;
 XSpi __attribute__ ((section (".Hab_Fast_Data"))) AXI_SPI_UI_Handle;
 XSpi __attribute__ ((section (".Hab_Fast_Data"))) AXI_SPI_USD_Handle;
 XIntc __attribute__ ((section (".Hab_Fast_Data"))) AXI_IRQ_ControllerHandle;
-// CUSTOM IP
 Type_AXI_IMR_7476A_Handle __attribute__ ((section (".Hab_Fast_Data"))) AXI_IMR_7476A_Handle;
 
 
@@ -109,7 +106,6 @@ uint32_t StackUsedWaterMark = 0;
 extern uint8_t __Hab_Fast_Text_start;
 extern uint8_t __Hab_Fast_Text_end;
 extern uint8_t __Hab_Fast_Text_load;
-
 
 
 /********************************************************************************************************
@@ -241,13 +237,13 @@ static void main_InitApplication(void)
 
     // STEP 3: Init Drivers
     // IO Expander 1:
-    Status = init_MCP23S08(&IOX_1, IOX_Reset, IOX_ChipSelect, displayTrasmitReceive, sleep_ms_Wrapper, 
+    Status = init_MCP23S08(&IOX_1, IOX_Reset, IOX_ChipSelect, userInterfaceTrasmitReceive, sleep_ms_Wrapper, 
                            &AXI_SPI_UI_Handle, IOX_1_CS_NUMBER, IOX_1_DEVICE_ADDR, IOX_1_IO_DIRECTION, IOX_1_INPUT_POLARITY, IOX_1_IRQ_ON_CHANGE, 
                            IOX_1_IRQ_DEFAULT_VALUE, IOX_1_IRQ_CONTROL, IOX_1_CONFIGURATION, IOX_1_PULLUP, false, true);
     if (Status != true)
         InitFailMode |= INIT_FAIL_UI_IO;
     // IO Expander 2:
-    Status = init_MCP23S08(&IOX_2, IOX_Reset, IOX_ChipSelect, displayTrasmitReceive, sleep_ms_Wrapper, 
+    Status = init_MCP23S08(&IOX_2, IOX_Reset, IOX_ChipSelect, userInterfaceTrasmitReceive, sleep_ms_Wrapper, 
                            &AXI_SPI_UI_Handle, IOX_2_CS_NUMBER, IOX_2_DEVICE_ADDR, IOX_2_IO_DIRECTION, IOX_2_INPUT_POLARITY, IOX_2_IRQ_ON_CHANGE, 
                            IOX_2_IRQ_DEFAULT_VALUE, IOX_2_IRQ_CONTROL, IOX_2_CONFIGURATION, IOX_2_PULLUP, false, false);
     if (Status != true)
@@ -264,7 +260,7 @@ static void main_InitApplication(void)
     }
 
     // Init Display
-    Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_UI_Handle, DISPLAY_CS_NUMBER, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, displayTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2); 
+    Status = init_Display_SSD1309(&Display_SSD1309, &AXI_SPI_UI_Handle, DISPLAY_CS_NUMBER, XPAR_AXI_QUAD_SPI_0_FIFO_SIZE, displayResetOrRun, displayCommandOrData, userInterfaceTrasmitReceive, displayChipSelect, sleep_ms_Wrapper, sleep_10us_Wrapper, &U8G2); 
     if (Status != true)
         InitFailMode |= INIT_FAIL_UI_DISPLAY;
 
@@ -287,6 +283,7 @@ static void main_InitApplication(void)
 
     StackUsedWaterMark = getStackHighWaterMarkBytes();
     
+
     // STEP 6: Welcome
     terminal_ClearScreen();
     // PL BLK GPIO Revision
@@ -299,7 +296,7 @@ static void main_InitApplication(void)
     printGreen("  Hab Collector, Principal Engineer\r\n");
     printGreen("  http://www.imrengineering.com\r\n\n");
     xil_printf("Softcore Spectrum Analyzer\r\n");
-    xil_printf("PS REV: %02d.%02d.%02d\r\n", FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV);
+    xil_printf("FW REV: %02d.%02d.%02d\r\n", FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV);
     xil_printf("PL REV: %02d.%02d.%02d\r\n", PL_Revision.Major, PL_Revision.Minor, PL_Revision.Test);
     xil_printf("PL BLK: %d\r\n", PL_Ver);
     xil_printf("HW REV: %d\r\n\n", HW_REV);
@@ -315,9 +312,7 @@ static void main_InitApplication(void)
     {
         xil_printf("Hello Hab, I am ready...\r\n\n");
         displayWelcomeScreen(&Display_SSD1309, FW_MAJOR_REV, FW_MINOR_REV, FW_TEST_REV, PL_Revision.Major, PL_Revision.Minor, PL_Revision.Test);
-        sleep_ms_Wrapper(SPLASH_SCREEN_HOLD_TIME);
-        // For debug stop the status LED update - remove comment from next line
-        // pauseSpecificIRQ(&AXI_IRQ_ControllerHandle, XPAR_FABRIC_AXI_TIMER_2_INTR);      
+        sleep_ms_Wrapper(SPLASH_SCREEN_HOLD_TIME);     
     }
 
 } // END OF main_InitApplication
@@ -369,6 +364,7 @@ static void main_WhileLoop(void)
 * @note: Must be init before main application can be called
 * 
 * @param Handle: Pointer to Soft Core SA structure
+* @param SampleFrequency: Desired sample frequency it must meet Nyquist criteria x2
 *
 * @return True if init OK
 *
@@ -406,7 +402,6 @@ static bool init_SoftCoreHandleCommon(Type_SoftCore_SA *Handle, uint32_t SampleF
 * @note: Requires prior init of FAT FS
 * 
 * @param Handle: Pointer to Soft Core SA structure
-* @param SampleFrequency: Sample frequency of the FFT - must be (Nyquist) 2x the signal frequency 
 *
 * @return True if init OK
 *
@@ -819,5 +814,3 @@ static void updateModeStatus_LED(void)
 
 
 
-// END OF PROCESSOR DEFINE FOR RUN_MAIN_APPLICATION
-#endif

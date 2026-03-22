@@ -1,6 +1,6 @@
 /******************************************************************************************************
  * @file            main.c
- * @brief           Run either in test mode or applicaiton mode - defined by RUN_MAIN_APPLICATION in Main_Support.h
+ * @brief           Run the applicaiton 
  * ****************************************************************************************************
  * @author          Hab Collector (habco)\n
  *
@@ -25,17 +25,11 @@
  ********************************************************************************************************/
 
 #include "Main_App.h"
-#include "Main_Test.h"
 #include "Main_Support.h"
 #include "Water_Mark.h"
 
 
 int main()
 {
-    // seedStackForWaterMark();
-#ifdef RUN_MAIN_APPLICATION
     mainApplication();
-#else
-    mainTest();
-#endif
 }

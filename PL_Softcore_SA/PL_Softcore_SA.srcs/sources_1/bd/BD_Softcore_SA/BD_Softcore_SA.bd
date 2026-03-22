@@ -1781,7 +1781,7 @@
         "inst_hier_path": "IMR_PL_Revision_0",
         "parameters": {
           "C_REVISION_TEST": {
-            "value": "8"
+            "value": "22"
           }
         }
       },
@@ -2500,7 +2500,7 @@
       "file": {
         "name": "..\\..\\imports\\build\\MB_SSA_BL_App.elf",
         "type": "ELF",
-        "checksum": "3720888199",
+        "checksum": "4127868218",
         "IsVisible": "1",
         "ScopedToRef": "BD_Softcore_SA",
         "ScopedToCell": [
