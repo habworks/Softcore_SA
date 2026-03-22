@@ -1,0 +1,36 @@
+IMR_ADC_7476A_X2_0:
+- IMR_ADC_7476A_X2
+- None
+IMR_PL_Revision_0:
+- IMR_PL_Revision
+- None
+axi_gpio_0:
+- axi_gpio
+- gpio
+axi_intc_0:
+- axi_intc
+- intc
+axi_quad_spi_0:
+- axi_quad_spi
+- spi
+axi_quad_spi_1:
+- axi_quad_spi
+- spi
+axi_quad_spi_2:
+- axi_quad_spi
+- spi
+axi_timer_0:
+- axi_timer
+- tmrctr
+axi_timer_1:
+- axi_timer
+- tmrctr
+axi_timer_2:
+- axi_timer
+- tmrctr
+axi_timer_3:
+- axi_timer
+- tmrctr
+axi_uartlite_0:
+- axi_uartlite
+- uartlite

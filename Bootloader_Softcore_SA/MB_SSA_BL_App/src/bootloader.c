@@ -34,6 +34,7 @@
 #include "srec.h"
 #include "xparameters.h"
 #include "xspi.h"
+#include "xil_cache.h"
 
 /* Defines */
 #define CR       13
@@ -168,6 +169,9 @@ int main()
 {
 	int Status;
 	uint8_t ret;
+
+Xil_ICacheEnable();
+Xil_DCacheEnable();
 
 #ifdef VERBOSE
 	print ("\r\nSREC SPI Bootloader\r\n");

@@ -467,7 +467,7 @@
             "value": "0"
           },
           "C_BASE_VECTORS": {
-            "value": "0x0000000080000000"
+            "value": "0x0000000000000000"
           },
           "C_CACHE_BYTE_SIZE": {
             "value": "65536"
@@ -1781,7 +1781,7 @@
         "inst_hier_path": "IMR_PL_Revision_0",
         "parameters": {
           "C_REVISION_TEST": {
-            "value": "6"
+            "value": "8"
           }
         }
       },
@@ -2508,19 +2508,6 @@
         ],
         "UsedIn": [
           "implementation"
-        ]
-      },
-      "file": {
-        "name": "..\\..\\..\\..\\..\\Bootloader_Softcore_SA\\MB_SSA_BL_App\\build\\MB_SSA_BL_App.elf",
-        "type": "ELF",
-        "checksum": "3720888199",
-        "IsVisible": "1",
-        "ScopedToRef": "BD_Softcore_SA",
-        "ScopedToCell": [
-          "microblaze_0"
-        ],
-        "UsedIn": [
-          "simulation"
         ]
       }
     }

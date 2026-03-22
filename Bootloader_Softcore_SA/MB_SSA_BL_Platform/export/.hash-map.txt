@@ -1,0 +1,1 @@
+{"generate.platform":[{"uri":"C:\\IMR_Projects\\IMR\\Softcore_SA\\Bootloader_Softcore_SA\\MB_SSA_BL_Platform\\vitis-comp.json","md5":"80b6749e9d89462836a421658eac3d14"},{"uri":"C:\\IMR_Projects\\IMR\\Softcore_SA\\Bootloader_Softcore_SA\\MB_SSA_BL_Platform\\microblaze_0\\standalone_microblaze_0\\bsp\\bsp.yaml","md5":"4209956b68616d3f95f5eb477c6c7f4f"}]}

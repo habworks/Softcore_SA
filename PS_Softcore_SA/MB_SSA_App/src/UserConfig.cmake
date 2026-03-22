@@ -71,7 +71,6 @@ set(USER_COMPILE_SOURCES
 "U8G2/csrc/u8g2_d_memory.c"
 "U8G2/csrc/u8g2_d_setup.c"
 "U8G2/csrc/u8g2_font.c"
-"U8G2/csrc/u8g2_fonts.c"
 "U8G2/csrc/u8g2_hvline.c"
 "U8G2/csrc/u8g2_input_value.c"
 "U8G2/csrc/u8g2_intersection.c"
@@ -179,7 +178,6 @@ set(USER_COMPILE_SOURCES
 "U8G2/csrc/u8x8_d_uc1638.c"
 "U8G2/csrc/u8x8_d_uc1701_dogs102.c"
 "U8G2/csrc/u8x8_d_uc1701_mini12864.c"
-"U8G2/csrc/u8x8_fonts.c"
 "U8G2/csrc/u8x8_gpio.c"
 "U8G2/csrc/u8x8_input_value.c"
 "U8G2/csrc/u8x8_message.c"
@@ -189,6 +187,7 @@ set(USER_COMPILE_SOURCES
 "U8G2/csrc/u8x8_u16toa.c"
 "U8G2/csrc/u8x8_u8toa.c"
 "Water_Mark.c"
+"U8G2/csrc/SoftCore_SA_Used_Fonts.c"
 )
 
 # -----------------------------------------

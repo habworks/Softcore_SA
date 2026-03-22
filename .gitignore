@@ -47,9 +47,14 @@
 # Eclipse-style metadata (still used in 2024.2)
 .metadata/
 .sdk/
+Bootloader_Softcore_SA/_ide/
+PS_Softcore_SA/_ide/
 
 
+
+###############################################################################
 #Added for Schematic & PCB (Altium / CircuitStudio)
+###############################################################################
 Hardware/Softcore_SA_HW/History/
 Hardware/Softcore_SA_HW/Logs/
 *.SchDocPreview
