@@ -29,7 +29,7 @@ PushECOToAnnotationFile=1
 DItemRevisionGUID=
 ReportSuppressedErrorsInMessages=0
 ForceUpdateCount=0
-OutputPath=Outputs
+OutputPath=
 LogFolderPath=
 ManagedProjectGUID=
 LinkedManagedProjectGUID=
@@ -231,82 +231,78 @@ DocumentPath=Default Configuration\Outputs\BOM\BOM_PartType-Softcore_SA_HW.xlsx
 DItemRevisionGUID=
 
 [GeneratedDocument2]
-DocumentPath=Outputs\Design Rule Check - SoftCore_SA.html
-DItemRevisionGUID=
-
-[GeneratedDocument3]
 DocumentPath=Default Configuration\Outputs\NC Drill\SoftCore_SA.DRR
 DItemRevisionGUID=
 
-[GeneratedDocument4]
+[GeneratedDocument3]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.EXTREP
 DItemRevisionGUID=
 
-[GeneratedDocument5]
+[GeneratedDocument4]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.G1
 DItemRevisionGUID=
 
-[GeneratedDocument6]
+[GeneratedDocument5]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.G2
 DItemRevisionGUID=
 
-[GeneratedDocument7]
+[GeneratedDocument6]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBL
 DItemRevisionGUID=
 
-[GeneratedDocument8]
+[GeneratedDocument7]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBO
 DItemRevisionGUID=
 
-[GeneratedDocument9]
+[GeneratedDocument8]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBP
 DItemRevisionGUID=
 
-[GeneratedDocument10]
+[GeneratedDocument9]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GBS
 DItemRevisionGUID=
 
-[GeneratedDocument11]
+[GeneratedDocument10]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GD1
 DItemRevisionGUID=
 
-[GeneratedDocument12]
+[GeneratedDocument11]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GG1
 DItemRevisionGUID=
 
-[GeneratedDocument13]
+[GeneratedDocument12]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTL
 DItemRevisionGUID=
 
-[GeneratedDocument14]
+[GeneratedDocument13]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTO
 DItemRevisionGUID=
 
-[GeneratedDocument15]
+[GeneratedDocument14]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTP
 DItemRevisionGUID=
 
-[GeneratedDocument16]
+[GeneratedDocument15]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.GTS
 DItemRevisionGUID=
 
-[GeneratedDocument17]
+[GeneratedDocument16]
 DocumentPath=Default Configuration\Outputs\NC Drill\SoftCore_SA.LDP
 DItemRevisionGUID=
 
-[GeneratedDocument18]
+[GeneratedDocument17]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.REP
 DItemRevisionGUID=
 
-[GeneratedDocument19]
+[GeneratedDocument18]
 DocumentPath=Default Configuration\Outputs\Gerber\SoftCore_SA.RUL
 DItemRevisionGUID=
 
-[GeneratedDocument20]
+[GeneratedDocument19]
 DocumentPath=Default Configuration\Outputs\ExportSTEP\SoftCore_SA.step
 DItemRevisionGUID=
 
-[GeneratedDocument21]
+[GeneratedDocument20]
 DocumentPath=Default Configuration\Outputs\NC Drill\SoftCore_SA.TXT
 DItemRevisionGUID=
 
@@ -320,7 +316,7 @@ Value=08:00
 
 [Parameter3]
 Name=ProjectRevision
-Value=1
+Value=2
 
 [Parameter4]
 Name=ProjectDocumentNumber
@@ -343,7 +339,7 @@ DocumentReferenceClass1=DocumentReference
 OutputJobFileName1=Softcore_SA_HW.OutJob
 
 [Generic_EDE]
-OutputDir=Outputs
+OutputDir=
 
 [OutputGroup1]
 Name=Netlist Outputs
