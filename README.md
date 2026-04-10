@@ -1,4 +1,4 @@
-# SoftCore SA Phase 2
+# SoftCore SA Phase 1
 
 A complete Signal and Audio Spectrum Analyzer Project design based on the Xilinx Artix A7 FPGA.<br>
 FPGA, Hardware and Firmware 100% designed by:<br>
