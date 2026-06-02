@@ -8,6 +8,26 @@ See [User Manual & Technical Specification](https://imrengineeringcom-my.sharepo
 See [Schematics PCB and BOM](https://imrengineeringcom-my.sharepoint.com/:b:/g/personal/hab_collector_imrengineering_com/IQB8uARxVN-PTYQCG0TAuSPwAWNce-_PQCCQfAmf1itzjjY?e=jp2Q4u) from IMR Cloud<br>
 
 ## Project Features:
+Hardware:
+- Xilinx Artix A7 FPGA
+- Graphics Display
+- Sallen Key Anti-Alais Filter
+- Local Osscilator
+- uSD
+
+FPGA:
+- System Design
+- Custom Dual ADC RTL
+- Custom PL Revision RTL
+- Bootloader
+
+Firmware:
+- Audio Spectrum Analyser
+- Signal Sprectrum Analyser
+- FAT FS
+- FFT KISS Library
+- U8G2 Graphics Library
+
 A complete Signal and Audio Spectrum Analyzer Project design based on the Xilinx Artix A7 FPGA.<br>
 FPGA, Hardware and Firmware 100% designed by:<br>
 Hab Collector<br>
